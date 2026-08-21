@@ -137,15 +137,43 @@ def _uscite_di_cella(cella, dove: str) -> list[Uscita]:
     accorgersene si pubblicherebbe una figura opaca al posto di una leggibile.
     """
     uscite: list[Uscita] = []
+    #: Il flusso in corso: `(nome, testo)`. I `print` consecutivi di una cella
+    #: NON arrivano come un output solo — il kernel li spezza in un numero di
+    #: messaggi che dipende da come i pacchetti ZMQ si accavallano, e MISURATO
+    #: cambia da un'esecuzione all'altra: lo stesso `calc_01` ha prodotto una
+    #: volta due output e una volta tre, con lo stesso identico testo dentro.
+    #: Senza fonderli il bundle non sarebbe riproducibile e il presidio del
+    #: diff (D-06) — l'unica cosa che fa vedere una modifica inattesa —
+    #: annegherebbe nel rumore di una partizione casuale. E' la stessa
+    #: normalizzazione che `nbconvert` fa con `coalesce_streams`.
+    flusso: tuple[str, str] | None = None
+
+    def chiudi_il_flusso() -> None:
+        nonlocal flusso
+        if flusso is None:
+            return
+        testo = normalizza(flusso[1]).strip("\n")
+        flusso = None
+        if testo:
+            uscite.append(_tronca(testo))
 
     for output in cella.get("outputs", []):
         tipo = output.get("output_type")
 
         if tipo == "stream":
-            testo = normalizza(output.get("text", "")).strip("\n")
-            if testo:
-                uscite.append(_tronca(testo))
+            nome = output.get("name", "stdout")
+            testo = output.get("text", "")
+            if flusso is not None and flusso[0] == nome:
+                flusso = (nome, flusso[1] + testo)
+            else:
+                # `stdout` e `stderr` restano separati: uno e' il risultato,
+                # l'altro e' cio' che e' andato storto mentre lo si otteneva, e
+                # fonderli mescolerebbe due cose diverse in un blocco solo.
+                chiudi_il_flusso()
+                flusso = (nome, testo)
             continue
+
+        chiudi_il_flusso()
 
         if tipo in {"execute_result", "display_data"}:
             dati = output.get("data", {})
@@ -182,6 +210,7 @@ def _uscite_di_cella(cella, dove: str) -> list[Uscita]:
                 f"(`{output.get('ename', 'errore')}`), e un traceback non e' un output."
             )
 
+    chiudi_il_flusso()
     return uscite
 
 

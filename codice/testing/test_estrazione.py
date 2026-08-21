@@ -49,6 +49,7 @@ from estrazione.esecuzione import (  # noqa: E402
     CARATTERI_MASSIMI,
     CELLA_DI_RESA,
     _tronca,
+    _uscite_di_cella,
 )
 from estrazione.figure import (  # noqa: E402
     BUDGET_FIGURA_BYTE,
@@ -494,3 +495,49 @@ def test_i_budget_sono_quelli_del_gate_del_sito() -> None:
     """
     assert BUDGET_FIGURA_BYTE == 180 * 1024
     assert BUDGET_PAGINA_BYTE == 300 * 1024
+
+
+def test_i_print_consecutivi_diventano_UN_output_comunque_siano_spezzati() -> None:
+    """Il difetto misurato che rendeva il bundle non riproducibile.
+
+    Il kernel non consegna i `print` di una cella come un output solo: li
+    spezza in un numero di messaggi che dipende da come i pacchetti si
+    accavallano, e su due esecuzioni consecutive del corpus lo stesso `calc_01`
+    ha prodotto una volta due output e una volta tre — con dentro lo stesso
+    identico testo. Il bundle cambiava senza che il contenuto cambiasse, e il
+    presidio del diff (D-06) sarebbe annegato nel rumore di una partizione
+    casuale.
+
+    Il test non riesegue niente: costruisce le DUE partizioni e pretende che
+    diano lo stesso risultato. Un test che rieseguisse davvero passerebbe per
+    fortuna, perche' la partizione dipende dai tempi.
+    """
+    righe = "prima\nseconda\nterza\n"
+
+    def cella(*pezzi: str) -> dict:
+        return {"outputs": [{"output_type": "stream", "name": "stdout", "text": p} for p in pezzi]}
+
+    intero = _uscite_di_cella(cella(righe), "prova, cella 0")
+    spezzato = _uscite_di_cella(cella("prima\n", "seconda\n", "terza\n"), "prova, cella 0")
+
+    assert len(intero) == len(spezzato) == 1
+    assert intero[0].testo == spezzato[0].testo == "prima\nseconda\nterza"
+    assert intero[0].righe_totali == spezzato[0].righe_totali == 3
+
+
+def test_stdout_e_stderr_restano_due_output_diversi() -> None:
+    """La fusione si ferma al cambio di flusso.
+
+    Uno e' il risultato, l'altro e' cio' che e' andato storto mentre lo si
+    otteneva: fonderli metterebbe un avviso dentro il blocco che il lettore
+    legge come output del lab.
+    """
+    cella = {
+        "outputs": [
+            {"output_type": "stream", "name": "stdout", "text": "risultato\n"},
+            {"output_type": "stream", "name": "stderr", "text": "avviso\n"},
+            {"output_type": "stream", "name": "stdout", "text": "ancora\n"},
+        ]
+    }
+    uscite = _uscite_di_cella(cella, "prova, cella 0")
+    assert [u.testo for u in uscite] == ["risultato", "avviso", "ancora"]
