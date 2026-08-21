@@ -12,6 +12,8 @@ Questo repository contiene **tutto il codice del libro**: i 21 laboratori, gli 8
 
 Il libro non chiede di essere creduto sulla parola. Ogni affermazione del volume nasce da un calcolo, ogni calcolo è qui dentro, e ogni figura si riproduce eseguendo il codice sui **dati congelati** che il libro ha usato per stamparla. Se un numero non ti convince, aprilo e contestalo.
 
+<br clear="all">
+
 ---
 
 ## Come si usa
@@ -179,6 +181,9 @@ Questo materiale ha finalità **didattica e di ricerca**. Non è consulenza in m
 
 <div align="center">
 
-<a href="https://cryptoverso.net"><img src="assets/cryptoverso.svg" alt="Cryptoverso" width="132"></a>
+<a href="https://cryptoverso.net"><img src="assets/cryptoverso-mark.svg" alt="Cryptoverso" width="72"></a>
+
+**CRYPTOVERSO**<br>
+<sub>trading, ricerca, insights</sub>
 
 </div>

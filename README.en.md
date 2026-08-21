@@ -12,6 +12,8 @@ This repository contains **all the code behind the book** «La matematica di chi
 
 The book does not ask to be taken on faith. Every claim in it comes from a computation, every computation lives in this repository, and every figure can be reproduced by running the code on the **frozen data** the book used to print it. If a number doesn't convince you, open it and challenge it.
 
+<br clear="all">
+
 ---
 
 ## How to use it
@@ -179,6 +181,9 @@ This material is for **education and research**. It is not investment advice, no
 
 <div align="center">
 
-<a href="https://cryptoverso.net"><img src="assets/cryptoverso.svg" alt="Cryptoverso" width="132"></a>
+<a href="https://cryptoverso.net"><img src="assets/cryptoverso-mark.svg" alt="Cryptoverso" width="72"></a>
+
+**CRYPTOVERSO**<br>
+<sub>trading, ricerca, insights</sub>
 
 </div>
