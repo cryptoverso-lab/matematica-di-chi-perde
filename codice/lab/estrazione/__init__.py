@@ -16,6 +16,7 @@ I pezzi, e la domanda a cui ciascuno risponde:
 | `prosa`        | come il markdown del libro diventa HTML del sito            |
 | `dataset`      | quali serie usa un lab, e da dove vengono                   |
 | `esecuzione`   | come si esegue un quaderno e si catturano i suoi output     |
+| `riservatezza` | che cosa un output non deve dire della macchina di build    |
 | `figure`       | come una figura diventa un file SVG pesato e senza `<style>` |
 | `sorgente`     | come le celle diventano blocchi, con i conteggi pinnati     |
 | `sito`         | dove si scrive, e con quale contratto                       |
@@ -38,6 +39,11 @@ from pathlib import Path
 #: assoluto scritto nel sorgente, ne' della macchina di build ne' di altro
 #: (ASVS V7 — un percorso assoluto finito in un artefatto pubblicato racconta
 #: come e' fatta la macchina che l'ha prodotto).
+#:
+#: E' META' di T-4-23, e per un anno e' stata scambiata per tutta: nessun
+#: percorso assoluto sta nei SORGENTI, e tutti e 29 i bundle ne pubblicavano
+#: tre lo stesso, perche' li stampava il codice eseguito. L'altra meta' —
+#: l'output — sta in `riservatezza.py`, e usa proprio questa costante.
 #:
 #: `parents[3]` e non `parents[2]`: questo file sta un livello piu' in basso
 #: dell'entry point, dentro il pacchetto.

@@ -5,7 +5,7 @@ anche con `-m "not lento"`, che e' il modo in cui la suite viene lanciata
 mentre si lavora — un controllo che gira solo nella corsa lunga e' un controllo
 che si scopre rotto tardi.
 
-Cinque cose sono asserite qui, e ognuna corrisponde a un difetto misurato:
+Sei cose sono asserite qui, e ognuna corrisponde a un difetto misurato:
 
 1. `lab_17` dichiara OTTO serie su due righe: una regex a riga singola ne
    leggerebbe sei, e il `Dataset` JSON-LD della pagina direbbe il falso (P-10);
@@ -15,7 +15,10 @@ Cinque cose sono asserite qui, e ognuna corrisponde a un difetto misurato:
    NOMINANDO IL FILE;
 5. lo stesso sorgente in CRLF e in LF produce blocchi e impronte identici, che
    e' cio' che tiene fermo il gate di parita' del sito fra Windows e il runner
-   Linux (D-46).
+   Linux (D-46);
+6. l'output della cella di setup non pubblica ne' la radice della macchina di
+   build ne' l'errore di `pip` che le 58 pagine hanno mostrato per un anno
+   (T-4-23, voce 27 di `deferred-items.md`).
 
 Uso:  uv run python -m pytest codice/testing/test_estrazione.py -q
 """
@@ -23,6 +26,7 @@ Uso:  uv run python -m pytest codice/testing/test_estrazione.py -q
 from __future__ import annotations
 
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -37,7 +41,7 @@ sys.path.insert(0, str(LAB))
 # e' un pacchetto, e un `import estrai_bundle` che ri-esportasse tutto avrebbe
 # lasciato questi test identici — cioe' avrebbe reso la divisione invisibile,
 # che e' il modo di non farla.
-from estrazione import prosa  # noqa: E402
+from estrazione import ROOT, prosa  # noqa: E402
 from estrazione.celle import cella_di_setup, celle_del_sorgente  # noqa: E402
 from estrazione.comune import ProblemaDiIngest  # noqa: E402
 from estrazione.dataset import (  # noqa: E402
@@ -57,6 +61,11 @@ from estrazione.figure import (  # noqa: E402
     FONT_DEL_SITO,
     Figure,
     riscrivi_carattere,
+)
+from estrazione.riservatezza import (  # noqa: E402
+    PERCORSO_ASSOLUTO,
+    RADICE_SEGNAPOSTO,
+    ripulisci,
 )
 from estrazione.sorgente import ATTESI, estrai_dal_sorgente  # noqa: E402
 
@@ -419,6 +428,129 @@ def test_la_cella_di_resa_non_entra_mai_fra_i_blocchi() -> None:
     estrazione = estrai_dal_sorgente(LAB / "lab_05_misurare.py")
     for blocco in estrazione.blocchi:
         assert "InlineBackend" not in blocco.get("sorgente", "")
+
+
+# ------------------------------------------------------------------ #
+# L'output non racconta la macchina che l'ha prodotto (T-4-23)        #
+# ------------------------------------------------------------------ #
+
+#: Il criterio LARGO con cui T-4-23 fu dichiarata chiusa nel piano 04-07.
+#: Sta qui per una ragione sola: un test lo mette accanto a un'URL vera e mostra
+#: che si accende. Un criterio archiviato senza la prova del perche' torna.
+CRITERIO_LARGO_DEL_2026 = re.compile(r"[A-Za-z]:[/\\]|/home/|/Users/")
+
+# Le tre righe che i 29 bundle hanno pubblicato, ricostruite come il kernel le
+# consegna: due flussi e un risultato. La radice NON e' ricopiata, si legge da
+# `ROOT` — altrimenti questo test proverebbe che l'ingest ripulisce la macchina
+# di chi l'ha scritto.
+def _cella_di_setup_come_l_ha_stampata_il_kernel() -> dict:
+    return {
+        "outputs": [
+            {
+                "output_type": "stream",
+                "name": "stdout",
+                "text": (
+                    "Note: you may need to restart the kernel to use updated packages.\n"
+                    f"motore locale: {ROOT}\n"
+                ),
+            },
+            {
+                "output_type": "stream",
+                "name": "stderr",
+                "text": f"{ROOT}/.venv/Scripts/python.exe: No module named pip\n",
+            },
+            {
+                "output_type": "execute_result",
+                "data": {"text/plain": f"WindowsPath('{ROOT.as_posix()}')"},
+            },
+        ]
+    }
+
+
+def test_la_cella_di_setup_non_pubblica_ne_la_radice_ne_l_errore_di_pip() -> None:
+    """Il difetto della voce 27, sul caso vero: 29 lab su 29, 87 stringhe.
+
+    Cio' che resta e' cio' che il lab dice davvero — dove ha trovato il motore
+    — con la macchina tolta di mezzo. Cio' che sparisce e' l'avviso di un
+    gestore di pacchetti e un ERRORE che il lettore leggerebbe come un lab
+    partito rotto, su una pagina il cui scopo e' dimostrare il contrario.
+    """
+    uscite = _uscite_di_cella(_cella_di_setup_come_l_ha_stampata_il_kernel(), "prova, cella 0")
+
+    assert [u.testo for u in uscite] == [
+        f"motore locale: {RADICE_SEGNAPOSTO}",
+        f"WindowsPath('{RADICE_SEGNAPOSTO}')",
+    ]
+    # Il totale dichiarato non conta le righe scartate: `righeTotali` e' cio'
+    # che il lettore potrebbe vedere, non cio' che il kernel ha stampato.
+    assert uscite[0].righe_totali == 1
+    assert all(u.troncato is False for u in uscite)
+
+
+def test_un_output_di_solo_rumore_sparisce_invece_di_diventare_una_riga_vuota() -> None:
+    """Lo `stderr` del `pip` e' UN output intero, e non deve restare un blocco.
+
+    La pulizia sta prima del controllo «e' vuoto?» proprio per questo: dopo,
+    avrebbe lasciato in pagina un output vuoto — cioe' un difetto piu' difficile
+    da vedere di quello che ripara.
+    """
+    cella = {
+        "outputs": [
+            {
+                "output_type": "stream",
+                "name": "stderr",
+                "text": f"{ROOT}/.venv/bin/python: No module named pip\n",
+            }
+        ]
+    }
+    assert _uscite_di_cella(cella, "prova, cella 0") == []
+
+
+def test_la_radice_sparisce_in_TUTTE_E_DUE_le_forme_di_separatore() -> None:
+    """`print(Path)` usa il separatore nativo, `repr(Path)` la barra.
+
+    Sostituirne una sola avrebbe ripulito due righe su tre lasciando la terza a
+    dire tutto — il modo peggiore di fallire, perche' il diff sembra risolto.
+    """
+    con_separatore_nativo = ripulisci(f"radice: {ROOT}", "prova")
+    con_la_barra = ripulisci(f"radice: {ROOT.as_posix()}", "prova")
+
+    assert con_separatore_nativo == con_la_barra == f"radice: {RADICE_SEGNAPOSTO}"
+
+
+def test_un_percorso_assoluto_che_non_e_la_radice_ferma_l_ingest() -> None:
+    """La parte che vale anche su una macchina che nessuno ha ancora usato.
+
+    Sostituire la propria radice ripara cio' che e' gia' successo; fermarsi su
+    cio' che resta e' l'unica meta' che vale il giorno in cui l'ingest gira in
+    una Action, dove la radice e' un'altra e nessuno la sta cercando.
+    """
+    with pytest.raises(ProblemaDiIngest) as arresto:
+        ripulisci("cache in C:\\Users\\altro\\AppData\\Local\\uv", "l05, cella 3")
+
+    messaggio = str(arresto.value)
+    assert "l05, cella 3" in messaggio
+    assert "riservatezza.py" in messaggio
+
+
+def test_il_criterio_stretto_non_scambia_una_URL_per_un_percorso_assoluto() -> None:
+    """La ragione per cui il gate non vide mai il difetto, resa falsificabile.
+
+    `[A-Za-z]:[/\\]` matcha anche il `s://` di ogni `https://`: sul corpus il
+    criterio largo conta 92 stringhe, quasi tutte URL di provenienza legittime.
+    Un criterio che conta le URL come percorsi assoluti non distingue piu'
+    niente il giorno in cui il difetto vero compare, ed e' successo.
+    """
+    legittime = [
+        "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1d/",
+        "http://esempio.invalid/home/pagina",
+        "vedi https://it.wikipedia.org/wiki/Rendimento",
+    ]
+
+    for testo in legittime:
+        assert CRITERIO_LARGO_DEL_2026.search(testo) is not None, "il criterio del 2026 taceva?"
+        assert PERCORSO_ASSOLUTO.search(testo) is None, testo
+        assert ripulisci(testo, "prova") == testo
 
 
 # ------------------------------------------------------------------ #

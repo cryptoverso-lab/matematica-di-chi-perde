@@ -36,6 +36,7 @@ from nbclient.exceptions import CellExecutionError, CellTimeoutError, DeadKernel
 
 from . import LAB
 from .comune import ProblemaDiIngest, normalizza
+from .riservatezza import ripulisci
 
 #: La configurazione della resa, iniettata come PRIMA cella e mai scritta nei
 #: sorgenti. Le quattro righe non sono equivalenti fra loro:
@@ -125,6 +126,21 @@ def _tronca(testo: str) -> Uscita:
     return Uscita(tipo="testo", testo=valore, righe_totali=totali, troncato=tagliato)
 
 
+def _testo_pubblicabile(grezzo: str, dove: str) -> str:
+    """Il testo di un output come si puo' pubblicare: a LF, e senza la macchina.
+
+    Passano di qui TUTTI e due i modi in cui un testo esce da una cella — il
+    flusso di `print` e il `text/plain` di un risultato — e ci passano prima
+    del controllo «e' vuoto?»: un output fatto di solo rumore deve sparire
+    del tutto, non diventare una riga bianca in pagina.
+
+    La pulizia viene prima del troncamento perche' il troncamento DICHIARA il
+    totale delle righe (D-33): contare le righe di rumore vorrebbe dire
+    annunciare al lettore un totale che comprende cio' che non gli si mostra.
+    """
+    return ripulisci(normalizza(grezzo), dove).strip("\n")
+
+
 def _uscite_di_cella(cella, dove: str) -> list[Uscita]:
     """Gli output di una cella eseguita, nell'ordine in cui il kernel li ha emessi.
 
@@ -152,7 +168,7 @@ def _uscite_di_cella(cella, dove: str) -> list[Uscita]:
         nonlocal flusso
         if flusso is None:
             return
-        testo = normalizza(flusso[1]).strip("\n")
+        testo = _testo_pubblicabile(flusso[1], dove)
         flusso = None
         if testo:
             uscite.append(_tronca(testo))
@@ -195,7 +211,7 @@ def _uscite_di_cella(cella, dove: str) -> list[Uscita]:
             testo = dati.get("text/plain", "")
             if isinstance(testo, list):
                 testo = "".join(testo)
-            testo = normalizza(testo).strip("\n")
+            testo = _testo_pubblicabile(testo, dove)
             if testo:
                 uscite.append(_tronca(testo))
             continue
