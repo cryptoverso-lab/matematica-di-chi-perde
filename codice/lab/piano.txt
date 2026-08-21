@@ -1,0 +1,36 @@
+PIANO OPERATIVO — versione del 2026-08-16
+(non sovrascrivere le versioni precedenti: aggiungerle in coda, con la data)
+
+1. PERCHE' SONO QUI
+   far crescere una parte del patrimonio su un orizzonte di 10 anni
+
+2. CAPITALE, E QUANTO PUO' SPARIRE
+   capitale destinato:  20,000 euro
+   se andasse a zero domani, la mia vita cambierebbe? NO
+
+3. RISCHIO PER OPERAZIONE
+   1.00% del capitale, cioe' 200 euro. Fisso.
+   Non dipende dall'occasione: dipendere dall'occasione significa rischiare di
+   piu' quando si e' piu' convinti, e la convinzione non e' correlata al risultato.
+
+4. RISCHIO COMPLESSIVO
+   massimo 5 posizioni aperte
+   rischio complessivo atteso: 4.4% (872 euro)
+   massimo presso un singolo intermediario: 4,000 euro (20%)
+
+5. REGOLE DI INGRESSO E USCITA
+   ingresso: rottura del massimo a 20 giorni, verificata sul mercato scelto
+   uscita:   chiusura sotto il minimo a 20 giorni, oppure allo stop dichiarato
+   test: se do queste due righe a un'altra persona e le applica ai dati di ieri,
+   ottiene la mia stessa decisione?
+
+6. COSA MI FAREBBE CAMBIARE IDEA
+   un calo superiore al peggiore osservato in verifica, oppure 200 operazioni con risultato sotto il metro del caso
+
+7. QUANDO RIVEDO IL PIANO
+   trimestrale, il primo giorno del trimestre
+   Fuori da quelle date il piano non si tocca.
+
+REGOLA SOPRA TUTTE
+   Le modifiche al piano entrano in vigore dalla PROSSIMA operazione, mai da
+   quella in corso.

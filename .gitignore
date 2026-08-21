@@ -1,0 +1,14 @@
+# Ambiente Python
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Cache degli ingest (i dati usati dai quaderni sono in codice/dati/snapshot)
+codice/dati/cache/
+
+# Sistema
+.DS_Store
+Thumbs.db
+desktop.ini

@@ -1,0 +1,235 @@
+# ---
+# jupyter:
+#   jupytext:
+#     text_representation:
+#       extension: .py
+#       format_name: percent
+#   kernelspec:
+#     display_name: Python 3
+#     language: python
+#     name: python3
+# ---
+
+# %% [markdown]
+# # Lab 16 — L'analisi tecnica, misurata
+#
+# *Quaderno del capitolo «L'analisi tecnica, misurata» di **Non Fidarti di Me**.*
+#
+# Le sei regole del capitolo, scritte tutte nella stessa forma, applicate
+# all'asset e al periodo che scegli tu. Senza selezionare quali mostrare dopo
+# aver visto i risultati.
+#
+# Poi i tre controlli sulla regola che vince: la forma della superficie, il metro
+# del caso, e la correzione per il numero di tentativi.
+#
+# Nulla di quello che c'è qui dentro è un'indicazione operativa. È un modo di
+# porre la domanda.
+
+# %%
+# Setup — esegui questa cella per prima.
+# %pip install -q "polars>=1.0"
+try:
+    import avvio
+except ModuleNotFoundError:
+    import urllib.request
+
+    urllib.request.urlretrieve(
+        "https://raw.githubusercontent.com/cryptoverso-lab/non-fidarti-di-me/main/codice/lab/avvio.py",
+        "avvio.py",
+    )
+    import avvio
+
+avvio.prepara(["btcusdt", "ethusdt", "solusdt"])
+
+# %%
+import matplotlib.pyplot as plt
+import numpy as np
+
+from cvbook import seed_for
+from cvbook.dati import carica
+from cvbook.metriche import drawdown_massimo
+from cvbook.regole import CATALOGO, compra_e_tieni, esegui, rottura
+
+SERIE = "btcusdt"   # ← "btcusdt", "ethusdt", "solusdt"
+COSTO = 0.0012      # ← il tuo costo per operazione
+
+prezzi = carica(SERIE).sort("data")["chiusura"].to_numpy()
+
+# %% [markdown]
+# ## 1. Sei regole da manuale, tutte insieme
+#
+# Il vincolo che distingue una misura da una vetrina: **si mostrano tutte**.
+
+# %%
+riferimento = esegui(prezzi, compra_e_tieni(prezzi), costo=COSTO)
+
+righe = []
+for nome, regola in CATALOGO.items():
+    e = esegui(prezzi, regola(prezzi), costo=COSTO)
+    righe.append((nome, e["finale"], e["finale_lordo"], e["operazioni"],
+                  e["esposizione"], drawdown_massimo(e["curva"])))
+righe.sort(key=lambda x: x[1])
+
+print(f"{SERIE}, costi {COSTO:.2%} per operazione\n")
+print(f"{'regola':>22s} {'netto':>9s} {'lordo':>9s} {'oper.':>7s} "
+      f"{'dentro':>8s} {'calo max':>10s}")
+for nome, netto, lordo, op, esp, dd in righe:
+    print(f"{nome:>22s} {netto:8.2f}x {lordo:8.2f}x {op:7.0f} {esp:8.0%} {dd:10.1%}")
+print(f"{'compra e tieni':>22s} {riferimento['finale']:8.2f}x "
+      f"{riferimento['finale_lordo']:8.2f}x {riferimento['operazioni']:7.0f} "
+      f"{riferimento['esposizione']:8.0%} {drawdown_massimo(riferimento['curva']):10.1%}")
+
+with avvio.figura("schermo"):
+    fig, ax = plt.subplots(figsize=(9, 4.5))
+    y = np.arange(len(righe))
+    ax.barh(y, [r[1] for r in righe])
+    ax.axvline(riferimento["finale"], linewidth=2, linestyle="--", color="black")
+    ax.annotate(f"compra e tieni: {riferimento['finale']:.1f}x",
+                xy=(riferimento["finale"], len(righe) - 0.4),
+                xytext=(6, 0), textcoords="offset points", va="center")
+    ax.set_yticks(y)
+    ax.set_yticklabels([r[0] for r in righe])
+    ax.set_xscale("log")
+    ax.set_xlabel("Capitale finale, per ogni euro investito (scala log)")
+    plt.show()
+
+battono = sum(1 for r in righe if r[1] > riferimento["finale"])
+print(f"\n{battono} regole su {len(righe)} hanno battuto il non far niente.")
+
+# %% [markdown]
+# ## 2. I costi decidono la classifica
+#
+# Guarda le colonne «netto» e «lordo» della tabella. Qualche regola cambia lato.
+
+# %%
+print(f"{'regola':>22s} " + "".join(f"{c:>11.2%}" for c in (0.0, 0.0006, 0.0012, 0.0025, 0.005)))
+for nome, regola in CATALOGO.items():
+    valori = "".join(f"{esegui(prezzi, regola(prezzi), costo=c)['finale']:10.2f}x"
+                     for c in (0.0, 0.0006, 0.0012, 0.0025, 0.005))
+    print(f"{nome:>22s} {valori}")
+print(f"{'compra e tieni':>22s} " +
+      "".join(f"{riferimento['finale']:10.2f}x" for _ in range(5)))
+
+print("\n«Quale regola e' migliore» dipende da quanto paghi. Chi pubblica un "
+      "backtest senza costi non ha mentito su nessun numero: ha omesso una voce, "
+      "e l'omissione puo' invertire la conclusione.")
+
+# %% [markdown]
+# ## 3. Il primo controllo: la forma della superficie
+#
+# Un altopiano largo è compatibile con un fenomeno reale. Un picco isolato quasi
+# mai lo è.
+
+# %%
+FINESTRE = np.arange(5, 121, 5)
+griglia = np.array([esegui(prezzi, rottura(prezzi, int(f)), costo=COSTO)["finale"]
+                    for f in FINESTRE])
+
+with avvio.figura("schermo"):
+    fig, ax = plt.subplots()
+    ax.plot(FINESTRE, griglia, marker="o", linewidth=2)
+    ax.axhline(riferimento["finale"], linestyle="--", linewidth=1.5, color="black",
+               label="compra e tieni")
+    ax.set_yscale("log")
+    ax.set_xlabel("Finestra della rottura (giorni)")
+    ax.set_ylabel("Capitale finale (volte, scala log)")
+    ax.legend()
+    plt.show()
+
+print(f"valori che battono il compra-e-tieni: {int((griglia > riferimento['finale']).sum())} "
+      f"su {len(griglia)}")
+print(f"mediana della griglia: {np.median(griglia):.2f}x")
+
+# %% [markdown]
+# ## 4. Il secondo controllo: il metro del caso
+
+# %%
+N_CASUALI = 1000
+SCELTA = 20
+
+
+def posizione_casuale(n: int, n_operazioni: int, rng) -> np.ndarray:
+    pos = np.zeros(n)
+    punti = np.sort(rng.choice(n - 1, size=n_operazioni, replace=False))
+    stato, precedente = 0.0, 0
+    for i in punti:
+        pos[precedente:i] = stato
+        stato, precedente = 1.0 - stato, i
+    pos[precedente:] = stato
+    return pos
+
+
+scelta = esegui(prezzi, rottura(prezzi, SCELTA), costo=COSTO)
+n_op = int(scelta["operazioni"])
+rng = np.random.default_rng(seed_for("lab-tecnica"))
+casuali = np.array([
+    esegui(prezzi, posizione_casuale(len(prezzi), n_op, rng), costo=COSTO)["finale"]
+    for _ in range(N_CASUALI)
+])
+percentile = float((casuali < scelta["finale"]).mean() * 100)
+
+with avvio.figura("schermo"):
+    fig, ax = plt.subplots()
+    ax.hist(casuali, bins=50)
+    ax.axvline(scelta["finale"], linewidth=2.5, color="black")
+    ax.set_xscale("log")
+    ax.set_xlabel("Capitale finale (volte, scala log)")
+    ax.set_ylabel(f"Su {N_CASUALI} posizioni casuali")
+    ax.set_title(f"La regola sta al {percentile:.0f}esimo percentile")
+    plt.show()
+
+print(f"la regola: {scelta['finale']:.2f}x con {n_op} operazioni")
+print(f"mediana delle casuali: {np.median(casuali):.2f}x")
+print(f"percentile: {percentile:.1f}")
+
+# %% [markdown]
+# ## 5. Il terzo controllo: quanti tentativi ci sono stati dietro
+#
+# Il controllo che quasi nessuno applica ai propri numeri.
+
+# %%
+regole_provate = len(CATALOGO)
+parametri_provati = len(FINESTRE)
+tentativi = regole_provate + parametri_provati
+
+p_singolo = 1 - percentile / 100
+print(f"regole provate: {regole_provate}")
+print(f"valori del parametro provati: {parametri_provati}")
+print(f"tentativi complessivi (stima prudente): {tentativi}\n")
+print(f"probabilita' che UN tentativo raggiunga questo percentile per caso: {p_singolo:.1%}")
+print(f"probabilita' che almeno uno su {tentativi} lo faccia: "
+      f"{1 - (1 - p_singolo) ** tentativi:.1%}")
+print("\nI tentativi non sono del tutto indipendenti — finestre vicine danno "
+      "risultati simili — quindi questa stima e' pessimistica. Ma il punto resta: "
+      "un percentile, dopo trenta tentativi, non e' piu' quel percentile.")
+
+# %% [markdown]
+# ## 6. Altri mercati non sono altre prove
+
+# %%
+for altro in ("btcusdt", "ethusdt", "solusdt"):
+    p = carica(altro).sort("data")["chiusura"].to_numpy()
+    r = esegui(p, rottura(p, SCELTA), costo=COSTO)
+    b = esegui(p, compra_e_tieni(p), costo=COSTO)
+    print(f"{altro:>10s}: regola {r['finale']:8.2f}x   compra e tieni {b['finale']:8.2f}x   "
+          f"rapporto {r['finale'] / b['finale']:5.2f}")
+
+print("\nTre conferme? No. Il Lab 8 ha mostrato che questi tre mercati contengono "
+      "poco piu' di UNA scommessa: una sola componente ne spiega quasi l'ottanta "
+      "per cento dei movimenti. Un metodo che funziona sul fattore comune "
+      "funziona su tutti e tre — non perche' sia stato confermato tre volte, ma "
+      "perche' e' stato confermato una volta e conteggiato tre.")
+
+# %% [markdown]
+# ### Esercizi
+#
+# 1. Cambia `COSTO` e riesegui la seconda cella. Guarda l'ordine della classifica
+#    cambiare: è la dimostrazione più rapida che «quale regola è migliore» non è
+#    una proprietà della regola.
+# 2. Aggiungi una regola tua al catalogo, seguendo il modello di `cvbook.regole`,
+#    e sottoponila agli stessi tre controlli. Ricordati di **contarla** fra i
+#    tentativi.
+# 3. Il più istruttivo: esegui tutto su un mercato **non** digitale. Attenzione ai
+#    giorni di borsa chiusa, che cambiano il conto dei periodi. Se il risultato si
+#    ripete lì, hai una conferma vera; se non si ripete, hai imparato qualcosa di
+#    più utile di una conferma.
