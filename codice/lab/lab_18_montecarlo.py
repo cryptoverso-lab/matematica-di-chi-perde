@@ -140,7 +140,7 @@ print(f"percorsi che finiscono sotto il capitale iniziale: {esiti['prob_perdita'
 #
 # > **EN** — Reread the last line. **With the exact same returns**, a
 # > non-negligible share of paths ends at a loss. Not from a bad decision:
-# > from the combination in which things arrived. And note the max drawdown:
+# > from the combination in which things arrived. And note the maximum drawdown:
 # > the one already seen **is not** the worst possible. It's only the worst
 # > of one realization, i.e. of a sample of size one.
 

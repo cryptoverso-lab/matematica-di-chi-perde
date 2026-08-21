@@ -262,7 +262,7 @@ for nome, funzione in (("versione A", versione_a), ("versione B", versione_b)):
 # > versus `t - finestra:t`, and `p[t]` versus `p[t - 1]`. Two characters.
 # > The result changes by orders of magnitude. It's exactly the error these
 # > tools produce most often, and not out of carelessness: **using the
-# > current index is the most natural phrasing in human language.** "Buy
+# > current index is the most natural phrasing in human language.** "I buy
 # > when price crosses the band" becomes, without a second thought,
 # > `if p[t] > banda`.
 

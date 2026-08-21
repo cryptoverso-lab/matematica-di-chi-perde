@@ -228,7 +228,7 @@ print(t(f"\nE ricordati che il peggio gia' visto NON e' il peggio possibile: e' 
 # ---
 #
 # > **EN** — *Exercises.*
-# > 1. Change `SERIE`. The max drawdown changes, and with it the compatible
+# > 1. Change `SERIE`. The maximum drawdown changes, and with it the compatible
 # >    position: the same tolerance produces very different sizes on
 # >    different assets. That's how you compare assets — not by how much
 # >    they've gone up.
