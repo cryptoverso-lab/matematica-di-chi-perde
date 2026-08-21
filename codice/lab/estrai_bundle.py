@@ -56,6 +56,8 @@ from pathlib import Path
 # import, altrimenti non e' stata fatta.
 from estrazione.bundle import bundle_di_rotta, rotte_scelte
 from estrazione.comune import ProblemaDiIngest
+from estrazione.esecuzione import esegui
+from estrazione.figure import Figure
 from estrazione.sorgente import ATTESI, Estrazione, estrai_dal_sorgente, verifica_conteggi
 from estrazione.sito import checkout_del_sito, scrivi_json, versione_del_contratto
 
@@ -73,7 +75,8 @@ def main() -> None:
     parser.add_argument(
         "--sorgente",
         help="legge un singolo file percent SENZA scrivere nulla: e' il modo di "
-        "rieseguire a mano una prova in negativo su una fixture",
+        "rieseguire a mano una prova in negativo su una fixture. Con `--sito` "
+        "accanto lo ESEGUE anche, e tratta le figure senza scriverle",
     )
     parser.add_argument(
         "--eseguito",
@@ -90,7 +93,24 @@ def main() -> None:
             percorso = Path(argomenti.sorgente).expanduser().resolve()
             if not percorso.is_file():
                 raise ProblemaDiIngest(f"`{argomenti.sorgente}` non e' un file.")
-            estrazione = estrai_dal_sorgente(percorso)
+            # Con `--sito` accanto il file viene anche ESEGUITO, e le sue figure
+            # trattate — `svgo`, invarianti, budget — ma non scritte da nessuna
+            # parte. E' cosi' che si rifanno a mano le prove in negativo che
+            # riguardano l'esecuzione: una cella che lancia, una figura fuori
+            # budget, `svgo` assente. Il checkout del sito serve solo per il
+            # binario di `svgo`, non per scriverci dentro.
+            figure = None
+            uscite = None
+            if argomenti.sito is not None:
+                figure = Figure(checkout_del_sito(argomenti.sito), percorso.stem, None)
+                uscite = esegui(percorso)
+            estrazione = estrai_dal_sorgente(
+                percorso,
+                uscite=uscite,
+                tratta_figura=figure.tratta if figure is not None else None,
+            )
+            if figure is not None:
+                figure.verifica_budget_di_pagina()
             prosa = sum(1 for b in estrazione.blocchi if b["tipo"] == "prosa")
             codice = len(estrazione.blocchi) - prosa
             print(
@@ -101,6 +121,12 @@ def main() -> None:
                 f"{estrazione.sostituzioni_titolo} di {{{{TITOLO_LIBRO}}}}, "
                 f"{estrazione.formule} formule"
             )
+            if figure is not None:
+                pesi = ", ".join(f"{nome} {byte} B" for nome, byte in figure.pesate)
+                print(
+                    f"  eseguito: {estrazione.figure} figure ({pesi or 'nessuna'}), "
+                    f"{figure.riscritture} riscritture di `font-family`"
+                )
             sys.exit(0)
 
         if argomenti.sito is None:
@@ -113,7 +139,7 @@ def main() -> None:
         estrazioni: list[Estrazione] = []
         scritti = 0
         for rotta in rotte:
-            lab, prosa, estrazione = bundle_di_rotta(rotta, versione, argomenti.eseguito)
+            lab, prosa, estrazione = bundle_di_rotta(rotta, versione, argomenti.eseguito, sito)
             estrazioni.append(estrazione)
             cartella = sito / "content" / "labs" / lab["codice"]
             scrivi_json(cartella / "lab.json", lab)
@@ -143,6 +169,27 @@ def main() -> None:
         f"{sum(e.sostituzioni_titolo for e in estrazioni)} di "
         "{{TITOLO_LIBRO}}, "
         f"{sum(e.formule for e in estrazioni)} formule"
+    )
+    # Cio' che e' stato ESEGUITO si dichiara a parte: e' la riga che distingue
+    # un bundle letto da un bundle prodotto da una macchina che ha eseguito i
+    # quaderni, e senza di lei i due sarebbero indistinguibili a schermo.
+    testi = sum(
+        1
+        for e in estrazioni
+        for b in e.blocchi
+        for o in b.get("output", [])
+        if o["kind"] == "testo"
+    )
+    troncati = sum(
+        1
+        for e in estrazioni
+        for b in e.blocchi
+        for o in b.get("output", [])
+        if o["kind"] == "testo" and o["troncato"]
+    )
+    print(
+        f"  eseguiti: {sum(e.figure for e in estrazioni)} figure, "
+        f"{testi} output testuali di cui {troncati} troncati"
     )
     sys.exit(1 if problemi else 0)
 

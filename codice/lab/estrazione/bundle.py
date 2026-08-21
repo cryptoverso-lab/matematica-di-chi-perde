@@ -9,6 +9,8 @@ pagina del repository si compongono a render, in un solo modulo del sito
 
 from __future__ import annotations
 
+from pathlib import Path
+
 from cvbook.link import ROTTE
 
 from . import ROOT
@@ -19,9 +21,14 @@ from .comune import (
     normalizza,
 )
 from .dataset import provenienza_delle_serie
+from .esecuzione import esegui
+from .figure import Figure
 from .sorgente import Estrazione, estrai_dal_sorgente
 
-def bundle_di_rotta(rotta, versione: int, eseguito: str) -> tuple[dict, dict, Estrazione]:
+
+def bundle_di_rotta(
+    rotta, versione: int, eseguito: str, sito: Path
+) -> tuple[dict, dict, Estrazione]:
     """`lab.json` (e, dal piano 04-07 Task 2, `it.json`) di una rotta.
 
     I percorsi che finiscono nel bundle sono RELATIVI al repo del libro: la URL
@@ -29,6 +36,12 @@ def bundle_di_rotta(rotta, versione: int, eseguito: str) -> tuple[dict, dict, Es
     compongono a render, in un solo modulo del sito (D-14). Un percorso
     assoluto della macchina di build qui dentro sarebbe, oltre che inutile, un
     dettaglio di infrastruttura pubblicato (ASVS V7).
+
+    L'ORDINE DEI TRE PASSAGGI e' quello che rende falsificabile il budget: si
+    esegue, si trattano le figure una per una — e una fuori budget ferma il giro
+    qui — e solo alla fine si controlla la somma della pagina. Un lab che sfonda
+    non scrive un `lab.json` a meta': l'eccezione risale prima che qualcosa
+    venga scritto.
     """
     relativo_py = f"codice/lab/{rotta.file}"
     relativo_ipynb = relativo_py.replace(".py", ".ipynb")
@@ -46,7 +59,12 @@ def bundle_di_rotta(rotta, versione: int, eseguito: str) -> tuple[dict, dict, Es
     testo_py = normalizza(percorso_py.read_text(encoding="utf-8"))
     testo_ipynb = normalizza(percorso_ipynb.read_text(encoding="utf-8"))
 
-    estrazione = estrai_dal_sorgente(percorso_py)
+    cartella = sito / "content" / "labs" / rotta.codice.lower()
+    figure = Figure(sito, rotta.codice.lower(), cartella)
+    estrazione = estrai_dal_sorgente(
+        percorso_py, uscite=esegui(percorso_py), tratta_figura=figure.tratta
+    )
+    figure.verifica_budget_di_pagina()
 
     lab = {
         "versione": versione,

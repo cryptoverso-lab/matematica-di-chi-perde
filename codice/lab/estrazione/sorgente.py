@@ -30,11 +30,18 @@ from .prosa import ProsaSconosciuta, converti, titolo_e_corpo
 #: presidio. Una regola che «funziona» su un file e' una regola non misurata;
 #: una regola con accanto il numero di volte che tocca il corpus diventa rossa
 #: il giorno in cui il corpus cambia sotto di lei.
+#: `figure` vale 40 ed e' il conteggio misurato eseguendo tutti e 29 i quaderni
+#: (04-RESEARCH §2.4). Sta qui per la stessa ragione degli altri tre, ma il
+#: difetto che intercetta e' piu' silenzioso: una figura che sparisse — un
+#: `plt.show()` tolto, una cella commentata — non produrrebbe nessun errore,
+#: produrrebbe una pagina con un grafico in meno. Che nessuno nota, finche' non
+#: e' il proprio.
 ATTESI = {
     "sorgenti": 29,
     "magic": 29,
     "raw_base": 29,
     "titolo": 29,
+    "figure": 40,
 }
 
 
@@ -188,6 +195,7 @@ def verifica_conteggi(estrazioni: list[Estrazione], problemi: list[str]) -> None
         "magic": sum(e.magic for e in estrazioni),
         "raw_base": sum(e.sostituzioni_raw for e in estrazioni),
         "titolo": sum(e.sostituzioni_titolo for e in estrazioni),
+        "figure": sum(e.figure for e in estrazioni),
     }
     for nome, atteso in ATTESI.items():
         if nome == "sorgenti":

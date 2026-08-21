@@ -100,7 +100,12 @@ percorsi = bootstrap_traiettorie(r, n_traiettorie=PERCORSI, rng=rng, a_blocchi=B
 with avvio.figura("schermo"):
     fig, (sx, dx) = plt.subplots(1, 2, figsize=(12, 4.5))
     for k in range(120):
-        sx.semilogy(percorsi[k], linewidth=0.5, alpha=0.4, color="#7A8CC7")
+        # `rasterized=True` sul solo strato denso: 120 traiettorie da 3 240
+        # punti sono ~389 000 vertici, e in un SVG ogni vertice diventa testo.
+        # Rasterizzando queste strisce — e solo queste — assi, griglia, legenda
+        # e numeri restano vettoriali e leggibili, la figura non cambia di una
+        # traiettoria, e il file passa da 2 132 KB a 148 KB.
+        sx.semilogy(percorsi[k], linewidth=0.5, alpha=0.4, color="#7A8CC7", rasterized=True)
     sx.semilogy(reale, linewidth=2.5, color="black", label="la storia capitata")
     sx.set_ylabel("Capitale (scala log)")
     sx.set_xlabel("Giorni")

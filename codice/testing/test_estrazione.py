@@ -50,6 +50,13 @@ from estrazione.esecuzione import (  # noqa: E402
     CELLA_DI_RESA,
     _tronca,
 )
+from estrazione.figure import (  # noqa: E402
+    BUDGET_FIGURA_BYTE,
+    BUDGET_PAGINA_BYTE,
+    FONT_DEL_SITO,
+    Figure,
+    riscrivi_carattere,
+)
 from estrazione.sorgente import ATTESI, estrai_dal_sorgente  # noqa: E402
 
 #: Un LaTeX qualunque, scritto come stringa grezza: il backslash e' un
@@ -403,3 +410,87 @@ def test_la_cella_di_resa_non_entra_mai_fra_i_blocchi() -> None:
     estrazione = estrai_dal_sorgente(LAB / "lab_05_misurare.py")
     for blocco in estrazione.blocchi:
         assert "InlineBackend" not in blocco.get("sorgente", "")
+
+
+# ------------------------------------------------------------------ #
+# Le figure: la sola `font-family`, e le due invarianti dell'SVG      #
+# ------------------------------------------------------------------ #
+
+#: Un `<text>` come matplotlib lo scrive davvero, ricopiato da una figura vera
+#: di `lab_05_misurare`. Non e' un SVG inventato: e' la forma esatta che la
+#: riscrittura deve incontrare, apici compresi — ed e' su quegli apici che la
+#: prima versione della regex si e' rotta.
+TEXT_DI_MATPLOTLIB = (
+    '<g id="text_1"><text style="font-size:7px;font-family: \'Linux Libertine G\', '
+    "'Libertinus Serif', 'Linux Libertine O', 'DejaVu Serif', serif;fill:#151b4d\" "
+    'x="51.677" y="262.028">2018</text></g>'
+)
+
+
+def test_la_riscrittura_tocca_la_font_family_e_nient_altro() -> None:
+    """L'unica riscrittura ammessa (04-UI-SPEC §3.2).
+
+    Colori, geometrie e dati NON si toccano: ricolorare la figura per adattarla
+    al tema pubblicherebbe una figura diversa da quella che Colab produce.
+    Il test lo asserisce nelle due direzioni — la catena del libro sparisce, e
+    tutto il resto della stringa e' identico carattere per carattere.
+    """
+    riscritto, quante = riscrivi_carattere(TEXT_DI_MATPLOTLIB)
+
+    assert quante == 1
+    assert "Libertine" not in riscritto
+    assert FONT_DEL_SITO in riscritto
+    assert "fill:#151b4d" in riscritto
+    assert 'x="51.677" y="262.028"' in riscritto
+    assert "font-size:7px" in riscritto
+    assert ">2018</text>" in riscritto
+
+
+def test_la_catena_del_libro_ha_gli_apici_e_la_regex_non_ci_si_ferma() -> None:
+    """Il difetto misurato, tenuto fermo da un test.
+
+    Una classe di caratteri che escludesse l'apice avrebbe sostituito la sola
+    parola `font-family:` lasciando in coda la catena originale — e la figura
+    sarebbe uscita con `var(--font-mono,…)'Linux Libertine G',…`, cioe' con un
+    carattere che nel browser del lettore non esiste. E' successo, e questo
+    test e' la ragione per cui non succede piu'.
+    """
+    riscritto, _ = riscrivi_carattere(TEXT_DI_MATPLOTLIB)
+    assert "Linux Libertine" not in riscritto
+
+
+def test_una_figura_senza_text_viene_rifiutata() -> None:
+    """P-7: e' il sintomo di `svg.fonttype` lasciato al default `'path'`.
+
+    Le etichette degli assi diventano curve, la figura resta identica a vedersi
+    e torna OPACA ai crawler e alle sintesi vocali — cioe' perde la ragione per
+    cui viene resa in linea invece che come immagine.
+    """
+    with pytest.raises(ProblemaDiIngest) as fallimento:
+        Figure.verifica_invarianti('<svg viewBox="0 0 1 1"><path d="M0 0"/></svg>', "l05/c01-1")
+    assert "<text" in str(fallimento.value)
+    assert "l05/c01-1" in str(fallimento.value)
+
+
+def test_una_figura_con_style_viene_rifiutata() -> None:
+    """D-71: la misura della CSP della Fase 2 («tag `<style>`: 0») deve restare
+    vera anche quando le figure entrano in linea nell'HTML servito.
+    """
+    with pytest.raises(ProblemaDiIngest) as fallimento:
+        Figure.verifica_invarianti(
+            '<svg viewBox="0 0 1 1"><style>*{fill:red}</style><text>1</text></svg>',
+            "l05/c01-1",
+        )
+    assert "<style>" in str(fallimento.value)
+    assert "unsafe-inline" in str(fallimento.value)
+
+
+def test_i_budget_sono_quelli_del_gate_del_sito() -> None:
+    """I due numeri sono duplicati DI PROPOSITO da `scripts/labs/contenuto.mjs`.
+
+    La duplicazione e' D-08 — i due repository devono poter diventare rossi
+    indipendentemente — e un test che li pinna e' cio' che rende visibile il
+    giorno in cui uno dei due si muove da solo.
+    """
+    assert BUDGET_FIGURA_BYTE == 180 * 1024
+    assert BUDGET_PAGINA_BYTE == 300 * 1024
