@@ -1,7 +1,7 @@
 [project]
-name = "non-fidarti-di-me"
+name = "cvbook"
 version = "0.1.0"
-description = "Libro: Non Fidarti di Me — toolchain di build, figure e lab"
+description = "Libro: La matematica di chi perde — toolchain di build, figure e lab"
 requires-python = ">=3.12"
 dependencies = [
     "polars>=1.43",
