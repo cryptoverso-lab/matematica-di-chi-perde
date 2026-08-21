@@ -1,0 +1,394 @@
+# Dalla modifica di un sorgente al bundle pubblicato dal sito, senza passi manuali.
+#
+# E' la catena fra DUE repository: qui vivono i 29 quaderni e la loro esecuzione,
+# nel repo del sito vive il bundle che le 62 pagine leggono. Il sito non esegue
+# mai Python (D-05): riceve un bundle gia' prodotto, e questo workflow e' il posto
+# in cui viene prodotto.
+#
+# ORDINE, E LA RAGIONE DI OGNI PASSO:
+#   1. si ricostruiscono i `.ipynb` dai sorgenti — Colab apre quelli, e l'ingest
+#      ne pubblica l'impronta: se restassero indietro, il bundle dichiarerebbe la
+#      sha256 di un quaderno diverso da quello che il lettore apre. Misurato il
+#      2026-08-21: tre quaderni su 29 erano rimasti indietro di un commit, e le
+#      loro impronte nel bundle descrivevano un file che non esisteva piu';
+#   2. si eseguono i 29 quaderni e si scrive il bundle nel checkout del sito;
+#   3. si valida il bundle QUI, prima che la PR esista (D-08): a diventare rosso
+#      dev'essere il repository che ha cambiato qualcosa, non il deploy del sito;
+#   4. si committano i `.ipynb` puliti (D-16/D-51);
+#   5. un job SEPARATO apre la PR sul sito.
+#
+# TEMPO ATTESO, dichiarato perche' un rallentamento si veda come anomalia invece
+# di passare per normalita': l'esecuzione dei 29 quaderni costa 136 s misurati
+# (04-RESEARCH §2.4) e 139 s rimisurati il 2026-08-21 su macchina di sviluppo
+# Windows. Su `ubuntu-latest` la stima e' 3-5 minuti, piu' ~60 s di `uv sync` a
+# cache fredda e ~40 s di `pnpm install`. Il timeout e' a 25 minuti: se ci arriva,
+# non e' lentezza, e' un quaderno che non termina.
+#
+# RIFERIMENTO DI STILE DICHIARATO: `.github/workflows/ci.yml` del repo del sito.
+# Da li' arrivano quattro decisioni con la ragione gia' scritta: il filtro dei
+# trigger, il `concurrency`, i permessi minimi, e uno step per gate invece di un
+# comando aggregato — perche' il riquadro di GitHub mostri QUALE e' fallito senza
+# aprire il log.
+#
+# NESSUNA ORGANIZZAZIONE E NESSUN REPOSITORY SCRITTI QUI. Il repository del sito
+# si legge dalla variabile di repository `REPO_SITO`, con la stessa disciplina con
+# cui il sito legge org, repo e ref dei quaderni da `vars.*` (D-14/D-57). Una
+# variabile vuota non e' un default silenzioso: il primo step si ferma e lo dice.
+
+name: Quaderni
+
+# IL FILTRO NON E' PARSIMONIA. L'esecuzione dei 29 quaderni costa minuti, e non ha
+# ragione di partire quando cambia il testo di un README. Su `push` del solo ramo
+# di default, limitato ai percorsi che possono cambiare un output: i sorgenti dei
+# lab e i dati congelati su cui girano.
+#
+# MAI `pull_request_target`. Questo workflow ESEGUE codice del repository in un
+# ambiente che ha dei segreti: `pull_request_target` gira col contenuto della PR
+# ma con i permessi del ramo di base, ed e' la classe di difetto da chiudere alla
+# radice (04-RESEARCH §17, T-4-06). Nessun trigger di PR, quindi nessun segreto
+# raggiungibile da un fork.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'codice/lab/**'
+      - 'codice/dati/**'
+  workflow_dispatch:
+
+# Un giro che ne annulla un altro sullo stesso ramo. `github.head_ref` e'
+# valorizzato SOLO sugli eventi di PR, e qui di eventi di PR non ce ne sono:
+# vale sempre la stringa vuota e decide `github.ref`. Sta per primo lo stesso,
+# nella forma identica a quella del sito, perche' il giorno in cui qualcuno
+# aggiungesse `pull_request:` qui sopra, push e PR dello stesso ramo cadrebbero
+# gia' nello stesso gruppo invece di fare due giri paralleli.
+concurrency:
+  group: quaderni-${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+# Permessi minimi a livello di workflow: di default questo workflow non scrive
+# niente. La deroga sta sul solo job che ne ha bisogno, con la ragione accanto.
+permissions:
+  contents: read
+
+jobs:
+  # =========================================================================
+  # Esecuzione, estrazione, validazione, commit dei quaderni.
+  #
+  # Questo job NON vede il segreto di SCRITTURA verso il sito: esegue codice, e il
+  # codice che esegue non deve poter arrivare a un token che apre PR altrove
+  # (T-4-49). Il segreto che vede e' di sola lettura, e serve a una cosa sola:
+  # entrare nel repository del sito, che e' privato.
+  # =========================================================================
+  quaderni:
+    name: Esegue i 29 quaderni, valida il bundle, committa i .ipynb
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    # LA DEROGA, E LA SUA RAGIONE. `ci.yml` del sito dichiara `contents: read`
+    # perche' non pubblica niente. Qui invece i `.ipynb` sono artefatti di build
+    # TRACCIATI (D-16/D-51): Colab apre soltanto file presi da GitHub, e i 29
+    # bottoni «Apri in Colab» del libro puntano a questa cartella. Se il quaderno
+    # non venisse ricommittato dopo un cambio del sorgente, il lettore aprirebbe
+    # un quaderno vecchio e il bundle ne dichiarerebbe l'impronta sbagliata.
+    # `contents: write` sta quindi qui, sul job che committa, e su nessun altro.
+    permissions:
+      contents: write
+
+    outputs:
+      cambiato: ${{ steps.patch.outputs.cambiato }}
+      base: ${{ steps.patch.outputs.base }}
+      riepilogo: ${{ steps.patch.outputs.riepilogo }}
+
+    steps:
+      # Una variabile non configurata farebbe fare ad `actions/checkout` la cosa
+      # peggiore possibile: ripiegare in silenzio sul repository corrente e
+      # scriverci dentro il bundle. Si dichiara prima, o non si parte.
+      - name: 'Precondizione — il repository del sito e dichiarato'
+        env:
+          REPO_SITO: ${{ vars.REPO_SITO }}
+        run: |
+          if [ -z "$REPO_SITO" ]; then
+            echo "::error::la variabile di repository REPO_SITO non e' configurata."
+            echo "Va impostata in Settings > Secrets and variables > Actions > Variables,"
+            echo "col valore <organizzazione>/<repository> del repo del sito."
+            echo "Qui non si scrive: il nome del repository e' configurazione (D-14/D-57)."
+            exit 1
+          fi
+          echo "repository del sito: $REPO_SITO"
+
+      - name: Checkout dei quaderni
+        uses: actions/checkout@v5
+
+      # Il repo del sito e' PRIVATO, quindi il checkout non e' anonimo. Il token
+      # di sola lettura basta e avanza: questo job non deve poterci scrivere.
+      # Serve per quattro cose, tutte necessarie all'ingest:
+      #   - `content/labs/schema/lab-bundle.schema.json`, che e' il contratto e
+      #     insieme la prova che quella cartella e' il checkout del sito;
+      #   - `content/redirects/legacy-routes.source.json`, da cui si legge la
+      #     descrizione INGLESE di ogni rotta;
+      #   - i bundle gia' pubblicati, perche' gli `alt` scritti a mano si fondono
+      #     invece di essere ricomposti da zero;
+      #   - `node_modules/.bin/svgo` e `pnpm verify:labs`.
+      - name: Checkout del repo del sito
+        uses: actions/checkout@v5
+        with:
+          repository: ${{ vars.REPO_SITO }}
+          token: ${{ secrets.TOKEN_SITO_LETTURA }}
+          path: sito
+
+      # La versione di pnpm non si scrive qui: la prende dal campo
+      # `packageManager` del `package.json` del SITO, che ne e' l'unica sede.
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          package_json_file: sito/package.json
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: sito/pnpm-lock.yaml
+
+      # `--frozen-lockfile`: le versioni le decide il lockfile committato, non il
+      # registry al momento del giro. E' anche cio' che pinna `svgo`, che l'ingest
+      # lancia come sottoprocesso per pesare le figure sul markup servito.
+      - name: Installa le dipendenze del sito
+        working-directory: sito
+        run: pnpm install --frozen-lockfile
+
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+
+      # `--locked` e' il `--frozen-lockfile` di uv: pretende che `uv.lock` sia
+      # allineato a `pyproject.toml` invece di risolvere versioni nuove. NESSUNA
+      # DIPENDENZA NUOVA: l'ambiente che esegue i quaderni e' quello gia'
+      # dichiarato dal repository (nbclient, jupytext, matplotlib, polars).
+      - name: Ripristina l'ambiente Python
+        run: uv sync --locked
+
+      # PRIMA dell'ingest, non dopo. `costruisci.py` verifica per primo che tutti
+      # e 29 i quaderni dichiarino l'indirizzo di avvio giusto e si ferma se non
+      # e' cosi' (e' lo stesso controllo di `--verifica`: uno step separato
+      # farebbe girare due volte lo stesso gate e lascerebbe credere che siano
+      # due). Poi ricostruisce i `.ipynb` dai `.py`. Se girasse dopo, l'ingest
+      # avrebbe gia' pubblicato l'impronta del quaderno vecchio.
+      - name: 'Gate — i 29 quaderni si ricostruiscono dai sorgenti'
+        run: uv run python codice/lab/costruisci.py
+
+      # Il passo lungo: 29 kernel, 40 figure, gli output catturati e scritti nel
+      # checkout del sito. Non tocca la rete — `avvio.prepara` riconosce di stare
+      # dentro un checkout e usa gli snapshot Parquet versionati (D-09).
+      - name: Esegue i 29 quaderni e scrive il bundle nel checkout del sito
+        run: uv run python codice/lab/estrai_bundle.py --sito sito
+
+      # LA VALIDAZIONE STA QUI, PRIMA CHE LA PR ESISTA (D-08). E' lo stesso
+      # validatore che il sito usa, quindi non puo' divergere: forma, parita' fra
+      # le due lingue, impronte a LF, budget di peso delle figure, `alt`,
+      # invarianti dell'SVG. A diventare rosso e' il repository che ha cambiato
+      # qualcosa, non il deploy di chi lo riceve.
+      - name: 'Gate — il bundle rispetta il contratto (LAB-03/LAB-07)'
+        working-directory: sito
+        run: pnpm verify:labs
+
+      # Un lab nuovo produce una cartella nuova, e la mappa che porta il bundle
+      # dentro il documento e' generata dalle cartelle. Una mappa vecchia compila
+      # benissimo: il sintomo sarebbe una pagina mancante, non un errore. Costa
+      # millisecondi e chiude qui una PR che nascerebbe gia' rossa.
+      - name: 'Gate — la mappa del bundle e allineata alle cartelle (LAB-02)'
+        working-directory: sito
+        run: pnpm verify:bundle-index
+
+      # I DUE LAB CHE NON SI RIPRODUCONO (piano 04-12). L'elenco e la ragione
+      # vivono in `estrazione/riproducibilita.py` e li stampa gia' l'ingest: qui
+      # si leggono da li', mai ricopiati, perche' due elenchi divergono.
+      #
+      # La regola e' piu' fine di «salta questi due»: si annulla il RUMORE, non il
+      # lab. Se le impronte del sorgente non sono cambiate, il diff di quel lab e'
+      # per costruzione un numero di tempo o un numero casuale, e si butta; se
+      # sono cambiate, il sorgente e' cambiato davvero e il lab entra nella PR con
+      # tutto il suo contenuto. Un'esclusione secca lascerebbe quei due bundle
+      # vecchi per sempre senza dirlo a nessuno.
+      - name: 'I due lab non riproducibili: si annulla il rumore, non il lab'
+        env:
+          PYTHONPATH: codice/lab
+        run: |
+          set -euo pipefail
+          codici=$(uv run python -c "from estrazione.riproducibilita import NON_RIPRODUCIBILI; print(' '.join(sorted(NON_RIPRODUCIBILI)))")
+          cd sito
+          for codice in $codici; do
+            cartella="content/labs/$codice"
+            [ -d "$cartella" ] || continue
+            if git diff --quiet -- "$cartella"; then
+              echo "$codice: nessuna differenza."
+              continue
+            fi
+            prima=$(git show "HEAD:$cartella/lab.json" | node -e 'let t="";process.stdin.on("data",d=>t+=d).on("end",()=>console.log(JSON.stringify(JSON.parse(t).impronteSorgente)))')
+            dopo=$(node -e 'console.log(JSON.stringify(JSON.parse(require("node:fs").readFileSync(process.argv[1],"utf8")).impronteSorgente))' "$cartella/lab.json")
+            if [ "$prima" = "$dopo" ]; then
+              git checkout -- "$cartella"
+              echo "$codice: sorgente invariato, differenza annullata perche' dichiarata non riproducibile."
+            else
+              echo "$codice: il sorgente E' cambiato, il lab entra nella PR."
+            fi
+          done
+          cd ..
+          uv run python -c "from estrazione.riproducibilita import righe_di_dichiarazione; print('\n'.join('  ' + r for r in righe_di_dichiarazione()))"
+
+      # I `.ipynb` si committano PULITI, senza output (D-51): e' cio' che Colab
+      # chiede, e committarli eseguiti farebbe crescere il repository di qualche
+      # megabyte a ogni giro.
+      #
+      # PERCHE' QUESTO PUSH NON RIACCENDE IL WORKFLOW. I `.ipynb` stanno in
+      # `codice/lab/**`, che e' uno dei percorsi del filtro qui sopra: un push
+      # fatto con un token qualunque riavvierebbe il giro all'infinito. GitHub non
+      # avvia workflow su eventi generati dal `GITHUB_TOKEN` del repository, ed e'
+      # esattamente per questo che qui si usa quello e non un PAT.
+      - name: Committa i quaderni ricostruiti
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- 'codice/lab/*.ipynb'; then
+            echo "I 29 quaderni erano gia' allineati ai sorgenti: niente da committare."
+            exit 0
+          fi
+          git config user.name 'Cryptoverso (quaderni)'
+          git config user.email 'tech-area@cryptoverso.net'
+          git add -- 'codice/lab/*.ipynb'
+          git commit -m 'I quaderni tornano allineati ai sorgenti' \
+                     -m "Ricostruiti da codice/lab/costruisci.py nel giro ${GITHUB_RUN_ID}."
+          git push
+
+      # La differenza da portare al sito si prende come PATCH, non come cartella:
+      # cosi' arrivano anche le cancellazioni, l'artefatto pesa qualche KB, e il
+      # job che apre la PR non ha bisogno di sapere che cosa scrive l'ingest.
+      #
+      # LA DATA DA SOLA NON APRE UNA PR. `lab.json` porta `eseguito`, che e' la
+      # data del giro: senza questa regola, il primo giro di domani produrrebbe 29
+      # file diversi e una PR che non cambia una riga di contenuto. Una PR
+      # quotidiana che nessuno legge e' peggio di nessuna PR.
+      - name: Che cosa e cambiato davvero
+        id: patch
+        working-directory: sito
+        run: |
+          set -euo pipefail
+          echo "base=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          git add -A content/labs
+          if git diff --cached --quiet; then
+            echo "cambiato=no" >> "$GITHUB_OUTPUT"
+            echo "Il bundle prodotto e' identico a quello pubblicato."
+            exit 0
+          fi
+          reale=$(git diff --cached -U0 | grep -E '^[+-]' | grep -Ev '^(\+\+\+|---)' | grep -v '"eseguito"' || true)
+          if [ -z "$reale" ]; then
+            git reset --quiet
+            git checkout -- content/labs
+            echo "cambiato=no" >> "$GITHUB_OUTPUT"
+            echo "Cambia solo la data di esecuzione: niente da pubblicare."
+            exit 0
+          fi
+          git diff --cached --binary > "$GITHUB_WORKSPACE/bundle.patch"
+          git diff --cached --stat
+          echo "cambiato=si" >> "$GITHUB_OUTPUT"
+          {
+            echo 'riepilogo<<PATCH'
+            git diff --cached --stat
+            echo PATCH
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Consegna la patch al job che apre la PR
+        if: steps.patch.outputs.cambiato == 'si'
+        uses: actions/upload-artifact@v4
+        with:
+          name: bundle-patch
+          path: bundle.patch
+          retention-days: 7
+
+  # =========================================================================
+  # La PR verso il repo del sito.
+  #
+  # Job SEPARATO, e non e' pulizia formale: e' l'unico posto in cui vive il
+  # segreto che puo' SCRIVERE su un altro repository (T-4-49). Qui non si esegue
+  # una riga di codice dei quaderni — si applica una patch e si apre una PR — e
+  # questo e' cio' che tiene il token fuori dalla portata di ventinove file che
+  # eseguono codice.
+  #
+  # E IL `GITHUB_TOKEN` NON BASTA, PER COSTRUZIONE: e' un token limitato al
+  # repository che lo emette. La PR va aperta su un ALTRO repository, per giunta
+  # privato, e questo richiede una credenziale esplicita — un fine-grained token
+  # ristretto a quel solo repository, con `Contents` e `Pull requests`.
+  # =========================================================================
+  pr-sito:
+    name: Apre la PR col bundle aggiornato sul repo del sito
+    needs: quaderni
+    if: needs.quaderni.outputs.cambiato == 'si'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    # Nessun permesso su QUESTO repository: questo job non lo tocca. Il permesso
+    # che gli serve non e' un permesso del workflow, e' un segreto.
+    permissions:
+      contents: read
+
+    steps:
+      - name: Ritira la patch
+        uses: actions/download-artifact@v4
+        with:
+          name: bundle-patch
+
+      # Allo STESSO commit su cui la patch e' stata calcolata: applicarla a un
+      # `main` nel frattempo avanzato significherebbe scoprire il conflitto qui,
+      # dove nessuno lo legge, invece che nella PR, dove GitHub lo mostra.
+      - name: Checkout del repo del sito
+        uses: actions/checkout@v5
+        with:
+          repository: ${{ vars.REPO_SITO }}
+          token: ${{ secrets.TOKEN_PR_SITO }}
+          ref: ${{ needs.quaderni.outputs.base }}
+          path: sito
+
+      - name: Applica il bundle e apre la PR
+        working-directory: sito
+        env:
+          GH_TOKEN: ${{ secrets.TOKEN_PR_SITO }}
+          REPO_SITO: ${{ vars.REPO_SITO }}
+          RIEPILOGO: ${{ needs.quaderni.outputs.riepilogo }}
+          RAMO: quaderni/bundle
+        run: |
+          set -euo pipefail
+          git apply --index "$GITHUB_WORKSPACE/bundle.patch"
+          git config user.name 'Cryptoverso (quaderni)'
+          git config user.email 'tech-area@cryptoverso.net'
+          git commit -m 'Il bundle dei lab arriva dai quaderni eseguiti' \
+                     -m "Prodotto da ${GITHUB_REPOSITORY}@${GITHUB_SHA} nel giro ${GITHUB_RUN_ID}."
+          # Il ramo e' sempre lo stesso e si riscrive a ogni giro: cosi' una PR
+          # aperta e non ancora unita si AGGIORNA invece di essere affiancata da
+          # una seconda. E' un ramo che apre e chiude questo workflow, non un ramo
+          # di lavoro di qualcuno.
+          git push --force origin "HEAD:refs/heads/$RAMO"
+          aperta=$(gh pr list --repo "$REPO_SITO" --head "$RAMO" --state open --json number --jq '.[0].number // empty')
+          if [ -n "$aperta" ]; then
+            echo "PR #$aperta gia' aperta: il push l'ha aggiornata."
+            exit 0
+          fi
+          corpo=$(cat <<CORPO
+          Prodotto dal repository dei quaderni eseguendo i 29 sorgenti.
+
+          Origine: \`${GITHUB_REPOSITORY}@${GITHUB_SHA}\`
+          Giro: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}
+
+          Il contratto del bundle e la mappa delle cartelle sono gia' stati
+          verificati nel repository dei quaderni, PRIMA che questa PR esistesse
+          (D-08): \`pnpm verify:labs\` e \`pnpm verify:bundle-index\`.
+
+          File toccati:
+
+          \`\`\`
+          ${RIEPILOGO}
+          \`\`\`
+          CORPO
+          )
+          gh pr create --repo "$REPO_SITO" --base main --head "$RAMO" \
+            --title 'Bundle dei lab rigenerato dai quaderni' \
+            --body "$corpo"
