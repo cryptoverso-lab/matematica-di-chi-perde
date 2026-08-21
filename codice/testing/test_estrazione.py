@@ -33,8 +33,19 @@ LAB = RADICE / "codice" / "lab"
 sys.path.insert(0, str(RADICE / "codice" / "src"))
 sys.path.insert(0, str(LAB))
 
-import estrai_bundle  # noqa: E402
-import prosa  # noqa: E402
+# Si importa dai MODULI, non da un barrel: dopo la divisione di 04-08 l'ingest
+# e' un pacchetto, e un `import estrai_bundle` che ri-esportasse tutto avrebbe
+# lasciato questi test identici — cioe' avrebbe reso la divisione invisibile,
+# che e' il modo di non farla.
+from estrazione import prosa  # noqa: E402
+from estrazione.celle import cella_di_setup, celle_del_sorgente  # noqa: E402
+from estrazione.comune import ProblemaDiIngest  # noqa: E402
+from estrazione.dataset import (  # noqa: E402
+    CAMPI_DI_PROVENIENZA,
+    provenienza_delle_serie,
+    serie_dichiarate,
+)
+from estrazione.sorgente import ATTESI, estrai_dal_sorgente  # noqa: E402
 
 #: Un LaTeX qualunque, scritto come stringa grezza: il backslash e' un
 #: carattere del TeX, non un escape di Python.
@@ -45,9 +56,9 @@ REGISTRO = json.loads((RADICE / "codice" / "dati" / "registro.json").read_text(e
 
 def _serie_di(nome_file: str) -> list[str]:
     percorso = LAB / nome_file
-    celle = estrai_bundle.celle_del_sorgente(percorso)
-    setup = estrai_bundle.cella_di_setup(celle, percorso)
-    return estrai_bundle.serie_dichiarate(setup, percorso)
+    celle = celle_del_sorgente(percorso)
+    setup = cella_di_setup(celle, percorso)
+    return serie_dichiarate(setup, percorso)
 
 
 def _copia_con(tmp_path: Path, nome_file: str, prima: str, dopo: str) -> Path:
@@ -94,12 +105,12 @@ def test_una_serie_fuori_dal_registro_ferma_l_ingest_nominandola(tmp_path: Path)
         'avvio.prepara(["btcusdt", "ethusdt", "solusdt"])',
         'avvio.prepara(["inesistente"])',
     )
-    celle = estrai_bundle.celle_del_sorgente(copia)
-    setup = estrai_bundle.cella_di_setup(celle, copia)
-    serie = estrai_bundle.serie_dichiarate(setup, copia)
+    celle = celle_del_sorgente(copia)
+    setup = cella_di_setup(celle, copia)
+    serie = serie_dichiarate(setup, copia)
 
-    with pytest.raises(estrai_bundle.ProblemaDiIngest) as fallimento:
-        estrai_bundle.provenienza_delle_serie(serie, copia)
+    with pytest.raises(ProblemaDiIngest) as fallimento:
+        provenienza_delle_serie(serie, copia)
 
     messaggio = str(fallimento.value)
     assert "`inesistente`" in messaggio, "il rifiuto deve nominare la serie, non l'indice"
@@ -115,11 +126,11 @@ def test_una_forma_di_prepara_illeggibile_ferma_l_ingest_nominando_il_file(
         'avvio.prepara(["btcusdt", "ethusdt", "solusdt"])',
         "avvio.prepara(SERIE_SCELTE)",
     )
-    celle = estrai_bundle.celle_del_sorgente(copia)
-    setup = estrai_bundle.cella_di_setup(celle, copia)
+    celle = celle_del_sorgente(copia)
+    setup = cella_di_setup(celle, copia)
 
-    with pytest.raises(estrai_bundle.ProblemaDiIngest) as fallimento:
-        estrai_bundle.serie_dichiarate(setup, copia)
+    with pytest.raises(ProblemaDiIngest) as fallimento:
+        serie_dichiarate(setup, copia)
 
     messaggio = str(fallimento.value)
     assert copia.name in messaggio
@@ -133,8 +144,8 @@ def test_la_cella_di_setup_assente_ferma_l_ingest_nominando_il_file(tmp_path: Pa
     copia = tmp_path / "lab_05_senza_setup.py"
     copia.write_text(testo[:inizio] + testo[fine:], encoding="utf-8", newline="\n")
 
-    with pytest.raises(estrai_bundle.ProblemaDiIngest) as fallimento:
-        estrai_bundle.estrai_dal_sorgente(copia)
+    with pytest.raises(ProblemaDiIngest) as fallimento:
+        estrai_dal_sorgente(copia)
 
     messaggio = str(fallimento.value)
     assert copia.name in messaggio
@@ -149,12 +160,12 @@ def test_la_cella_di_setup_assente_ferma_l_ingest_nominando_il_file(tmp_path: Pa
 def test_la_provenienza_coincide_col_registro_campo_per_campo() -> None:
     percorso = LAB / "lab_05_misurare.py"
     serie = _serie_di("lab_05_misurare.py")
-    provenienza = estrai_bundle.provenienza_delle_serie(serie, percorso)
+    provenienza = provenienza_delle_serie(serie, percorso)
 
     assert sorted(provenienza) == sorted(serie)
     for nome in serie:
         atteso = REGISTRO[nome]
-        for campo in estrai_bundle.CAMPI_DI_PROVENIENZA:
+        for campo in CAMPI_DI_PROVENIENZA:
             assert provenienza[nome][campo] == atteso[campo], (
                 f"{nome}.{campo} e' stato riformattato invece di essere copiato (D-20)"
             )
@@ -166,7 +177,7 @@ def test_la_provenienza_coincide_col_registro_campo_per_campo() -> None:
 def test_nessuna_impronta_viene_ricalcolata() -> None:
     """Le sha256 del bundle sono quelle del registro, cifra per cifra."""
     percorso = LAB / "lab_05_misurare.py"
-    provenienza = estrai_bundle.provenienza_delle_serie(_serie_di("lab_05_misurare.py"), percorso)
+    provenienza = provenienza_delle_serie(_serie_di("lab_05_misurare.py"), percorso)
     for nome, voce in provenienza.items():
         assert voce["sha256"] == REGISTRO[nome]["sha256"]
         assert len(voce["sha256"]) == 64 and voce["sha256"].islower()
@@ -184,8 +195,8 @@ def test_crlf_e_lf_producono_gli_stessi_blocchi(tmp_path: Path) -> None:
     lf.write_bytes(testo.replace("\r\n", "\n").encode("utf-8"))
     crlf.write_bytes(testo.replace("\r\n", "\n").replace("\n", "\r\n").encode("utf-8"))
 
-    da_lf = estrai_bundle.estrai_dal_sorgente(lf)
-    da_crlf = estrai_bundle.estrai_dal_sorgente(crlf)
+    da_lf = estrai_dal_sorgente(lf)
+    da_crlf = estrai_dal_sorgente(crlf)
 
     assert da_lf.blocchi == da_crlf.blocchi
     assert da_lf.prosa == da_crlf.prosa
@@ -217,13 +228,13 @@ def test_il_corpus_intero_si_converte_senza_costrutti_sconosciuti() -> None:
     """
     celle = titoli = formule = 0
     for percorso in _sorgenti():
-        estrazione = estrai_bundle.estrai_dal_sorgente(percorso)
+        estrazione = estrai_dal_sorgente(percorso)
         celle += sum(1 for blocco in estrazione.blocchi if blocco["tipo"] == "prosa")
         titoli += estrazione.sostituzioni_titolo
         formule += estrazione.formule
 
     assert celle == 221, "celle di prosa convertite"
-    assert titoli == estrai_bundle.ATTESI["titolo"], (
+    assert titoli == ATTESI["titolo"], (
         "il titolo del libro compare una volta per file: un'occorrenza in piu' "
         "o in meno va guardata prima che finisca in 58 file del bundle (D-64)"
     )
@@ -236,12 +247,12 @@ def test_il_corpus_intero_si_converte_senza_costrutti_sconosciuti() -> None:
 def test_i_conteggi_pinnati_valgono_sul_corpus_intero() -> None:
     magic = raw = 0
     for percorso in _sorgenti():
-        estrazione = estrai_bundle.estrai_dal_sorgente(percorso)
+        estrazione = estrai_dal_sorgente(percorso)
         magic += estrazione.magic
         raw += estrazione.sostituzioni_raw
 
-    assert magic == estrai_bundle.ATTESI["magic"]
-    assert raw == estrai_bundle.ATTESI["raw_base"]
+    assert magic == ATTESI["magic"]
+    assert raw == ATTESI["raw_base"]
 
 
 @pytest.mark.parametrize(
@@ -264,8 +275,8 @@ def test_una_forma_non_prevista_ferma_l_ingest_nominando_file_e_cella(
         f"# ## 1. Tre sguardi\n#\n# {intruso}",
     )
 
-    with pytest.raises(estrai_bundle.ProblemaDiIngest) as fallimento:
-        estrai_bundle.estrai_dal_sorgente(copia)
+    with pytest.raises(ProblemaDiIngest) as fallimento:
+        estrai_dal_sorgente(copia)
 
     messaggio = str(fallimento.value)
     assert copia.name in messaggio

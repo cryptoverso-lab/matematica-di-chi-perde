@@ -38,12 +38,19 @@ from cvbook.link import RAW_BASE, ROTTE, URL_AVVIO  # noqa: E402
 #: qui. Fino a questo piano era ricopiato nei test, e il primo file nuovo di
 #: questa cartella lo ha fatto vedere — un modulo non-quaderno rendeva rosso il
 #: gate «ogni quaderno ha la sua rotta» invece di essere semplicemente ignorato.
+#: I `.py` di `codice/lab/` che NON sono quaderni. Sede unica: `test_quaderni.py`
+#: importa questa costante invece di ricopiarla, perche' due elenchi divergono e
+#: il giorno in cui divergono `costruisci.py` prova a costruire
+#: `estrai_bundle.ipynb`.
+#:
+#: I moduli dell'ingest non sono in elenco: dal piano 04-08 vivono nel pacchetto
+#: `codice/lab/estrazione/`, e un `glob("*.py")` non entra nelle sottocartelle.
+#: E' il modo migliore di essere esclusi — per posizione invece che per nome.
 ESCLUSI = {
     "avvio.py",
     "costruisci.py",
     "genera_indice.py",
     "estrai_bundle.py",
-    "prosa.py",
 }
 
 AVVIO = LAB / "avvio.py"
