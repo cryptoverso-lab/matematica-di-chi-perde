@@ -31,6 +31,7 @@ sys.path.insert(0, str(RADICE / "codice" / "lab"))
 
 from estrazione.bundle import figure_conservate  # noqa: E402
 from estrazione.comune import ProblemaDiIngest  # noqa: E402
+from estrazione.sito import MARCATORE_SITO, REGISTRO_ROTTE, descrizione_inglese  # noqa: E402
 
 #: L'apparato di una figura come lo scrive una persona: tre campi, tutti
 #: editoriali. Non e' una forma inventata per il test — e' quella dei due
@@ -102,3 +103,75 @@ def test_un_it_json_illeggibile_FERMA_l_ingest(tmp_path: Path) -> None:
     with pytest.raises(ProblemaDiIngest) as fallimento:
         figure_conservate(percorso, ["c03-1"])
     assert "it.json" in str(fallimento.value)
+
+
+# ------------------------------------------------------------------ #
+# La descrizione inglese: presa dal registro del sito, non tradotta   #
+# ------------------------------------------------------------------ #
+
+
+def _finto_checkout(tmp_path: Path, heading: str, heading_en: str | None) -> Path:
+    """Un checkout del sito ridotto ai due file che l'ingest legge."""
+    contratto = tmp_path / MARCATORE_SITO
+    contratto.parent.mkdir(parents=True, exist_ok=True)
+    contratto.write_text(
+        json.dumps({"$defs": {"labBundle": {"properties": {"versione": {"const": 1}}}}}),
+        encoding="utf-8",
+    )
+    registro = tmp_path / REGISTRO_ROTTE
+    registro.parent.mkdir(parents=True, exist_ok=True)
+    voce: dict = {"route": "l05", "heading": heading}
+    if heading_en is not None:
+        voce["headingEn"] = heading_en
+    registro.write_text(json.dumps({"routes": [voce]}, ensure_ascii=False), encoding="utf-8")
+    return tmp_path
+
+
+def test_la_descrizione_inglese_viene_dal_registro_senza_il_codice(tmp_path: Path) -> None:
+    """`domanda` di `en.json` e' l'intestazione che il sito pubblica gia' — su
+    `/lab`, in `llms.txt` e nei `<title>` inglesi — senza il codice davanti.
+    Tradurla qui significherebbe pubblicare due frasi diverse per la stessa
+    rotta sulla stessa pagina."""
+    sito = _finto_checkout(
+        tmp_path,
+        "L05 — Tre sguardi sugli stessi dati",
+        "L05 — Three views of the same data",
+    )
+    assert (
+        descrizione_inglese(sito, "L05", "Tre sguardi sugli stessi dati")
+        == "Three views of the same data"
+    )
+
+
+def test_due_registri_che_descrivono_rotte_diverse_fermano_l_ingest(tmp_path: Path) -> None:
+    """La prova in negativo, ed e' cio' che rende lecito prendere l'inglese da
+    un altro repository: si puo' finche' l'italiano dei due registri coincide.
+    Se diverge, la coppia non e' piu' la stessa frase in due lingue."""
+    sito = _finto_checkout(
+        tmp_path,
+        "L05 — Una descrizione che il libro non dichiara",
+        "L05 — Three views of the same data",
+    )
+    with pytest.raises(ProblemaDiIngest) as fallimento:
+        descrizione_inglese(sito, "L05", "Tre sguardi sugli stessi dati")
+    messaggio = str(fallimento.value)
+    assert "libro:" in messaggio and "sito:" in messaggio, (
+        "il messaggio deve mostrare le DUE frasi: e' l'unico modo di capire "
+        "quale dei due registri e' rimasto indietro"
+    )
+
+
+def test_un_registro_senza_intestazione_inglese_ferma_l_ingest(tmp_path: Path) -> None:
+    sito = _finto_checkout(tmp_path, "L05 — Tre sguardi sugli stessi dati", None)
+    with pytest.raises(ProblemaDiIngest) as fallimento:
+        descrizione_inglese(sito, "L05", "Tre sguardi sugli stessi dati")
+    assert "headingEn" in str(fallimento.value)
+
+
+def test_un_codice_che_il_sito_non_dichiara_ferma_l_ingest(tmp_path: Path) -> None:
+    """I 29 lab e i 32 redirect nascono dallo stesso elenco: un codice che
+    manca di la' e' una URL stampata sul libro che nessuna pagina serve."""
+    sito = _finto_checkout(tmp_path, "L05 — Tre sguardi", "L05 — Three views")
+    with pytest.raises(ProblemaDiIngest) as fallimento:
+        descrizione_inglese(sito, "L06", "Code grasse")
+    assert "l06" in str(fallimento.value)

@@ -1,4 +1,4 @@
-"""Una rotta diventa `lab.json` piu' `it.json`.
+"""Una rotta diventa `lab.json`, `it.json` e `en.json`.
 
 E' il punto in cui i pezzi si compongono: le celle, la prosa, i dataset e — dal
 piano 04-08 — gli output e le figure di un'esecuzione vera. I percorsi che
@@ -25,6 +25,7 @@ from .comune import (
 from .dataset import provenienza_delle_serie
 from .esecuzione import esegui
 from .figure import Figure
+from .sito import descrizione_inglese
 from .sorgente import Estrazione, estrai_dal_sorgente
 
 
@@ -47,8 +48,11 @@ def figure_conservate(percorso_it: Path, prodotte: Iterable[str]) -> dict:
     L'ordine e' quello delle figure prodotte, non quello del file su disco,
     cosi' due esecuzioni di fila scrivono lo stesso byte.
 
-    `en.json` non passa di qui perche' l'ingest non lo scrive affatto: la
-    fusione riguarda la sola lingua in cui l'apparato nasce.
+    DAL PIANO 04-12 PASSA DI QUI ANCHE `en.json`, e per la stessa ragione: da
+    quando la catena scrive le due lingue, l'apparato inglese delle figure —
+    che e' scritto a mano quanto quello italiano, e non e' la sua traduzione
+    (D-36) — avrebbe la vita di una riesecuzione esattamente come lo aveva
+    quello italiano prima di 04-10.
     """
     if not percorso_it.is_file():
         return {}
@@ -74,8 +78,8 @@ def figure_conservate(percorso_it: Path, prodotte: Iterable[str]) -> dict:
 
 def bundle_di_rotta(
     rotta, versione: int, eseguito: str, sito: Path
-) -> tuple[dict, dict, Estrazione]:
-    """`lab.json` (e, dal piano 04-07 Task 2, `it.json`) di una rotta.
+) -> tuple[dict, dict, dict, Estrazione]:
+    """I tre file del bundle di una rotta: `lab.json`, `it.json`, `en.json`.
 
     I percorsi che finiscono nel bundle sono RELATIVI al repo del libro: la URL
     di Colab, quella dei file grezzi e quella della pagina del repository si
@@ -131,20 +135,35 @@ def bundle_di_rotta(
         "blocchi": estrazione.blocchi,
     }
 
+    # L'apparato delle figure e' l'UNICO campo editoriale del bundle: lo scrive
+    # una persona nel repo del sito, non questa catena. Percio' si FONDE con
+    # cio' che sta su disco invece di essere ricomposto — vedi
+    # `figure_conservate`, che spiega il difetto misurato. Le due lingue si
+    # fondono SEPARATAMENTE perche' i due apparati sono due testi diversi, non
+    # uno tradotto: un `alt` inglese descrive la stessa figura a un lettore che
+    # non vede, e la descrive in inglese (D-36).
+    prodotte = [identificativo for identificativo, _ in figure.pesate]
+
     prosa = {
         "titolo": estrazione.titolo or rotta.titolo,
         "domanda": rotta.descrizione,
         "blocchi": estrazione.prosa,
-        # L'apparato delle figure e' l'UNICO campo editoriale del bundle: lo
-        # scrive una persona nel repo del sito, non questa catena. Percio' si
-        # FONDE con cio' che sta su disco invece di essere ricomposto — vedi
-        # `figure_conservate`, che spiega il difetto misurato.
-        "figure": figure_conservate(
-            cartella / "it.json", (identificativo for identificativo, _ in figure.pesate)
-        ),
+        "figure": figure_conservate(cartella / "it.json", prodotte),
     }
 
-    return lab, prosa, estrazione
+    # Il titolo inglese viene dal SORGENTE (il corsivo in testa alla prima coda
+    # inglese), la descrizione dal registro delle rotte del repo del sito: sono
+    # le due sole cose di `en.json` che non nascono dalla cella, e nessuna delle
+    # due viene tradotta qui. Il ripiego sul titolo italiano non esiste: se il
+    # sorgente non dichiara il titolo inglese, `prosa.py` si e' gia' fermato.
+    prosa_en = {
+        "titolo": estrazione.titolo_en,
+        "domanda": descrizione_inglese(sito, rotta.codice, rotta.descrizione),
+        "blocchi": estrazione.prosa_en,
+        "figure": figure_conservate(cartella / "en.json", prodotte),
+    }
+
+    return lab, prosa, prosa_en, estrazione
 
 
 def rotte_scelte(filtro: str | None) -> list:

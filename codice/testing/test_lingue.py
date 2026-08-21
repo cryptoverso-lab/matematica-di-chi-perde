@@ -13,6 +13,13 @@ toglie, e questi test presidiano le due cose che possono rompersi:
 
 Il secondo e' il presidio vero. Il primo e' un caso; il secondo e' la regola.
 
+DAL PIANO 04-12 c'e' un terzo presidio, ed e' della stessa famiglia: la coda
+inglese non viene piu' soltanto tolta dall'italiano, viene RESA, ed e' cio' che
+riempie `en.json`. Cio' che puo' rompersi li' e' la STRUTTURA — dove l'italiano
+ha un titolo, l'inglese ha un corsivo in testa, perche' dentro una citazione un
+`##` non si scrive — e si presidia allo stesso modo: i due casi, piu' il
+conteggio sul corpus (148 titoli rispecchiati, 29 titoli di lab).
+
 Uso:  uv run python -m pytest codice/testing/test_lingue.py -q
 """
 
@@ -35,6 +42,7 @@ from estrazione.prosa import (  # noqa: E402
     converti,
     separa_lingue,
 )
+from estrazione.sorgente import estrai_dal_sorgente  # noqa: E402
 from estrazione.sorgente import ATTESI  # noqa: E402
 
 CON_MARCATORE = """Tre sguardi sugli stessi identici dati.
@@ -135,3 +143,124 @@ def test_sul_corpus_intero_ogni_cella_markdown_e_bilingue() -> None:
         "sono blocchi che finirebbero in pagina in due lingue"
     )
     assert nude == ATTESI["code_inglesi_nude"]
+
+
+# ------------------------------------------------------------------ #
+# La coda inglese diventa HTML, e tiene la struttura dell'italiano     #
+# ------------------------------------------------------------------ #
+
+CON_TITOLO = """## 1. Tre sguardi
+
+Cambia `SERIE` e riesegui.
+
+---
+
+> **EN** — *1. Three views.* Change `SERIE` and rerun.
+"""
+
+CON_DOMANDA = """## 2. Vera o finta?
+
+Sei grafici.
+
+---
+
+> **EN** — *2. Real or fake?* Six charts.
+"""
+
+TITOLO_SENZA_CORSIVO = """## 3. Le quattro domande
+
+Prima di credere a un numero.
+
+---
+
+> **EN** — Before believing any number.
+"""
+
+def test_il_titolo_italiano_si_rispecchia_in_quello_inglese() -> None:
+    """Dove l'italiano ha un `##`, l'inglese ha un corsivo in testa — e torna a
+    essere un titolo dello stesso livello. Senza, la pagina inglese avrebbe la
+    stessa prosa con la struttura tolta."""
+    resa = converti(CON_TITOLO, "prova")
+    assert resa.html.startswith("<h2>1. Tre sguardi</h2>")
+    assert resa.html_en.startswith("<h2>1. Three views</h2>")
+    assert resa.html_en.endswith("<p>Change <code>SERIE</code> and rerun.</p>")
+    assert resa.titoli_specchio == 1
+    assert "<em>" not in resa.html_en, "il corsivo era un titolo, non un corsivo"
+
+
+def test_cade_il_punto_e_resta_il_punto_interrogativo() -> None:
+    """«*1. Three views.*» e' una frase e il punto e' suo; «2. Real or fake?»
+    senza il punto interrogativo sarebbe un'altra cosa."""
+    assert converti(CON_TITOLO, "prova").html_en.startswith("<h2>1. Three views</h2>")
+    assert converti(CON_DOMANDA, "prova").html_en.startswith("<h2>2. Real or fake?</h2>")
+
+
+def test_un_titolo_italiano_senza_corsivo_inglese_ferma_l_ingest() -> None:
+    """La prova in negativo dello specchio. Il costo di NON fermarsi e' una
+    sezione che sparisce dalla pagina inglese senza che nessuno lo veda."""
+    with pytest.raises(ProsaSconosciuta) as fallimento:
+        converti(TITOLO_SENZA_CORSIVO, "prova")
+    assert "corsivo" in str(fallimento.value)
+
+
+def test_il_corsivo_che_va_a_capo_e_lo_stesso_titolo() -> None:
+    """Nel corpus succede 4 volte su 148: il corsivo sta su due righe perche' la
+    riga del sorgente e' finita, non perche' il titolo abbia due righe."""
+    cella = (
+        "## 2. Rispetto a cosa? Il confronto onesto\n\nIl confronto giusto.\n\n"
+        "---\n\n> **EN** — *2. Compared to what? The honest comparison on the\n"
+        "> second half.* The right comparison.\n"
+    )
+    resa = converti(cella, "prova")
+    assert resa.html_en.startswith(
+        "<h2>2. Compared to what? The honest comparison on the second half</h2>"
+    )
+
+
+def test_la_prima_cella_da_il_titolo_inglese_del_lab() -> None:
+    """Il titolo del lab e' un campo del bundle in tutte e due le lingue: in
+    italiano lo stacca `titolo_e_corpo`, in inglese e' il corsivo in testa alla
+    prima coda. Se restasse nella prosa, la pagina lo mostrerebbe due volte."""
+    cella = (
+        "*Quaderno del capitolo «Cosa vuol dire misurare».*\n\nTre sguardi.\n\n"
+        "---\n\n> **EN** — *Lab 5 — Looking is not measuring.* Notebook for the "
+        "chapter. Three views.\n"
+    )
+    resa = converti(cella, "prova", prima_cella=True)
+    assert resa.titolo_en == "Lab 5 — Looking is not measuring"
+    assert "Looking is not measuring" not in resa.html_en
+    assert resa.html_en.startswith("<p>Notebook for the chapter.")
+    assert resa.titoli_specchio == 0, "la prima cella non rispecchia un titolo: lo DA'"
+
+
+def test_la_cella_tutta_inglese_non_produce_nemmeno_il_blocco_inglese() -> None:
+    """La decisione del piano 04-12 sulla voce 14 di `deferred-items.md`: quella
+    cella non entra ne' in `it.json` ne' in `en.json`. Un blocco presente in una
+    lingua sola costerebbe un campo di contratto, un ramo nel gate di parita' e
+    un ramo nella pagina — per pubblicare la glossa di un output che la pagina
+    inglese gia' dichiara di servire in italiano."""
+    estrazione = estrai_dal_sorgente(LAB / "lab_21_ai.py")
+    assert estrazione.prosa_solo_inglese == 1
+    assert set(estrazione.prosa) == set(estrazione.prosa_en), (
+        "gli identificativi devono coincidere nelle due lingue: e' la parita' "
+        "che il gate del sito pretende"
+    )
+
+
+@pytest.mark.lento
+def test_sul_corpus_intero_la_struttura_inglese_specchia_l_italiana() -> None:
+    """Il presidio vero dello specchio: 148 titoli e 29 titoli di lab, contati
+    sui 29 sorgenti. Un numero che scende e' una sezione che la pagina inglese
+    non ha piu'."""
+    specchi = 0
+    titoli = 0
+    blocchi_en = 0
+    for percorso in sorted(LAB.glob("lab_*.py")) + sorted(LAB.glob("calc_*.py")):
+        estrazione = estrai_dal_sorgente(percorso)
+        specchi += estrazione.titoli_specchio
+        titoli += 1 if estrazione.titolo_en else 0
+        blocchi_en += len(estrazione.prosa_en)
+        assert set(estrazione.prosa) == set(estrazione.prosa_en), percorso.name
+    assert specchi == ATTESI["titoli_specchio"]
+    assert titoli == ATTESI["titolo_en"]
+    assert blocchi_en == ATTESI["code_inglesi"] - ATTESI["prosa_solo_inglese"]

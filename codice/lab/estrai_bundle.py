@@ -139,11 +139,17 @@ def main() -> None:
         estrazioni: list[Estrazione] = []
         scritti = 0
         for rotta in rotte:
-            lab, prosa, estrazione = bundle_di_rotta(rotta, versione, argomenti.eseguito, sito)
+            lab, prosa, prosa_en, estrazione = bundle_di_rotta(
+                rotta, versione, argomenti.eseguito, sito
+            )
             estrazioni.append(estrazione)
             cartella = sito / "content" / "labs" / lab["codice"]
             scrivi_json(cartella / "lab.json", lab)
             scrivi_json(cartella / "it.json", prosa)
+            # I tre file sono indivisibili (D-11): un bundle con la struttura e
+            # una lingua sola non e' un lab a meta', e' un lab che il sito non
+            # pubblica. Si scrivono insieme perche' insieme vengono letti.
+            scrivi_json(cartella / "en.json", prosa_en)
             scritti += 1
 
         if argomenti.lab is None:
@@ -175,8 +181,9 @@ def main() -> None:
     # stampato e' cio' che distingue «tolte» da «non c'erano».
     print(
         f"  bilingui: {sum(e.code_inglesi for e in estrazioni)} code inglesi "
-        f"tolte dall'italiano, di cui "
+        f"tolte dall'italiano e rese in `en.json`, di cui "
         f"{sum(e.code_inglesi_nude for e in estrazioni)} senza marcatore; "
+        f"{sum(e.titoli_specchio for e in estrazioni)} titoli rispecchiati; "
         f"{sum(e.prosa_solo_inglese for e in estrazioni)} celle tutte inglesi, "
         "senza un blocco italiano"
     )

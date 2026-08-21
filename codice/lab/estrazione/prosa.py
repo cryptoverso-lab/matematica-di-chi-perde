@@ -80,6 +80,16 @@ class Resa:
     #: `True` quando la coda e' stata riconosciuta dall'impronta e non dal
     #: marcatore: e' il ramo fragile, e va contato a parte.
     coda_senza_marcatore: bool = False
+    #: L'HTML della coda inglese, prodotto dallo STESSO convertitore
+    #: dell'italiano. Dal piano 04-12 e' cio' che entra in `en.json`: fino ad
+    #: allora la coda usciva in markdown e serviva solo a essere contata.
+    html_en: str = ""
+    #: Il titolo inglese del lab, dalla prima cella e da nessun'altra parte.
+    titolo_en: str = ""
+    #: Quante volte il corsivo che apre la coda inglese e' diventato un titolo
+    #: dello stesso livello di quello italiano. E' il conteggio che presidia lo
+    #: specchio: vedi `_inglese_di_cella`.
+    titoli_specchio: int = 0
 
 
 #: Le forme che fanno fermare l'ingest, con la ragione gia' scritta accanto:
@@ -411,12 +421,131 @@ def separa_lingue(sorgente: str, dove: str) -> tuple[str, str, bool]:
     return sorgente, "", False
 
 
-def converti(sorgente: str, dove: str) -> Resa:
-    """L'HTML di una cella markdown, con i conteggi che il chiamante pinna.
+#: Il corsivo che apre una coda inglese: `*1. Three views.*`, `*Exercises.*`,
+#: `*Lab 5 — Looking is not measuring.*`. Non e' un vezzo dell'autore, e' la
+#: STRUTTURA della cella scritta in una riga sola — dentro una citazione un
+#: `##` non si puo' scrivere senza rompere il blocco.
+#:
+#: `re.S` perche' il corsivo VA A CAPO: nel corpus succede 4 volte su 148, e un
+#: `[^*\n]+` le avrebbe lasciate fuori proprio nei titoli piu' lunghi. I
+#: doppioni `**` sono esclusi da entrambi i lati: senza, un grassetto in testa
+#: verrebbe scambiato per un corsivo e la coda perderebbe la sua prima frase.
+CORSIVO_IN_TESTA_RE = re.compile(r"^\*(?!\*)(.+?)(?<!\*)\*(?!\*)", re.S)
 
-    LA CELLA SI DIVIDE PRIMA DI ESSERE CONVERTITA: cio' che entra in `it.json`
-    e' il solo ramo italiano. La coda inglese esce da `Resa.coda_inglese`, in
-    markdown, e non viene convertita — vedi il campo.
+
+def _corsivo_in_testa(inglese: str) -> tuple[str | None, str]:
+    """Il corsivo che apre la coda inglese, e cio' che resta dopo di lui."""
+    spoglia = inglese.strip()
+    trovato = CORSIVO_IN_TESTA_RE.match(spoglia)
+    if trovato is None:
+        return None, spoglia
+    # Le righe si ricuciono in una: il corsivo e' andato a capo per stare nella
+    # colonna del sorgente, non perche' il titolo abbia due righe.
+    return " ".join(trovato.group(1).split()), spoglia[trovato.end() :].lstrip()
+
+
+def _livello_del_titolo_italiano(italiano: str) -> int | None:
+    """Il livello del titolo con cui si apre il ramo italiano, se c'e'."""
+    for riga in italiano.split("\n"):
+        nuda = riga.strip()
+        if nuda == "":
+            continue
+        trovato = TITOLO_RE.match(nuda)
+        return len(trovato.group(1)) if trovato is not None else None
+    return None
+
+
+def _inglese_di_cella(
+    inglese: str, italiano: str, dove: str, resa: Resa, prima_cella: bool
+) -> str:
+    """La coda inglese diventa HTML, con la STESSA struttura del ramo italiano.
+
+    LA COSA IMPORTANTE: l'inglese non viene tradotto qui, e non viene tradotto
+    da nessuna parte. E' gia' scritto nei sorgenti, dall'autore, dentro la
+    stessa cella dell'italiano (voce 12 di `deferred-items.md`). Questa funzione
+    lo RENDE, e lo rende con lo stesso convertitore dell'italiano: due
+    convertitori sarebbero due modi diversi di sbagliare, e il secondo
+    riguarderebbe la lingua che nessuno rilegge (D-36).
+
+    LO SPECCHIO DEI TITOLI, misurato prima di essere scritto. Dentro una
+    citazione markdown un `##` non si puo' scrivere, quindi dove l'italiano ha
+    un titolo l'autore mette un CORSIVO in testa alla coda. Il censimento sui 29
+    sorgenti dice che la corrispondenza e' esatta:
+
+    | Forma | Quante |
+    |---|---|
+    | rami italiani che aprono con un titolo `##`/`###` | 148 |
+    | code inglesi che aprono con un corsivo (prime celle escluse) | 148 |
+    | code inglesi col corsivo e ramo italiano SENZA titolo | 0 |
+
+    Percio' il corsivo torna a essere un titolo dello stesso livello, e il
+    conteggio e' pinnato (`sorgente.ATTESI['titoli_specchio']`). Senza lo
+    specchio la pagina inglese avrebbe 148 titoli in meno dell'italiana — cioe'
+    sarebbe la stessa pagina con la struttura tolta, che e' esattamente il modo
+    in cui una lingua diventa quella di scarto.
+
+    IL PUNTO FINALE CADE. «*1. Three views.*» e' una frase, e il punto e' suo;
+    «1. Three views» e' un titolo, e un titolo non finisce col punto — quello
+    italiano non ce l'ha. Cade SOLO il punto: un `?` resta, perche' «2. Compared
+    to what?» senza il punto interrogativo e' un'altra cosa.
+
+    UNA CODA CHE APRE COL CORSIVO DOVE L'ITALIANO NON HA TITOLI resta com'e':
+    e' una frase in corsivo, e diventa un `<em>` come in italiano.
+    """
+    if inglese.strip() == "":
+        return ""
+
+    testa, resto = _corsivo_in_testa(inglese)
+
+    if prima_cella:
+        # Il titolo del lab e' un campo del bundle, non un capoverso: in
+        # italiano lo stacca `titolo_e_corpo` dal `# ...`, in inglese e' il
+        # corsivo in testa alla prima coda. Compare 29 volte su 29 (misurato), e
+        # senza di lui `en.json` porterebbe il titolo italiano su una pagina che
+        # dichiara ai crawler di essere inglese.
+        if testa is None:
+            _fallisci(
+                dove,
+                "la prima coda inglese non apre col titolo del lab in corsivo "
+                "(`*Lab N — ...*`): il titolo di `en.json` andrebbe inventato",
+            )
+        resa.titolo_en = testa.rstrip(".").strip()
+        inglese = resto
+    else:
+        livello = _livello_del_titolo_italiano(italiano)
+        if livello is not None:
+            if testa is None:
+                _fallisci(
+                    dove,
+                    "il ramo italiano apre con un titolo e la coda inglese non "
+                    "apre con un corsivo: il titolo inglese non esiste, e la "
+                    "pagina EN perderebbe una sezione senza dirlo",
+                )
+            resa.titoli_specchio += 1
+            inglese = f"{'#' * livello} {testa.rstrip('.').strip()}\n\n{resto}"
+        else:
+            inglese = inglese.strip()
+
+    # Il titolo del libro si sostituisce anche qui, e per la stessa ragione: se
+    # un giorno una coda inglese lo nominera' (oggi zero volte su 221), il
+    # letterale finirebbe nel bundle e `pnpm verify:libro` del repo del sito se
+    # ne accorgerebbe il giorno del cambio di titolo, non prima.
+    conteggio = inglese.count(TITOLO)
+    if conteggio:
+        inglese = inglese.replace(TITOLO, "{{TITOLO_LIBRO}}")
+        resa.sostituzioni_titolo += conteggio
+
+    return "".join(_blocchi(inglese.split("\n"), dove, resa))
+
+
+def converti(sorgente: str, dove: str, prima_cella: bool = False) -> Resa:
+    """L'HTML di una cella markdown NELLE DUE LINGUE, coi conteggi pinnati.
+
+    LA CELLA SI DIVIDE PRIMA DI ESSERE CONVERTITA: `html` e' il solo ramo
+    italiano, `html_en` e' la coda inglese resa dallo stesso convertitore. Fino
+    al piano 04-12 la coda usciva in markdown e serviva solo a essere contata;
+    da qui in avanti e' cio' che riempie `en.json`, e la traduzione non e' un
+    lavoro che qualcuno debba rifare: e' gia' nel sorgente, scritta dall'autore.
 
     UNA CELLA PUO' ESSERE TUTTA INGLESE, e allora `html` esce vuoto. Nel corpus
     ce n'e' UNA (`lab_21_ai.py`, cella 17): traduce cio' che la cella di codice
@@ -424,17 +553,29 @@ def converti(sorgente: str, dove: str) -> Resa:
     output, non dentro un capoverso. Il ramo italiano e' legittimamente vuoto, e
     tocca al chiamante contarlo: e' `sorgente.ATTESI['prosa_solo_inglese']`, che
     vale 1 e diventa rosso se ne comparisse una seconda.
+
+    QUELLA CELLA NON PRODUCE NEMMENO UN BLOCCO INGLESE, ed e' la decisione del
+    piano 04-12 (voce 14 di `deferred-items.md`). Il gate di parita' del sito
+    pretende gli STESSI identificativi nelle due lingue: pubblicare un blocco
+    che esiste in una lingua sola costerebbe un campo di contratto (`soloIn`),
+    un ramo nel gate e un ramo nella pagina — tre modifiche per pubblicare un
+    capoverso che glossa un output che la pagina inglese gia' dichiara di
+    servire in italiano (D-12). Il capoverso resta nel sorgente, dove lo trova
+    il lettore che apre il quaderno.
     """
     resa = Resa(html="")
-    sorgente, resa.coda_inglese, resa.coda_senza_marcatore = separa_lingue(sorgente, dove)
-    if sorgente.strip() == "":
+    italiano, resa.coda_inglese, resa.coda_senza_marcatore = separa_lingue(sorgente, dove)
+    if italiano.strip() == "":
         if resa.coda_inglese == "":
             _fallisci(dove, "una cella markdown vuota")
         return resa
-    conteggio = sorgente.count(TITOLO)
-    testo = sorgente.replace(TITOLO, "{{TITOLO_LIBRO}}") if conteggio else sorgente
+    conteggio = italiano.count(TITOLO)
+    testo = italiano.replace(TITOLO, "{{TITOLO_LIBRO}}") if conteggio else italiano
     resa.sostituzioni_titolo = conteggio
     resa.html = "".join(_blocchi(testo.split("\n"), dove, resa))
     if resa.html == "":
         _fallisci(dove, "una cella markdown che non produce prosa")
+    resa.html_en = _inglese_di_cella(resa.coda_inglese, italiano, dove, resa, prima_cella)
+    if resa.coda_inglese and resa.html_en == "":
+        _fallisci(dove, "una coda inglese che non produce prosa")
     return resa

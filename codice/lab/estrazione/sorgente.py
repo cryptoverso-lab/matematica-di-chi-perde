@@ -48,6 +48,15 @@ from .prosa import ProsaSconosciuta, converti, titolo_e_corpo
 #: traduce cio' che la cella di codice prima di lei STAMPA. Non produce un
 #: blocco italiano, ed e' corretto — ma e' un'eccezione, e un'eccezione contata
 #: e' un'eccezione che non puo' diventare due senza che nessuno lo veda.
+#: `titoli_specchio` vale 148 ed e' il presidio della STRUTTURA della pagina
+#: inglese: tante quante sono le celle il cui ramo italiano apre con un titolo,
+#: e in ognuna il corsivo in testa alla coda inglese torna a essere un titolo
+#: dello stesso livello (`prosa._inglese_di_cella`). Se domani una coda perdesse
+#: il corsivo, l'ingest si fermerebbe; se un titolo italiano sparisse, il numero
+#: scenderebbe. In entrambi i casi la differenza si vede qui invece che in una
+#: pagina inglese con 148 sezioni in meno.
+#: `titolo_en` vale 29: ogni lab dichiara il proprio titolo inglese, e un lab che
+#: non lo dichiarasse avrebbe il titolo italiano dentro `en.json`.
 ATTESI = {
     "sorgenti": 29,
     "magic": 29,
@@ -57,6 +66,8 @@ ATTESI = {
     "code_inglesi": 221,
     "code_inglesi_nude": 29,
     "prosa_solo_inglese": 1,
+    "titoli_specchio": 148,
+    "titolo_en": 29,
 }
 
 
@@ -66,7 +77,12 @@ class Estrazione:
 
     blocchi: list[dict]
     prosa: dict[str, dict]
+    #: La stessa prosa in inglese, con gli STESSI identificativi di blocco: e'
+    #: la parita' che il gate del sito pretende, e nasce qui invece di essere
+    #: ricostruita a mano da chi traduce (D-11, D-35).
+    prosa_en: dict[str, dict]
     titolo: str | None
+    titolo_en: str | None
     setup: Cella
     dataset: list[str]
     magic: int
@@ -77,6 +93,7 @@ class Estrazione:
     code_inglesi: int = 0
     code_inglesi_nude: int = 0
     prosa_solo_inglese: int = 0
+    titoli_specchio: int = 0
 
 
 def estrai_dal_sorgente(
@@ -111,6 +128,7 @@ def estrai_dal_sorgente(
 
     blocchi: list[dict] = []
     prosa: dict[str, dict] = {}
+    prosa_en: dict[str, dict] = {}
     ordinali = {"markdown": 0, "code": 0}
     magic = 0
     sostituzioni_raw = 0
@@ -120,8 +138,10 @@ def estrai_dal_sorgente(
     code_inglesi = 0
     code_inglesi_nude = 0
     prosa_solo_inglese = 0
+    titoli_specchio = 0
     ordinali_figura: dict[str, int] = {}
     titolo: str | None = None
+    titolo_en: str | None = None
 
     for cella in celle:
         ordinali[cella.tipo] += 1
@@ -147,11 +167,21 @@ def estrai_dal_sorgente(
                         "  e il campo `titolo` di `it.json` andrebbe inventato."
                     )
             try:
-                resa = converti(testo, cella.dove)
+                resa = converti(testo, cella.dove, prima_cella=ordinali["markdown"] == 1)
             except ProsaSconosciuta as fallimento:
                 raise ProblemaDiIngest(str(fallimento)) from fallimento
             vieta_riferimenti_al_repository(resa.html, cella.dove, "la prosa della cella")
+            # Il divieto vale sulle DUE lingue: una URL del repository nella
+            # coda inglese sarebbe pubblicata su `/en/lab/<codice>` esattamente
+            # come lo sarebbe in italiano, e un controllo che guarda una lingua
+            # sola e' un controllo che copre meta' delle pagine (D-14).
+            vieta_riferimenti_al_repository(
+                resa.html_en, cella.dove, "la prosa inglese della cella"
+            )
             sostituzioni_titolo += resa.sostituzioni_titolo
+            titoli_specchio += resa.titoli_specchio
+            if resa.titolo_en:
+                titolo_en = resa.titolo_en
             formule += resa.formule
             code_inglesi += 1 if resa.coda_inglese else 0
             code_inglesi_nude += 1 if resa.coda_senza_marcatore else 0
@@ -166,6 +196,13 @@ def estrai_dal_sorgente(
                 continue
             blocchi.append({"id": chiave, "tipo": "prosa", "impronta": impronta})
             prosa[chiave] = {"testo": resa.html, "daImpronta": impronta}
+            # `daImpronta` e' la STESSA nelle due lingue, e non e' una
+            # semplificazione: le due prose vengono dalla stessa cella, quindi
+            # l'impronta da cui sono tradotte e' una sola. E' anche cio' che
+            # rende funzionante il presidio di D-13: cambiando la cella cambia
+            # l'impronta, e le due traduzioni diventano obsolete insieme —
+            # perche' insieme lo sono davvero.
+            prosa_en[chiave] = {"testo": resa.html_en, "daImpronta": impronta}
             continue
 
         magic += len(MAGIC.findall(cella.sorgente))
@@ -204,7 +241,9 @@ def estrai_dal_sorgente(
     return Estrazione(
         blocchi=blocchi,
         prosa=prosa,
+        prosa_en=prosa_en,
         titolo=titolo,
+        titolo_en=titolo_en,
         setup=setup,
         dataset=serie_dichiarate(setup, percorso),
         magic=magic,
@@ -215,6 +254,7 @@ def estrai_dal_sorgente(
         code_inglesi=code_inglesi,
         code_inglesi_nude=code_inglesi_nude,
         prosa_solo_inglese=prosa_solo_inglese,
+        titoli_specchio=titoli_specchio,
     )
 
 
@@ -234,6 +274,8 @@ def verifica_conteggi(estrazioni: list[Estrazione], problemi: list[str]) -> None
         "code_inglesi": sum(e.code_inglesi for e in estrazioni),
         "code_inglesi_nude": sum(e.code_inglesi_nude for e in estrazioni),
         "prosa_solo_inglese": sum(e.prosa_solo_inglese for e in estrazioni),
+        "titoli_specchio": sum(e.titoli_specchio for e in estrazioni),
+        "titolo_en": sum(1 for e in estrazioni if e.titolo_en),
     }
     for nome, atteso in ATTESI.items():
         if nome == "sorgenti":
