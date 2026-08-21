@@ -1,0 +1,326 @@
+"""L'ingest legge i sorgenti, e i suoi fallimenti hanno un nome.
+
+Questi test non eseguono nessun quaderno: leggono. Sono quindi veloci e girano
+anche con `-m "not lento"`, che e' il modo in cui la suite viene lanciata
+mentre si lavora — un controllo che gira solo nella corsa lunga e' un controllo
+che si scopre rotto tardi.
+
+Cinque cose sono asserite qui, e ognuna corrisponde a un difetto misurato:
+
+1. `lab_17` dichiara OTTO serie su due righe: una regex a riga singola ne
+   leggerebbe sei, e il `Dataset` JSON-LD della pagina direbbe il falso (P-10);
+2. `lab_02` ne dichiara ZERO, e zero e' un risultato valido, non un errore;
+3. una serie che il registro non conosce ferma l'ingest NOMINANDOLA;
+4. una forma di `prepara` illeggibile e una cella di setup assente lo fermano
+   NOMINANDO IL FILE;
+5. lo stesso sorgente in CRLF e in LF produce blocchi e impronte identici, che
+   e' cio' che tiene fermo il gate di parita' del sito fra Windows e il runner
+   Linux (D-46).
+
+Uso:  uv run python -m pytest codice/testing/test_estrazione.py -q
+"""
+
+from __future__ import annotations
+
+import json
+import sys
+from pathlib import Path
+
+import pytest
+
+RADICE = Path(__file__).resolve().parents[2]
+LAB = RADICE / "codice" / "lab"
+sys.path.insert(0, str(RADICE / "codice" / "src"))
+sys.path.insert(0, str(LAB))
+
+import estrai_bundle  # noqa: E402
+import prosa  # noqa: E402
+
+#: Un LaTeX qualunque, scritto come stringa grezza: il backslash e' un
+#: carattere del TeX, non un escape di Python.
+LATEX = r"\sigma^2"
+
+REGISTRO = json.loads((RADICE / "codice" / "dati" / "registro.json").read_text(encoding="utf-8"))
+
+
+def _serie_di(nome_file: str) -> list[str]:
+    percorso = LAB / nome_file
+    celle = estrai_bundle.celle_del_sorgente(percorso)
+    setup = estrai_bundle.cella_di_setup(celle, percorso)
+    return estrai_bundle.serie_dichiarate(setup, percorso)
+
+
+def _copia_con(tmp_path: Path, nome_file: str, prima: str, dopo: str) -> Path:
+    """Una copia di un sorgente vero con UNA cosa cambiata.
+
+    Si parte sempre da un file reale: un sorgente inventato dentro il test
+    proverebbe che l'ingest rifiuta un file inventato, non che rifiuta il
+    sorgente vero con un difetto dentro.
+    """
+    testo = (LAB / nome_file).read_text(encoding="utf-8")
+    assert prima in testo, f"il sorgente {nome_file} non contiene piu' {prima!r}"
+    copia = tmp_path / nome_file
+    copia.write_text(testo.replace(prima, dopo, 1), encoding="utf-8", newline="\n")
+    return copia
+
+
+# ------------------------------------------------------------------ #
+# I dataset: multiriga, vuoto, e cio' che il registro non conosce     #
+# ------------------------------------------------------------------ #
+
+
+def test_lab_17_dichiara_otto_serie_su_due_righe() -> None:
+    serie = _serie_di("lab_17_prezzo_e_tempo.py")
+    assert serie == [
+        "btcusdt",
+        "ethusdt",
+        "solusdt",
+        "ftsemib",
+        "eni",
+        "enel",
+        "intesa",
+        "generali",
+    ], "la chiamata di lab_17 sta su due righe: leggerne sei significa pubblicare il falso (P-10)"
+
+
+def test_lab_02_non_usa_dataset_e_non_e_un_errore() -> None:
+    assert _serie_di("lab_02_equity_casuali.py") == []
+
+
+def test_una_serie_fuori_dal_registro_ferma_l_ingest_nominandola(tmp_path: Path) -> None:
+    copia = _copia_con(
+        tmp_path,
+        "lab_05_misurare.py",
+        'avvio.prepara(["btcusdt", "ethusdt", "solusdt"])',
+        'avvio.prepara(["inesistente"])',
+    )
+    celle = estrai_bundle.celle_del_sorgente(copia)
+    setup = estrai_bundle.cella_di_setup(celle, copia)
+    serie = estrai_bundle.serie_dichiarate(setup, copia)
+
+    with pytest.raises(estrai_bundle.ProblemaDiIngest) as fallimento:
+        estrai_bundle.provenienza_delle_serie(serie, copia)
+
+    messaggio = str(fallimento.value)
+    assert "`inesistente`" in messaggio, "il rifiuto deve nominare la serie, non l'indice"
+    assert "registro.json" in messaggio
+
+
+def test_una_forma_di_prepara_illeggibile_ferma_l_ingest_nominando_il_file(
+    tmp_path: Path,
+) -> None:
+    copia = _copia_con(
+        tmp_path,
+        "lab_05_misurare.py",
+        'avvio.prepara(["btcusdt", "ethusdt", "solusdt"])',
+        "avvio.prepara(SERIE_SCELTE)",
+    )
+    celle = estrai_bundle.celle_del_sorgente(copia)
+    setup = estrai_bundle.cella_di_setup(celle, copia)
+
+    with pytest.raises(estrai_bundle.ProblemaDiIngest) as fallimento:
+        estrai_bundle.serie_dichiarate(setup, copia)
+
+    messaggio = str(fallimento.value)
+    assert copia.name in messaggio
+    assert "Name" in messaggio, "il rifiuto dice quale forma ha trovato, non solo che non va"
+
+
+def test_la_cella_di_setup_assente_ferma_l_ingest_nominando_il_file(tmp_path: Path) -> None:
+    testo = (LAB / "lab_05_misurare.py").read_text(encoding="utf-8")
+    inizio = testo.index("# %%\n# Setup")
+    fine = testo.index("# %%", inizio + 4)
+    copia = tmp_path / "lab_05_senza_setup.py"
+    copia.write_text(testo[:inizio] + testo[fine:], encoding="utf-8", newline="\n")
+
+    with pytest.raises(estrai_bundle.ProblemaDiIngest) as fallimento:
+        estrai_bundle.estrai_dal_sorgente(copia)
+
+    messaggio = str(fallimento.value)
+    assert copia.name in messaggio
+    assert "avvio.prepara" in messaggio
+
+
+# ------------------------------------------------------------------ #
+# La provenienza si COPIA, campo per campo                            #
+# ------------------------------------------------------------------ #
+
+
+def test_la_provenienza_coincide_col_registro_campo_per_campo() -> None:
+    percorso = LAB / "lab_05_misurare.py"
+    serie = _serie_di("lab_05_misurare.py")
+    provenienza = estrai_bundle.provenienza_delle_serie(serie, percorso)
+
+    assert sorted(provenienza) == sorted(serie)
+    for nome in serie:
+        atteso = REGISTRO[nome]
+        for campo in estrai_bundle.CAMPI_DI_PROVENIENZA:
+            assert provenienza[nome][campo] == atteso[campo], (
+                f"{nome}.{campo} e' stato riformattato invece di essere copiato (D-20)"
+            )
+        # `byte` e' l'unico campo che il registro non porta: si misura sul file
+        # che il registro stesso indica.
+        assert provenienza[nome]["byte"] == (RADICE / atteso["file"]).stat().st_size
+
+
+def test_nessuna_impronta_viene_ricalcolata() -> None:
+    """Le sha256 del bundle sono quelle del registro, cifra per cifra."""
+    percorso = LAB / "lab_05_misurare.py"
+    provenienza = estrai_bundle.provenienza_delle_serie(_serie_di("lab_05_misurare.py"), percorso)
+    for nome, voce in provenienza.items():
+        assert voce["sha256"] == REGISTRO[nome]["sha256"]
+        assert len(voce["sha256"]) == 64 and voce["sha256"].islower()
+
+
+# ------------------------------------------------------------------ #
+# CRLF e LF: lo stesso contenuto, la stessa impronta                  #
+# ------------------------------------------------------------------ #
+
+
+def test_crlf_e_lf_producono_gli_stessi_blocchi(tmp_path: Path) -> None:
+    testo = (LAB / "lab_05_misurare.py").read_text(encoding="utf-8")
+    lf = tmp_path / "lf.py"
+    crlf = tmp_path / "crlf.py"
+    lf.write_bytes(testo.replace("\r\n", "\n").encode("utf-8"))
+    crlf.write_bytes(testo.replace("\r\n", "\n").replace("\n", "\r\n").encode("utf-8"))
+
+    da_lf = estrai_bundle.estrai_dal_sorgente(lf)
+    da_crlf = estrai_bundle.estrai_dal_sorgente(crlf)
+
+    assert da_lf.blocchi == da_crlf.blocchi
+    assert da_lf.prosa == da_crlf.prosa
+    assert da_lf.titolo == da_crlf.titolo
+    assert json.dumps(da_lf.blocchi, ensure_ascii=False) == json.dumps(
+        da_crlf.blocchi, ensure_ascii=False
+    )
+
+
+# ------------------------------------------------------------------ #
+# La prosa: tutto il corpus, e il fallimento sulla forma nuova        #
+# ------------------------------------------------------------------ #
+
+
+def _sorgenti() -> list[Path]:
+    from cvbook.link import ROTTE
+
+    return [LAB / rotta.file for rotta in ROTTE.values()]
+
+
+def test_il_corpus_intero_si_converte_senza_costrutti_sconosciuti() -> None:
+    """Le 221 celle markdown dei 29 sorgenti, una per una.
+
+    Il numero e' RIMISURATO qui e non copiato dalla ricerca, che contava 191
+    celle markdown su 373 totali: da allora ogni cella ha guadagnato la sua
+    citazione in inglese, e il corpus e' cresciuto a 403 celle. Un conteggio
+    ereditato invece che rimisurato sarebbe stato verde su un corpus che non
+    esiste piu'.
+    """
+    celle = titoli = formule = 0
+    for percorso in _sorgenti():
+        estrazione = estrai_bundle.estrai_dal_sorgente(percorso)
+        celle += sum(1 for blocco in estrazione.blocchi if blocco["tipo"] == "prosa")
+        titoli += estrazione.sostituzioni_titolo
+        formule += estrazione.formule
+
+    assert celle == 221, "celle di prosa convertite"
+    assert titoli == estrai_bundle.ATTESI["titolo"], (
+        "il titolo del libro compare una volta per file: un'occorrenza in piu' "
+        "o in meno va guardata prima che finisca in 58 file del bundle (D-64)"
+    )
+    assert formule == 0, (
+        "oggi nei sorgenti non ci sono formule: la capacita' esiste, il "
+        "contenuto no, e LAB-02 resta parziale (D-48)"
+    )
+
+
+def test_i_conteggi_pinnati_valgono_sul_corpus_intero() -> None:
+    magic = raw = 0
+    for percorso in _sorgenti():
+        estrazione = estrai_bundle.estrai_dal_sorgente(percorso)
+        magic += estrazione.magic
+        raw += estrazione.sostituzioni_raw
+
+    assert magic == estrai_bundle.ATTESI["magic"]
+    assert raw == estrai_bundle.ATTESI["raw_base"]
+
+
+@pytest.mark.parametrize(
+    ("intruso", "atteso"),
+    [
+        ("Vedi la [documentazione](https://esempio.invalido).", "un link markdown"),
+        ("![figura](x.png)", "un'immagine"),
+        ("<div>ciao</div>", "HTML grezzo"),
+        ("Un testo ~~barrato~~.", "un testo barrato"),
+        ("Un asterisco * spaiato.", "un asterisco spaiato"),
+    ],
+)
+def test_una_forma_non_prevista_ferma_l_ingest_nominando_file_e_cella(
+    tmp_path: Path, intruso: str, atteso: str
+) -> None:
+    copia = _copia_con(
+        tmp_path,
+        "lab_05_misurare.py",
+        "# ## 1. Tre sguardi",
+        f"# ## 1. Tre sguardi\n#\n# {intruso}",
+    )
+
+    with pytest.raises(estrai_bundle.ProblemaDiIngest) as fallimento:
+        estrai_bundle.estrai_dal_sorgente(copia)
+
+    messaggio = str(fallimento.value)
+    assert copia.name in messaggio
+    assert "cella" in messaggio, "il rifiuto nomina la cella, non solo il file"
+    assert atteso in messaggio
+
+
+def test_il_convertitore_rende_i_costrutti_misurati() -> None:
+    """Un caso per costrutto, cosi' che il verde dica anche che cosa produce."""
+    resa = prosa.converti(
+        "## Titolo\n"
+        "\n"
+        "Un *corsivo*, un **grassetto** e del `codice`.\n"
+        "\n"
+        "---\n"
+        "\n"
+        "> Una citazione.\n"
+        "\n"
+        "1. prima\n"
+        "2. seconda\n"
+        "\n"
+        "- punto\n"
+        "\n"
+        "| a | b |\n"
+        "|---|---|\n"
+        "| 1 | 2 |\n",
+        "prova, cella 0",
+    )
+
+    for atteso in (
+        "<h2>Titolo</h2>",
+        "<em>corsivo</em>",
+        "<strong>grassetto</strong>",
+        "<code>codice</code>",
+        "<hr />",
+        "<blockquote><p>Una citazione.</p></blockquote>",
+        "<ol><li>prima</li><li>seconda</li></ol>",
+        "<ul><li>punto</li></ul>",
+        "<table><thead><tr><th>a</th><th>b</th></tr></thead>",
+    ):
+        assert atteso in resa.html
+
+
+def test_la_capacita_sulle_formule_esiste_anche_se_il_contenuto_no() -> None:
+    """D-48: si riconosce `$…$` e `$$…$$`, e lo si marca per il componente.
+
+    Oggi nel corpus non c'e' un solo `$`. La regola si scrive lo stesso, perche'
+    e' la capacita' che LAB-02 chiede — e finche' non arrivano celle di formula
+    dal repo del libro, LAB-02 resta consegnato parzialmente.
+    """
+    resa = prosa.converti(
+        f"La varianza ${LATEX}$ e:\n\n$${LATEX} = 1$$\n",
+        "prova, cella 0",
+    )
+    assert resa.formule == 2
+    assert 'data-formula="in-linea"' in resa.html
+    assert 'data-formula="blocco"' in resa.html
+    assert resa.testi_formula == [LATEX, LATEX + " = 1"]

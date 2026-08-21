@@ -23,7 +23,10 @@ import pytest
 
 RADICE = Path(__file__).resolve().parents[2]
 LAB = RADICE / "codice" / "lab"
-ESCLUSI = {"avvio.py", "costruisci.py", "genera_indice.py"}
+sys.path.insert(0, str(RADICE / "codice" / "src"))
+sys.path.insert(0, str(LAB))
+
+from costruisci import ESCLUSI  # noqa: E402
 
 QUADERNI = sorted(p.name for p in LAB.glob("*.py") if p.name not in ESCLUSI)
 

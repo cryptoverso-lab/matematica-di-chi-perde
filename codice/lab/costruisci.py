@@ -33,7 +33,18 @@ sys.path.insert(0, str(ROOT / "codice" / "src"))
 from cvbook.link import RAW_BASE, ROTTE, URL_AVVIO  # noqa: E402
 
 #: File della cartella che non sono quaderni.
-ESCLUSI = {"avvio.py", "costruisci.py", "genera_indice.py"}
+#:
+#: E' l'UNICA sede dell'elenco: `test_quaderni.py` e l'ingest lo importano da
+#: qui. Fino a questo piano era ricopiato nei test, e il primo file nuovo di
+#: questa cartella lo ha fatto vedere — un modulo non-quaderno rendeva rosso il
+#: gate «ogni quaderno ha la sua rotta» invece di essere semplicemente ignorato.
+ESCLUSI = {
+    "avvio.py",
+    "costruisci.py",
+    "genera_indice.py",
+    "estrai_bundle.py",
+    "prosa.py",
+}
 
 AVVIO = LAB / "avvio.py"
 
