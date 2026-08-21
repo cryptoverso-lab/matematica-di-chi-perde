@@ -71,6 +71,7 @@ ESCLUSI = {
     "costruisci.py",
     "genera_indice.py",
     "estrai_bundle.py",
+    "estrai_errata.py",
 }
 
 AVVIO = LAB / "avvio.py"
