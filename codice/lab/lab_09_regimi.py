@@ -14,7 +14,7 @@
 # # Lab 9 — Il mercato non è sempre lo stesso mercato
 #
 # *Quaderno del capitolo «Il mercato non è sempre lo stesso mercato» di
-# **Non Fidarti di Me**.*
+# **La matematica di chi perde**.*
 #
 # La volatilità non è una costante dell'asset: è una serie storica. Qui la
 # calcoli, ne guardi la forma, e verifichi che i periodi agitati **durano**
@@ -24,6 +24,18 @@
 # lunga *nasconde* i regimi invece di misurarli, l'altro li fa sparire
 # rimescolando i dati — e vedere sparire una struttura quando la si distrugge di
 # proposito è il modo più diretto di convincersi che c'era.
+#
+# ---
+#
+# > **EN** — *Lab 9 — The market isn't always the same market.* Notebook for
+# > the chapter "The market isn't always the same market". Volatility isn't a
+# > constant of the asset: it's a time series. Here you compute it, look at
+# > its shape, and verify that turbulent periods **persist** instead of
+# > flickering. The two final exercises are worth more than the figure: one
+# > shows that a long window *hides* regimes instead of measuring them, the
+# > other makes them disappear by shuffling the data — and watching a
+# > structure vanish when you destroy it on purpose is the most direct way to
+# > convince yourself it was there.
 
 # %%
 # Setup — esegui questa cella per prima.
@@ -34,7 +46,7 @@ except ModuleNotFoundError:
     import urllib.request
 
     urllib.request.urlretrieve(
-        "https://raw.githubusercontent.com/cryptoverso-lab/non-fidarti-di-me/main/codice/lab/avvio.py",
+        "https://raw.githubusercontent.com/cryptoverso-lab/matematica-di-chi-perde/main/codice/lab/avvio.py",
         "avvio.py",
     )
     import avvio
@@ -69,6 +81,10 @@ date_v = date[FINESTRA - 1:]
 
 # %% [markdown]
 # ## 1. Il numero che descrive un mercato inesistente
+#
+# ---
+#
+# > **EN** — *1. The number that describes a non-existent market.*
 
 # %%
 alta = float(np.percentile(vol, 75))
@@ -102,6 +118,14 @@ print(f"\nIl mercato passa poco tempo vicino al numero che tutti chiamano "
 #
 # Nota la precauzione che rende credibile il numero: le due finestre — quella che
 # misura oggi e quella che misura fra un mese — **non si sovrappongono**.
+#
+# ---
+#
+# > **EN** — *2. Memory: regimes persist.* We call a day "turbulent" when
+# > volatility sits in the top quarter. By construction that happens 25% of
+# > the time. Now we condition on today. Note the precaution that makes the
+# > number credible: the two windows — the one measuring today and the one
+# > measuring a month from now — **do not overlap**.
 
 # %%
 ORIZZONTE = FINESTRA  # non sovrapposte: nessun dato in comune fra le due misure
@@ -132,6 +156,12 @@ print(f"rapporto: {da_alto / da_calmo:.1f} volte")
 #
 # Il confronto con un mondo in cui i giorni sono indipendenti — stessa
 # percentuale complessiva di giorni agitati, ma sparsi a caso.
+#
+# ---
+#
+# > **EN** — *3. How long turbulent periods last.* The comparison with a
+# > world where days are independent — same overall percentage of turbulent
+# > days, but scattered at random.
 
 # %%
 def sequenze(maschera: np.ndarray) -> np.ndarray:
@@ -170,6 +200,10 @@ print(f"{'giorni indipendenti':>22s} {len(finte):9d} {np.median(finte):9.0f} {fi
 
 # %% [markdown]
 # ## 4. Esercizio: la finestra lunga nasconde i regimi
+#
+# ---
+#
+# > **EN** — *4. Exercise: the long window hides regimes.*
 
 # %%
 print(f"{'finestra':>10s} {'minimo':>9s} {'massimo':>9s} {'rapporto':>10s} {'entro ±20%':>12s}")
@@ -183,6 +217,10 @@ print("\nCon finestre lunghe l'escursione si comprime e sembra che il mercato si
 
 # %% [markdown]
 # ## 5. Esercizio: distruggi la struttura e guardala sparire
+#
+# ---
+#
+# > **EN** — *5. Exercise: destroy the structure and watch it disappear.*
 
 # %%
 rimescolati = rng.permutation(r)
@@ -208,3 +246,11 @@ print("\nLa struttura non era nei rendimenti presi uno per uno: era nel loro "
 # direzione**. Sapere che il prossimo mese sarà agitato non ti dice se salirà o
 # scenderà, e chiunque ti presenti la prima informazione facendola passare per la
 # seconda ti sta vendendo qualcosa.
+#
+# ---
+#
+# > **EN** — *Watch out for what this does NOT say.* Persistence is about
+# > **how much** the market will move, not **in which direction**. Knowing
+# > that next month will be turbulent doesn't tell you whether it will rise
+# > or fall, and anyone who presents the first piece of information as if it
+# > were the second is selling you something.

@@ -14,7 +14,7 @@
 # # Lab 12 — Un backtest onesto, riga per riga
 #
 # *Quaderno del capitolo «Che cos'è davvero un backtest» di
-# **Non Fidarti di Me**.*
+# **La matematica di chi perde**.*
 #
 # Due cose. La prima è un backtest scritto per essere **letto**: ogni passaggio
 # commentato, i costi dentro, il calcolo causale. Si può seguire anche senza
@@ -23,6 +23,17 @@
 # La seconda è il generatore del **metro**: dato un qualunque insieme di regole,
 # produce le mille strategie casuali confrontabili e ti dice in quale percentile
 # ti trovi. È il pezzo di codice che consiglio di riusare più di ogni altro.
+#
+# ---
+#
+# > **EN** — *Lab 12 — An honest backtest, line by line.* Notebook for the
+# > chapter "What a backtest really is". Two things. The first is a backtest
+# > written to be **read**: every step commented, costs included, causal
+# > computation. You can follow it even without knowing how to program. The
+# > second is the **yardstick** generator: given any set of rules, it
+# > produces a thousand comparable random strategies and tells you which
+# > percentile you're in. It's the piece of code I recommend reusing more
+# > than any other.
 
 # %%
 # Setup — esegui questa cella per prima.
@@ -33,7 +44,7 @@ except ModuleNotFoundError:
     import urllib.request
 
     urllib.request.urlretrieve(
-        "https://raw.githubusercontent.com/cryptoverso-lab/non-fidarti-di-me/main/codice/lab/avvio.py",
+        "https://raw.githubusercontent.com/cryptoverso-lab/matematica-di-chi-perde/main/codice/lab/avvio.py",
         "avvio.py",
     )
     import avvio
@@ -60,6 +71,12 @@ prezzi = carica(SERIE).sort("data")["chiusura"].to_numpy()
 #
 # La regola: **resto dentro al mercato quando il prezzo chiude sopra la sua media
 # degli ultimi cinquanta giorni, resto fuori quando è sotto.**
+#
+# ---
+#
+# > **EN** — *1. The backtest, one step at a time.* The rule: **stay in the
+# > market when price closes above its fifty-day average, stay out when
+# > below.**
 
 # %%
 # Passo 1 — la media mobile. Alla riga t contiene la media dei prezzi FINO a t.
@@ -97,6 +114,13 @@ print(f"\ncompra e tieni:       {riferimento['finale']:8.2f}x  "
 # Il controllo meccanico e definitivo: calcola la posizione su tutta la serie,
 # poi su una serie troncata a metà, e confronta la parte comune. **Devono essere
 # identiche.** Se cambiano, il calcolo sta usando dati successivi.
+#
+# ---
+#
+# > **EN** — *2. The causality check, done in three lines.* The mechanical
+# > and definitive test: compute the position over the whole series, then
+# > over one truncated in half, and compare the common part. **They must be
+# > identical.** If they change, the calculation is using future data.
 
 # %%
 completa = sopra_media(prezzi, FINESTRA)
@@ -114,6 +138,14 @@ for taglio in (500, 1500, 2500):
 # pagano gli stessi costi, ma scelgono i momenti a caso.**
 #
 # È il confronto che risponde alla domanda giusta: *serviva davvero un metodo?*
+#
+# ---
+#
+# > **EN** — *3. The yardstick: compared to what?* Not zero, not
+# > buy-and-hold. **A thousand strategies that stay in the market the same
+# > number of days, make the same number of trades and pay the same costs,
+# > but choose their moments at random.** It's the comparison that answers
+# > the right question: *did it really take a method?*
 
 # %%
 N_CASUALI = 1000
@@ -171,6 +203,12 @@ print(f"percentile della regola: {esito['percentile']:.1f}")
 #
 # Sostituisci `posizione` con la tua e riesegui. È la parte del quaderno che vale
 # la pena copiare altrove.
+#
+# ---
+#
+# > **EN** — *4. Reuse the yardstick on your own rule.* Replace `posizione`
+# > with your own and rerun. It's the part of the notebook worth copying
+# > elsewhere.
 
 # %%
 for altra_serie in ("ethusdt", "solusdt"):
@@ -199,3 +237,22 @@ for altra_serie in ("ethusdt", "solusdt"):
 # 3. Nella cella 2, prova a togliere lo sfasamento del passo 3 (metti
 #    `posizione = segnale`) e riesegui tutto. Il risultato diventa spettacolare e
 #    la verifica di causalità fallisce. È una riga.
+#
+# ---
+#
+# > **EN** — *An important warning.* This notebook's result is strong, and
+# > **worthless**. The fifty-day window wasn't chosen beforehand: it was
+# > chosen looking at the data. The chapter "Optimizing is fooling yourself"
+# > takes this very result apart, and Lab 15 makes you take it apart
+# > yourself. This is exactly how a tainted result presents itself: not with
+# > fake data, but with real data and a choice made while looking at it.
+# >
+# > *Exercises.*
+# > 1. Change `FINESTRA` from 50 to 20, 100, 200. The percentile swings a
+# >    lot. Which of those values would you have chosen **before** seeing the
+# >    results?
+# > 2. Double `COSTO`. The percentile drops: an edge that only survives at
+# >    optimistic costs belongs to whoever has low costs, not to you.
+# > 3. In cell 2, try removing the step-3 lag (set `posizione = segnale`) and
+# >    rerun everything. The result becomes spectacular and the causality
+# >    check fails. It's one line.

@@ -13,7 +13,7 @@
 # %% [markdown]
 # # Lab 16 — L'analisi tecnica, misurata
 #
-# *Quaderno del capitolo «L'analisi tecnica, misurata» di **Non Fidarti di Me**.*
+# *Quaderno del capitolo «L'analisi tecnica, misurata» di **La matematica di chi perde**.*
 #
 # Le sei regole del capitolo, scritte tutte nella stessa forma, applicate
 # all'asset e al periodo che scegli tu. Senza selezionare quali mostrare dopo
@@ -24,6 +24,16 @@
 #
 # Nulla di quello che c'è qui dentro è un'indicazione operativa. È un modo di
 # porre la domanda.
+#
+# ---
+#
+# > **EN** — *Lab 16 — Technical analysis, measured.* Notebook for the
+# > chapter "Technical analysis, measured". The chapter's six rules, all
+# > written in the same form, applied to the asset and period you choose.
+# > Without cherry-picking which ones to show after seeing the results. Then
+# > the three checks on the rule that wins: the shape of the surface, the
+# > yardstick of chance, and the correction for the number of attempts.
+# > Nothing in here is trading advice. It's a way of asking the question.
 
 # %%
 # Setup — esegui questa cella per prima.
@@ -34,7 +44,7 @@ except ModuleNotFoundError:
     import urllib.request
 
     urllib.request.urlretrieve(
-        "https://raw.githubusercontent.com/cryptoverso-lab/non-fidarti-di-me/main/codice/lab/avvio.py",
+        "https://raw.githubusercontent.com/cryptoverso-lab/matematica-di-chi-perde/main/codice/lab/avvio.py",
         "avvio.py",
     )
     import avvio
@@ -59,6 +69,11 @@ prezzi = carica(SERIE).sort("data")["chiusura"].to_numpy()
 # ## 1. Sei regole da manuale, tutte insieme
 #
 # Il vincolo che distingue una misura da una vetrina: **si mostrano tutte**.
+#
+# ---
+#
+# > **EN** — *1. Six textbook rules, all together.* The constraint that
+# > separates a measurement from a showcase: **all of them are shown**.
 
 # %%
 riferimento = esegui(prezzi, compra_e_tieni(prezzi), costo=COSTO)
@@ -100,6 +115,11 @@ print(f"\n{battono} regole su {len(righe)} hanno battuto il non far niente.")
 # ## 2. I costi decidono la classifica
 #
 # Guarda le colonne «netto» e «lordo» della tabella. Qualche regola cambia lato.
+#
+# ---
+#
+# > **EN** — *2. Costs decide the ranking.* Look at the "net" and "gross"
+# > columns of the table. Some rules switch sides.
 
 # %%
 print(f"{'regola':>22s} " + "".join(f"{c:>11.2%}" for c in (0.0, 0.0006, 0.0012, 0.0025, 0.005)))
@@ -119,6 +139,11 @@ print("\n«Quale regola e' migliore» dipende da quanto paghi. Chi pubblica un "
 #
 # Un altopiano largo è compatibile con un fenomeno reale. Un picco isolato quasi
 # mai lo è.
+#
+# ---
+#
+# > **EN** — *3. The first check: the shape of the surface.* A wide plateau
+# > is compatible with a real phenomenon. An isolated peak almost never is.
 
 # %%
 FINESTRE = np.arange(5, 121, 5)
@@ -142,6 +167,10 @@ print(f"mediana della griglia: {np.median(griglia):.2f}x")
 
 # %% [markdown]
 # ## 4. Il secondo controllo: il metro del caso
+#
+# ---
+#
+# > **EN** — *4. The second check: the yardstick of chance.*
 
 # %%
 N_CASUALI = 1000
@@ -186,6 +215,11 @@ print(f"percentile: {percentile:.1f}")
 # ## 5. Il terzo controllo: quanti tentativi ci sono stati dietro
 #
 # Il controllo che quasi nessuno applica ai propri numeri.
+#
+# ---
+#
+# > **EN** — *5. The third check: how many attempts were behind it.* The
+# > check almost nobody applies to their own numbers.
 
 # %%
 regole_provate = len(CATALOGO)
@@ -205,6 +239,10 @@ print("\nI tentativi non sono del tutto indipendenti — finestre vicine danno "
 
 # %% [markdown]
 # ## 6. Altri mercati non sono altre prove
+#
+# ---
+#
+# > **EN** — *6. Other markets are not other trials.*
 
 # %%
 for altro in ("btcusdt", "ethusdt", "solusdt"):
@@ -233,3 +271,17 @@ print("\nTre conferme? No. Il Lab 8 ha mostrato che questi tre mercati contengon
 #    giorni di borsa chiusa, che cambiano il conto dei periodi. Se il risultato si
 #    ripete lì, hai una conferma vera; se non si ripete, hai imparato qualcosa di
 #    più utile di una conferma.
+#
+# ---
+#
+# > **EN** — *Exercises.*
+# > 1. Change `COSTO` and rerun the second cell. Watch the ranking order
+# >    change: it's the quickest demonstration that "which rule is better"
+# >    isn't a property of the rule.
+# > 2. Add your own rule to the catalogue, following the pattern in
+# >    `cvbook.regole`, and put it through the same three checks. Remember to
+# >    **count it** among the attempts.
+# > 3. The most instructive one: run everything on a **non**-digital market.
+# >    Watch out for closed trading days, which change the count of periods.
+# >    If the result repeats there, you have a real confirmation; if it
+# >    doesn't, you've learned something more useful than a confirmation.

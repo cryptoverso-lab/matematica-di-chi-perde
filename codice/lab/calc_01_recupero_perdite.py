@@ -14,12 +14,21 @@
 # # Calcolatore 1 — Quanto serve per recuperare una perdita
 #
 # *Quaderno del capitolo «L'aritmetica che nessuno ti mostra» di
-# **Non Fidarti di Me**.*
+# **La matematica di chi perde**.*
 #
 # La perdita e il recupero non sono simmetrici, e la differenza cresce in fretta.
 # Questo calcolatore mette i tuoi numeri dentro quell'asimmetria: quanto serve
 # per tornare in pari, quanto costa la volatilità al capitale composto, e cosa
 # succede aggiungendo la leva.
+#
+# ---
+#
+# > **EN** — *Calculator 1 — How much it takes to recover from a loss.*
+# > Notebook for the chapter "The arithmetic nobody shows you" of **The math of
+# > those who lose**. Loss and recovery are not symmetric, and the gap grows
+# > fast. This calculator puts your own numbers inside that asymmetry: how much
+# > it takes to break even, what volatility costs compounded capital, and what
+# > happens once you add leverage.
 
 # %%
 # Setup — esegui questa cella per prima.
@@ -30,7 +39,7 @@ except ModuleNotFoundError:
     import urllib.request
 
     urllib.request.urlretrieve(
-        "https://raw.githubusercontent.com/cryptoverso-lab/non-fidarti-di-me/main/codice/lab/avvio.py",
+        "https://raw.githubusercontent.com/cryptoverso-lab/matematica-di-chi-perde/main/codice/lab/avvio.py",
         "avvio.py",
     )
     import avvio
@@ -42,26 +51,40 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from cvbook.dati import carica
+from cvbook.lingua import t
 from cvbook.metriche import drawdown_massimo, equity, recupero_necessario, rendimenti
 
 # %% [markdown]
 # ## 1. Il tuo numero
 #
 # Cambia `PERDITA` e riesegui. È l'unica cella che devi toccare.
+#
+# ---
+#
+# > **EN** — *1. Your number.* Change `PERDITA` (loss) and rerun. It's the
+# > only cell you need to touch.
 
 # %%
 PERDITA = 0.50  # ← la perdita subita, in frazione: 0,50 vuol dire meno 50%
 
 recupero = recupero_necessario(PERDITA)
-print(f"perdita subita:        {PERDITA:6.1%}")
-print(f"ti resta:              {1 - PERDITA:6.1%} del capitale")
-print(f"serve un guadagno del: {recupero:6.1%} per tornare al punto di partenza")
+print(t("perdita subita:        ", "loss taken:             ") + f"{PERDITA:6.1%}")
+print(t("ti resta:              ", "you have left:          ") + f"{1 - PERDITA:6.1%}"
+      + t(" del capitale", " of capital"))
+print(t("serve un guadagno del: ", "you need a gain of:     ") + f"{recupero:6.1%}"
+      + t(" per tornare al punto di partenza", " to get back to break even"))
 
 # %% [markdown]
 # ## 2. La curva intera
 #
 # La forma è la cosa da guardare: fino al 30% è una salita, dal 70% in poi è un
 # muro. Non c'è nessuna soglia dichiarata da qualche parte — è aritmetica.
+#
+# ---
+#
+# > **EN** — *2. The full curve.* The shape is what matters: up to 30% it's a
+# > climb, past 70% it's a wall. No threshold is declared anywhere — it's
+# > arithmetic.
 
 # %%
 perdite = np.linspace(0.01, 0.95, 200)
@@ -80,8 +103,8 @@ with avvio.figura("schermo"):
             textcoords="offset points",
             ha="right",
         )
-    ax.set_xlabel("Perdita subita (%)")
-    ax.set_ylabel("Guadagno necessario per tornare in pari (%)")
+    ax.set_xlabel(t("Perdita subita (%)", "Loss taken (%)"))
+    ax.set_ylabel(t("Guadagno necessario per tornare in pari (%)", "Gain needed to break even (%)"))
     ax.set_ylim(0, 1000)
     plt.show()
 
@@ -91,6 +114,13 @@ with avvio.figura("schermo"):
 # Due strategie con lo **stesso rendimento medio** non lasciano gli stessi soldi:
 # la più volatile ne lascia meno. Il freno vale circa metà della varianza, e il
 # calcolo qui sotto lo verifica invece di affermarlo.
+#
+# ---
+#
+# > **EN** — *3. The volatility drag, on your own parameters.* Two strategies
+# > with the **same average return** don't leave you with the same money: the
+# > more volatile one leaves less. The drag is worth about half the variance,
+# > and the calculation below verifies it instead of just asserting it.
 
 # %%
 MEDIA_GIORNALIERA = 0.0010  # ← rendimento medio per giorno
@@ -98,7 +128,10 @@ GIORNI = 1000
 
 rng = np.random.default_rng(20260816)
 
-print(f"{'volatilita/giorno':>18s} {'media aritm.':>14s} {'composto':>12s} {'capitale finale':>16s}")
+print(f"{t('volatilita/giorno', 'volatility/day'):>18s} "
+      f"{t('media aritm.', 'arith. mean'):>14s} "
+      f"{t('composto', 'compounded'):>12s} "
+      f"{t('capitale finale', 'final capital'):>16s}")
 for vol in (0.005, 0.01, 0.02, 0.035, 0.05):
     r = rng.normal(MEDIA_GIORNALIERA, vol, GIORNI)
     curva = equity(r)
@@ -109,6 +142,12 @@ for vol in (0.005, 0.01, 0.02, 0.035, 0.05):
 # La colonna della media aritmetica resta ferma; quella del composto scende. È
 # lo stesso rendimento medio che produce risultati diversi, e la differenza è
 # **solo** la volatilità.
+#
+# ---
+#
+# > **EN** — The arithmetic-mean column stays put; the compounded one drops.
+# > It's the same average return producing different outcomes, and the
+# > difference is **only** volatility.
 
 # %% [markdown]
 # ## 4. La leva, che moltiplica il freno per il suo quadrato
@@ -116,6 +155,13 @@ for vol in (0.005, 0.01, 0.02, 0.035, 0.05):
 # Con leva `k` il rendimento atteso si moltiplica per `k`, ma il freno per `k²`.
 # Ecco perché esiste un punto oltre il quale aumentare la leva peggiora tutto —
 # e su un asset già volatile quel punto arriva prestissimo.
+#
+# ---
+#
+# > **EN** — *4. Leverage, which multiplies the drag by its square.* With
+# > leverage `k` the expected return is multiplied by `k`, but the drag by
+# > `k²`. That's why there's a point past which more leverage makes everything
+# > worse — and on an already-volatile asset that point arrives very soon.
 
 # %%
 df = carica("btcusdt").sort("data")
@@ -128,12 +174,18 @@ def curva_con_leva(rend: np.ndarray, k: float) -> np.ndarray:
     Un giorno in cui la posizione perde piu' del capitale non produce un numero
     negativo: produce la fine. Senza questo taglio il calcolo restituirebbe cali
     superiori al 100%, che non significano niente.
+
+    Capital with `k`× leverage, where wipeout is permanent: a day in which the
+    position loses more than the capital does not produce a negative number —
+    it produces the end. Without this floor the calculation would return
+    drawdowns above 100%, which mean nothing.
     """
     passi = np.maximum(1.0 + k * rend, 0.0)
     return np.concatenate([[1.0], np.cumprod(passi)])
 
 
-print(f"{'leva':>5s} {'capitale finale':>16s} {'calo massimo':>14s} {'azzerato il':>14s}")
+print(f"{t('leva', 'leverage'):>5s} {t('capitale finale', 'final capital'):>16s} "
+      f"{t('calo massimo', 'max drawdown'):>14s} {t('azzerato il', 'wiped out on'):>14s}")
 for k in (1, 2, 3, 5, 10):
     curva = curva_con_leva(r_reali, k)
     azzerata = np.argmax(curva <= 0.0) if np.any(curva <= 0.0) else None
@@ -152,3 +204,15 @@ for k in (1, 2, 3, 5, 10):
 # 3. Nella cella del freno, tieni fissa `MEDIA_GIORNALIERA` e chiediti quale
 #    volatilità azzera il composto. La risposta è la radice quadrata del doppio
 #    della media — provala.
+#
+# ---
+#
+# > **EN** — *Exercises.*
+# > 1. Set `PERDITA = 0.83`, the actual maximum drawdown this asset went
+# >    through in the period. The resulting number is why the risk chapter
+# >    talks about **survival**, not return.
+# > 2. In the leverage cell, try `k = 4` and `k = 6`. Find the point where
+# >    final capital stops growing. No forecast changed — only the size.
+# > 3. In the drag cell, keep `MEDIA_GIORNALIERA` fixed and ask yourself which
+# >    volatility wipes out the compounded return. The answer is the square
+# >    root of twice the mean — try it.

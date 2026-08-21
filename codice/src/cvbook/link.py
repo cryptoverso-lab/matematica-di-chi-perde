@@ -27,7 +27,7 @@ DOMINIO = "lab.cryptoverso.net"
 #: quaderni nascono da qui, quindi spostare il libro sotto un'altra
 #: organizzazione e' cambiare questa riga e rieseguire i generatori.
 ORG = "cryptoverso-lab"
-REPO_NOME = "non-fidarti-di-me"
+REPO_NOME = "matematica-di-chi-perde"
 
 #: Destinazioni vere, modificabili in qualsiasi momento senza toccare la carta.
 REPO = f"https://github.com/{ORG}/{REPO_NOME}"

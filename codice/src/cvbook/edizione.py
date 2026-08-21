@@ -12,7 +12,7 @@ Regola: nessun dato di edizione va scritto dentro un `.qmd`.
 from __future__ import annotations
 
 #: Titolo e paratesto: identici a quelli dichiarati in `_quarto.yml`.
-TITOLO = "Non Fidarti di Me"
+TITOLO = "La matematica di chi perde"
 SOTTOTITOLO = "Il trading spiegato con dati, statistica e codice che puoi rieseguire tu"
 AUTORE = "Luigi Garone"
 

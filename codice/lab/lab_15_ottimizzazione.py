@@ -13,7 +13,7 @@
 # %% [markdown]
 # # Lab 15 — Ottimizzare è ingannarsi
 #
-# *Quaderno del capitolo «Ottimizzare è ingannarsi» di **Non Fidarti di Me**.*
+# *Quaderno del capitolo «Ottimizzare è ingannarsi» di **La matematica di chi perde**.*
 #
 # Qui rifai l'esperimento che smonta il risultato del Lab 12: la stessa regola al
 # variare del suo unico parametro, dentro e fuori campione. Poi provi a trovare
@@ -23,6 +23,17 @@
 # E infine il pezzo che mi ha convinto più di ogni altro: si prende una regola
 # **volutamente senza senso**, la si ottimizza, e si guarda che bel risultato in
 # campione. Poi si guarda fuori.
+#
+# ---
+#
+# > **EN** — *Lab 15 — Optimizing is fooling yourself.* Notebook for the
+# > chapter "Optimizing is fooling yourself". Here you redo the experiment
+# > that takes apart Lab 12's result: the same rule across its one parameter,
+# > in and out of sample. Then you try to find a value that wins in **both**
+# > halves. It's frustrating in the right way. And finally the piece that
+# > convinced me more than any other: take a rule **deliberately without
+# > sense**, optimize it, and look at what a nice in-sample result you get.
+# > Then look out of sample.
 
 # %%
 # Setup — esegui questa cella per prima.
@@ -33,7 +44,7 @@ except ModuleNotFoundError:
     import urllib.request
 
     urllib.request.urlretrieve(
-        "https://raw.githubusercontent.com/cryptoverso-lab/non-fidarti-di-me/main/codice/lab/avvio.py",
+        "https://raw.githubusercontent.com/cryptoverso-lab/matematica-di-chi-perde/main/codice/lab/avvio.py",
         "avvio.py",
     )
     import avvio
@@ -60,6 +71,10 @@ prima, seconda = prezzi[:meta], prezzi[meta:]
 
 # %% [markdown]
 # ## 1. La mappa, dentro e fuori campione
+#
+# ---
+#
+# > **EN** — *1. The map, in and out of sample.*
 
 # %%
 dentro = np.array([esegui(prima, sopra_media(prima, int(f)), costo=COSTO)["finale"]
@@ -97,6 +112,12 @@ print("\nIl numero che sembrava una scoperta non e' nemmeno quello giusto a "
 #
 # Il paragone giusto per un risultato su una finestra è il non far niente **su
 # quella stessa finestra**, non sull'intero periodo.
+#
+# ---
+#
+# > **EN** — *2. Compared to what? The honest comparison on the second
+# > half.* The right comparison for a result on one window is doing nothing
+# > **on that same window**, not over the entire period.
 
 # %%
 riferimento = esegui(seconda, compra_e_tieni(seconda), costo=COSTO)
@@ -113,6 +134,11 @@ print(f"{'compra e tieni':>16s} {riferimento['finale']:9.2f}x "
 # ## 3. Trova un valore che vinca in entrambe le metà
 #
 # L'esercizio frustrante nel modo giusto.
+#
+# ---
+#
+# > **EN** — *3. Find a value that wins in both halves.* The exercise that's
+# > frustrating in the right way.
 
 # %%
 ranghi_dentro = np.argsort(np.argsort(-dentro)) + 1
@@ -133,6 +159,12 @@ print("Se fosse vicina a +1, il parametro migliore sul passato sarebbe anche "
 #
 # Compriamo in base al **giorno del mese**. Non c'è nessuna ragione perché
 # funzioni, e infatti non ce n'è nessuna: ottimizziamola lo stesso.
+#
+# ---
+#
+# > **EN** — *4. A rule deliberately without sense.* We buy based on the
+# > **day of the month**. There is no reason it should work, and indeed there
+# > isn't one: let's optimize it anyway.
 
 # %%
 date = df["data"].to_list()
@@ -207,3 +239,16 @@ print("Fuori campione il risultato si restringe di piu' di un ordine di grandezz
 # 3. Nella quarta cella prova a spiegare a te stesso perché «dal giorno X al
 #    giorno Y del mese» dovrebbe funzionare. Ci riuscirai: il cervello produce
 #    spiegazioni per qualunque cosa, ed è esattamente il punto.
+#
+# ---
+#
+# > **EN** — *Exercises.*
+# > 1. Change `SERIE`. The best value on the first half changes from one
+# >    market to another. If it were a property of the world, it shouldn't.
+# > 2. In the first cell, instead of the maximum take the **center of the
+# >    widest plateau** — the region where the result stays acceptable.
+# >    Compare the two out-of-sample values: the second one usually holds up
+# >    better.
+# > 3. In the fourth cell try explaining to yourself why "from day X to day Y
+# >    of the month" should work. You'll manage it: the brain produces
+# >    explanations for anything, and that's exactly the point.

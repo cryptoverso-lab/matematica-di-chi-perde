@@ -14,7 +14,7 @@
 # # Lab 20 — Le basi che ti servono davvero
 #
 # *Quaderno del capitolo «Le basi che ti servono davvero» di
-# **Non Fidarti di Me**.*
+# **La matematica di chi perde**.*
 #
 # Cinque celle, una per ciascuna delle idee del capitolo. Non serve saper
 # programmare per seguirle: serve leggere i commenti e cambiare i numeri.
@@ -22,6 +22,16 @@
 # L'esercizio finale è togliere il seme dalla simulazione ed eseguirla tre volte.
 # Vedere tre risultati diversi dalla stessa identica cella è il modo più rapido
 # per capire perché la riproducibilità non è un dettaglio.
+#
+# ---
+#
+# > **EN** — *Lab 20 — The basics you actually need.* Notebook for the
+# > chapter "The basics you actually need". Five cells, one for each idea in
+# > the chapter. You don't need to know how to program to follow them: you
+# > need to read the comments and change the numbers. The final exercise is
+# > removing the seed from the simulation and running it three times. Seeing
+# > three different results from the exact same cell is the fastest way to
+# > understand why reproducibility isn't a detail.
 
 # %%
 # Setup — esegui questa cella per prima.
@@ -32,7 +42,7 @@ except ModuleNotFoundError:
     import urllib.request
 
     urllib.request.urlretrieve(
-        "https://raw.githubusercontent.com/cryptoverso-lab/non-fidarti-di-me/main/codice/lab/avvio.py",
+        "https://raw.githubusercontent.com/cryptoverso-lab/matematica-di-chi-perde/main/codice/lab/avvio.py",
         "avvio.py",
     )
     import avvio
@@ -58,6 +68,14 @@ from cvbook.metriche import drawdown, rendimenti
 #
 # Qui i dati sono **congelati**: salvati una volta, con la data di estrazione e
 # un'impronta che ne verifica l'integrità.
+#
+# ---
+#
+# > **EN** — *One — Reproducibility.* A piece of work is reproducible if,
+# > run again, it gives the exact same result. Always. On another computer,
+# > a year from now, run by someone else. Here the data is **frozen**: saved
+# > once, with an extraction date and a fingerprint that verifies its
+# > integrity.
 
 # %%
 voce = leggi_registro()["btcusdt"]
@@ -76,6 +94,12 @@ print("\nSe qualcuno modificasse quel file, `carica()` si rifiuterebbe di "
 # I computer non producono numeri davvero casuali: producono sequenze che
 # sembrano casuali, generate a partire da un numero iniziale detto **seme**.
 # Stesso seme, stessa sequenza.
+#
+# ---
+#
+# > **EN** — *Two — The random seed.* Computers don't produce truly random
+# > numbers: they produce sequences that look random, generated from a
+# > starting number called a **seed**. Same seed, same sequence.
 
 # %%
 print("con lo stesso seme, tre esecuzioni:")
@@ -101,6 +125,13 @@ print("\nQuando qualcuno mostra il risultato di una simulazione, CHIEDI se il "
 # prendi il secondo, fai il conto. Funziona ed è lentissimo.
 #
 # Il modo giusto è pensare all'intera serie **come a un oggetto solo**.
+#
+# ---
+#
+# > **EN** — *Three — Vectorization.* The intuitive way of processing three
+# > thousand days is: take the first, do the math; take the second, do the
+# > math. It works and it's excruciatingly slow. The right way is to think
+# > of the entire series **as a single object**.
 
 # %%
 prezzi = carica("btcusdt").sort("data")["chiusura"].to_numpy()
@@ -131,6 +162,11 @@ print("\nMa la velocita' non e' il punto vero. Il punto e' che CAMBIA LE DOMANDE
 # ## Quattro — Ripetere su molte serie
 #
 # È il passaggio che apre le domande interessanti. Tre righe.
+#
+# ---
+#
+# > **EN** — *Four — Repeating over many series.* It's the step that opens
+# > up the interesting questions. Three lines.
 
 # %%
 risposte = {}
@@ -147,6 +183,12 @@ for nome, quota in risposte.items():
 #
 # Generare percorsi casuali e posizionarci sopra il proprio risultato. È forse la
 # singola capacità più utile di tutto il libro.
+#
+# ---
+#
+# > **EN** — *Five — Comparing against chance.* Generating random paths and
+# > placing your own result on top of them. It's perhaps the single most
+# > useful skill in the whole book.
 
 # %%
 r = rendimenti(prezzi)
@@ -194,3 +236,19 @@ print("\nE' l'esercizio finale del capitolo: la stessa identica cella, tre "
 # di apprendimento automatico. Il modo più rapido che conosco per cominciare non
 # è studiare il linguaggio: è **modificare qualcosa che già funziona e guardare
 # cosa cambia.** Questo quaderno è fatto per quello.
+#
+# ---
+#
+# > **EN** — *The four skills, and that's it.*
+# > 1. **Loading data and looking at it.** It's ninety percent of the real
+# >    work.
+# > 2. **Doing a calculation over an entire series.** Returns, averages,
+# >    distances from the peak: three lines each.
+# > 3. **Repeating the calculation over many series.** It's the step that
+# >    opens up the interesting questions.
+# > 4. **Comparing against chance.** The cell above.
+# >
+# > Nothing else is needed. No classes, no advanced data structures, no
+# > machine learning models. The fastest way I know to get started isn't
+# > studying the language: it's **modifying something that already works and
+# > watching what changes.** This notebook is built for that.

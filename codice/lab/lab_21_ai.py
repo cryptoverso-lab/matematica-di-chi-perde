@@ -13,7 +13,7 @@
 # %% [markdown]
 # # Lab 21 — Trova il lookahead
 #
-# *Quaderno del capitolo «L'AI come acceleratore» di **Non Fidarti di Me**.*
+# *Quaderno del capitolo «L'AI come acceleratore» di **La matematica di chi perde**.*
 #
 # Qui sotto ci sono **due implementazioni della stessa strategia**, entrambe
 # scritte come le scriverebbe un assistente automatico su richiesta. Una è
@@ -24,6 +24,16 @@
 #
 # È l'esercizio che consiglio di fare prima di far scrivere a una macchina
 # qualunque cosa che poi userai con soldi veri.
+#
+# ---
+#
+# > **EN** — *Lab 21 — Find the lookahead.* Notebook for the chapter "AI as
+# > an accelerator". Below are **two implementations of the same strategy**,
+# > both written the way an automated assistant would write them on request.
+# > One is correct, the other has a subtle lookahead. Your task is to find
+# > which one, **before** running them. Then you run them and see the
+# > difference. It's the exercise I recommend doing before letting a machine
+# > write anything you'll later use with real money.
 
 # %%
 # Setup — esegui questa cella per prima.
@@ -34,7 +44,7 @@ except ModuleNotFoundError:
     import urllib.request
 
     urllib.request.urlretrieve(
-        "https://raw.githubusercontent.com/cryptoverso-lab/non-fidarti-di-me/main/codice/lab/avvio.py",
+        "https://raw.githubusercontent.com/cryptoverso-lab/matematica-di-chi-perde/main/codice/lab/avvio.py",
         "avvio.py",
     )
     import avvio
@@ -63,6 +73,14 @@ COSTO = 0.0012
 # > giorni. Esci quando scende sotto la media.*
 #
 # Leggile con calma. Non eseguire ancora la cella dopo.
+#
+# ---
+#
+# > **EN** — *The two versions.* The stated strategy is the same for both:
+# > *stay invested when closing price crosses above the upper band,
+# > computed as a twenty-day average plus a twenty-day standard deviation.
+# > Exit when it drops below the average.* Read them carefully. Don't run
+# > the next cell yet.
 
 # %%
 def versione_a(p: np.ndarray, finestra: int = 20) -> np.ndarray:
@@ -104,6 +122,12 @@ def versione_b(p: np.ndarray, finestra: int = 20) -> np.ndarray:
 # di decidere, non esisteva ancora?
 #
 # *(La differenza è di due caratteri.)*
+#
+# ---
+#
+# > **EN** — *Before continuing.* Write down your answer here. Which of the
+# > two uses information that, at the moment of deciding, didn't exist yet?
+# > *(The difference is two characters.)*
 
 # %%
 a = esegui(prezzi, versione_a(prezzi), costo=COSTO)
@@ -130,6 +154,13 @@ print(f"rapporto:   {b['finale'] / a['finale']:10.2f}")
 # in cui una statistica è calcolata sull'intero periodo.
 #
 # Eseguilo e guarda cosa succede.
+#
+# ---
+#
+# > **EN** — *The two tests, and why you need both.* The first is the
+# > **prefix invariance** test: the value computed for a given day must not
+# > change when later data arrives. It catches errors where a statistic is
+# > computed over the entire period. Run it and see what happens.
 
 # %%
 def test_invarianza(funzione, p: np.ndarray, tagli=(600, 1600, 2600)) -> bool:
@@ -160,6 +191,17 @@ for nome, funzione in (("versione A", versione_a), ("versione B", versione_b)):
 # Il secondo test è più diretto: **si cambia il prezzo di un giorno e si guarda se
 # la posizione di quello stesso giorno cambia.** Se cambia, la decisione stava
 # usando un dato che al momento di decidere non esisteva.
+#
+# ---
+#
+# > **EN** — **Both pass.** And this is the most useful lesson of the
+# > notebook. The invariance test doesn't catch this type of error, because
+# > version B doesn't use the *future*: it uses **the present** — data not
+# > yet available at decision time, but still belonging to the past of any
+# > truncation. A second, different kind of test is needed. The second test
+# > is more direct: **change one day's price and see whether that same
+# > day's position changes.** If it does, the decision was using data that
+# > didn't exist yet at the time of deciding.
 
 # %%
 def test_esecuzione_sfasata(funzione, p: np.ndarray, giorni=(700, 1500, 2400)) -> bool:
@@ -197,12 +239,32 @@ for nome, funzione in (("versione A", versione_a), ("versione B", versione_b)):
 # distrazione: **usare l'indice corrente è la formulazione più naturale in
 # linguaggio umano.** «Compro quando il prezzo supera la banda» diventa, senza
 # pensarci, `if p[t] > banda`.
+#
+# ---
+#
+# > **EN** — *The solution.* **Version B** uses `p[t]` to decide day `t`'s
+# > position, and computes mean and deviation on a window that **includes**
+# > day `t`. At the moment that decision would need to be made, today's
+# > close doesn't exist yet. The code difference is `t - finestra + 1:t + 1`
+# > versus `t - finestra:t`, and `p[t]` versus `p[t - 1]`. Two characters.
+# > The result changes by orders of magnitude. It's exactly the error these
+# > tools produce most often, and not out of carelessness: **using the
+# > current index is the most natural phrasing in human language.** "Buy
+# > when price crosses the band" becomes, without a second thought,
+# > `if p[t] > banda`.
 
 # %% [markdown]
 # ## Le quattro richieste, scritte al contrario
 #
 # Il capitolo elenca le formulazioni che uso davvero. Le riporto qui perché siano
 # copiabili.
+#
+# ---
+#
+# > **EN** — *The four prompts, written out.* The chapter lists the phrasings
+# > I actually use. I reproduce them here so they can be copied. They stay in
+# > Italian: they are prompts meant to be used as written, not labels to
+# > translate — adapt them to your own working language when you copy them.
 
 # %%
 RICHIESTE = {
@@ -236,6 +298,12 @@ print("\n\nLo schema comune: chiedere un ELENCO invece di un giudizio. Un giudiz
 #
 # Quante idee riesci a provare in un pomeriggio con uno strumento che scrive il
 # codice al posto tuo? E cosa succede al significato del tuo risultato migliore?
+#
+# ---
+#
+# > **EN** — *The calculation that closes the chapter.* How many ideas can
+# > you try in one afternoon with a tool that writes the code for you? And
+# > what happens to the meaning of your best result?
 
 # %%
 rng = np.random.default_rng(seed_for("lab-ai"))
@@ -260,3 +328,13 @@ print("\nL'intelligenza artificiale non accelera la scoperta: accelera la "
       "RICERCA. Se hai il metodo, accelera anche la scoperta. Se non ce l'hai, "
       "accelera solo la produzione di illusioni — a un ritmo che prima era "
       "fisicamente impossibile.")
+
+# %% [markdown]
+# ---
+#
+# > **EN** — The more you search, the more you find. And what you find on
+# > top of that does NOT survive contact with data you didn't use to search.
+# > Artificial intelligence doesn't accelerate discovery: it accelerates
+# > SEARCH. If you have the method, it accelerates discovery too. If you
+# > don't, it only accelerates the production of illusions — at a pace that
+# > used to be physically impossible.

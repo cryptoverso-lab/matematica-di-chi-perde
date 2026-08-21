@@ -14,7 +14,7 @@
 # # Lab 8 — Quante cose stai davvero comprando
 #
 # *Quaderno del capitolo «Quante cose stai davvero comprando» di
-# **Non Fidarti di Me**.*
+# **La matematica di chi perde**.*
 #
 # L'analisi delle componenti principali risponde a una domanda che nessun'altra
 # misura pone: **quante direzioni indipendenti servono per descrivere il
@@ -22,6 +22,16 @@
 #
 # L'esercizio che vale il quaderno è il secondo: aggiungere asset uno alla volta
 # e guardare il numero **non muoversi**. È controintuitivo finché non lo si vede.
+#
+# ---
+#
+# > **EN** — *Lab 8 — How many things you're really buying.* Notebook for
+# > the chapter "How many things you're really buying". Principal component
+# > analysis answers a question no other measure asks: **how many
+# > independent directions are needed to describe the movement of a
+# > portfolio.** The exercise that makes the notebook worthwhile is the
+# > second one: adding assets one at a time and watching the number **not
+# > move**. It's counterintuitive until you see it.
 
 # %%
 # Setup — esegui questa cella per prima.
@@ -32,7 +42,7 @@ except ModuleNotFoundError:
     import urllib.request
 
     urllib.request.urlretrieve(
-        "https://raw.githubusercontent.com/cryptoverso-lab/non-fidarti-di-me/main/codice/lab/avvio.py",
+        "https://raw.githubusercontent.com/cryptoverso-lab/matematica-di-chi-perde/main/codice/lab/avvio.py",
         "avvio.py",
     )
     import avvio
@@ -69,6 +79,13 @@ def allinea(nomi: list[str], da: dt.date = dt.date(2020, 9, 1)) -> np.ndarray:
 # Si parte dalla matrice di correlazione e se ne prendono gli autovalori: sono le
 # quote di movimento spiegate da ciascuna direzione indipendente. Tre righe di
 # codice, e non serve alcuna libreria specialistica.
+#
+# ---
+#
+# > **EN** — *1. The components, on the chapter's three assets.* Start from
+# > the correlation matrix and take its eigenvalues: they're the shares of
+# > movement explained by each independent direction. Three lines of code,
+# > no specialized library needed.
 
 # %%
 NOMI = ["btcusdt", "ethusdt", "solusdt"]
@@ -105,6 +122,12 @@ print(f"\ncomponenti necessarie per arrivare al 90%: {int(np.searchsorted(cumula
 # La prima componente — una sola direzione, cioè sostanzialmente «oggi il settore
 # sale o scende» — spiega la gran parte di tutto ciò che accade. Le differenze
 # fra i tre asset stanno in quel che resta.
+#
+# ---
+#
+# > **EN** — The first component — a single direction, essentially "today
+# > the sector goes up or down" — explains most of everything that happens.
+# > The differences between the three assets live in what's left.
 
 # %% [markdown]
 # ## 2. Il numero effettivo di scommesse
@@ -112,6 +135,13 @@ print(f"\ncomponenti necessarie per arrivare al 90%: {int(np.searchsorted(cumula
 # Un numero solo al posto del grafico: si sommano i quadrati delle quote e si
 # prende l'inverso. Se le componenti pesassero tutte uguale darebbe il numero
 # degli asset; se una sola pesasse tutto darebbe uno.
+#
+# ---
+#
+# > **EN** — *2. The effective number of bets.* A single number in place of
+# > the chart: sum the squares of the shares and take the inverse. If all
+# > components weighed the same it would give the number of assets; if one
+# > alone weighed everything it would give one.
 
 # %%
 def numero_effettivo(nomi: list[str]) -> tuple[float, float]:
@@ -133,6 +163,10 @@ print("\nDue metodi con assunzioni diverse. Il secondo assume che tutte le coppi
 
 # %% [markdown]
 # ## 3. L'esercizio: aggiungi asset e guarda il numero non muoversi
+#
+# ---
+#
+# > **EN** — *3. The exercise: add assets and watch the number not move.*
 
 # %%
 print(f"{'portafoglio':>34s} {'asset':>6s} {'scommesse effettive':>20s}")
@@ -153,6 +187,13 @@ print("\nAggiungere asset dello stesso tipo non aggiunge dimensioni: aggiunge "
 # I limiti vanno guardati, non nominati. Le componenti calcolate su un periodo
 # tranquillo possono essere diverse da quelle calcolate su un periodo di stress:
 # la buona pratica è calcolarle su più finestre e vedere quanto sono stabili.
+#
+# ---
+#
+# > **EN** — *4. Stability over time.* Limits should be looked at, not just
+# > named. Components computed over a calm period can differ from those
+# > computed over a stressed one: good practice is to compute them over
+# > several windows and see how stable they are.
 
 # %%
 FINESTRA = 250
@@ -186,3 +227,16 @@ print(f"prima componente: minimo {prime.min():.1%}, massimo {prime.max():.1%}, "
 # 3. Applica lo stesso codice ai tuoi **indicatori** invece che agli asset. Se
 #    due o tre componenti spiegano quasi tutto, i tuoi otto indicatori stanno
 #    misurando la stessa cosa in modi leggermente diversi.
+#
+# ---
+#
+# > **EN** — *Exercises.*
+# > 1. Remove `"solusdt"` from `NOMI` and rerun: with only two assets the
+# >    first component explains even more. It's not an improvement of the
+# >    measure — with fewer series there's less structure to find.
+# > 2. In the fourth cell, reduce `FINESTRA` to 60. The first component
+# >    becomes much more unstable: how much of that instability is the
+# >    market's, and how much is having used less data?
+# > 3. Apply the same code to your own **indicators** instead of assets. If
+# >    two or three components explain almost everything, your eight
+# >    indicators are measuring the same thing in slightly different ways.

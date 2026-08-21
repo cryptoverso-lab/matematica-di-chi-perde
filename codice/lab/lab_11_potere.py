@@ -14,13 +14,23 @@
 # # Lab 11 — Quante osservazioni servono davvero
 #
 # *Quaderno del capitolo «Quanto serve per sapere se sei bravo» di
-# **Non Fidarti di Me**.*
+# **La matematica di chi perde**.*
 #
 # Il conto con i tuoi numeri: quante operazioni servirebbero per stabilire che il
 # vantaggio che pensi di avere non è rumore. E poi la simulazione che consiglio a
 # tutti: venti strategie **prive di qualunque vantaggio**, testate tutte. In media
 # una supera il test standard. Vederla passare, sapendo che dentro non c'è nulla,
 # vale più di dieci pagine di spiegazioni.
+#
+# ---
+#
+# > **EN** — *Lab 11 — How many observations you really need.* Notebook for
+# > the chapter "How much it takes to know if you're good". The calculation
+# > with your own numbers: how many trades it would take to establish that
+# > the edge you think you have isn't noise. Then the simulation I recommend
+# > to everyone: twenty strategies **with absolutely no edge**, all tested.
+# > On average one passes the standard test. Watching it pass, knowing
+# > there's nothing inside, is worth more than ten pages of explanation.
 
 # %%
 # Setup — esegui questa cella per prima.
@@ -31,7 +41,7 @@ except ModuleNotFoundError:
     import urllib.request
 
     urllib.request.urlretrieve(
-        "https://raw.githubusercontent.com/cryptoverso-lab/non-fidarti-di-me/main/codice/lab/avvio.py",
+        "https://raw.githubusercontent.com/cryptoverso-lab/matematica-di-chi-perde/main/codice/lab/avvio.py",
         "avvio.py",
     )
     import avvio
@@ -55,6 +65,14 @@ from cvbook.metriche import rendimenti
 # **quanto oscillano** i risultati attorno a esso. Il rapporto fra i due decide
 # tutto. È lo stesso motivo per cui in una stanza silenziosa senti un sussurro e
 # in discoteca devi urlare.
+#
+# ---
+#
+# > **EN** — *1. The calculation, with your own numbers.* Just two
+# > ingredients: **how big the edge is** you want to prove, and **how much
+# > the results swing** around it. Their ratio decides everything. It's the
+# > same reason you hear a whisper in a silent room and have to shout in a
+# > nightclub.
 
 # %%
 VANTAGGIO = 0.001        # ← guadagno medio per operazione, al netto dei costi
@@ -93,6 +111,10 @@ print(f"a {OPERAZIONI_ANNO} operazioni l'anno: {n / OPERAZIONI_ANNO:,.1f} anni")
 
 # %% [markdown]
 # ## 2. La tabella, e la riga che fa male
+#
+# ---
+#
+# > **EN** — *2. The table, and the row that hurts.*
 
 # %%
 oscillazione_btc = float(np.std(rendimenti(
@@ -125,6 +147,13 @@ print("\nUn vantaggio dello 0,1% per operazione sarebbe un risultato eccellente 
 #
 # Con una moneta perfettamente equa, quante volte capita di ottenere 26 teste o
 # più su 40 lanci? Il capitolo dice il 4%. Verifichiamolo invece di crederci.
+#
+# ---
+#
+# > **EN** — *3. Forty trades don't tell anything apart from nothing.* With
+# > a perfectly fair coin, how often do you get 26 heads or more out of 40
+# > flips? The chapter says 4%. Let's verify it instead of taking it on
+# > faith.
 
 # %%
 LANCI = 40
@@ -142,6 +171,10 @@ print(f"\nE se hai provato piu' di una manciata di strategie prima di trovare "
 
 # %% [markdown]
 # ## 4. Venti strategie senza alcun vantaggio, testate tutte
+#
+# ---
+#
+# > **EN** — *4. Twenty strategies with no edge at all, all tested.*
 
 # %%
 STRATEGIE = 20
@@ -169,6 +202,12 @@ print("Dentro non c'era niente. Nessuna di esse aveva un vantaggio: era zero, "
 # Gli dici quanti tentativi hai fatto e ti restituisce la soglia che avresti
 # dovuto usare. Applicalo ai tuoi risultati passati — con una certa cautela
 # emotiva.
+#
+# ---
+#
+# > **EN** — *5. The multiple-testing corrector.* Tell it how many attempts
+# > you made and it gives back the threshold you should have used. Apply it
+# > to your past results — with some emotional caution.
 
 # %%
 def soglia_corretta(tentativi: int, alfa: float = ALFA) -> float:
@@ -196,3 +235,16 @@ print("\nCon cento tentativi, trovare qualcosa che supera il test non corretto e
 # 3. Cambia `OSSERVAZIONI` da 500 a 5000 nella quarta cella. La quota di
 #    strategie che passa **non cambia**: più dati non proteggono dai test
 #    multipli. Solo il conteggio dei tentativi protegge.
+#
+# ---
+#
+# > **EN** — *Exercises.*
+# > 1. In the first cell, enter **your own** estimated edge and **your own**
+# >    swing, computed from your log. The resulting number is your real
+# >    verification horizon.
+# > 2. In the fourth cell raise `STRATEGIE` to 200. How many pass? About 5%,
+# >    as predicted — and each one, shown on its own, would look like a
+# >    discovery.
+# > 3. Change `OSSERVAZIONI` from 500 to 5000 in the fourth cell. The share
+# >    of strategies that pass **doesn't change**: more data doesn't protect
+# >    against multiple testing. Only counting the attempts does.

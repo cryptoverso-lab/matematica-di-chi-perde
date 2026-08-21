@@ -14,7 +14,7 @@
 # # Lab 14 — Come mente un backtest: il metodo
 #
 # *Quaderno del capitolo «Come mente un backtest — il metodo» di
-# **Non Fidarti di Me**.*
+# **La matematica di chi perde**.*
 #
 # Gli errori del capitolo precedente stanno nel codice e si trovano. Questi no:
 # stanno nel modo in cui hai lavorato, non lasciano traccia e non falliscono
@@ -23,6 +23,16 @@
 # Qui li rendiamo visibili con delle simulazioni, e alla fine c'è il correttore
 # per test multipli: gli dici quanti tentativi hai fatto e ti restituisce la
 # soglia che avresti dovuto usare.
+#
+# ---
+#
+# > **EN** — *Lab 14 — How a backtest lies: the method.* Notebook for the
+# > chapter "How a backtest lies — the method". The previous chapter's errors
+# > live in the code and can be found. These don't: they live in how you
+# > worked, leave no trace, and fail no automated check. Here we make them
+# > visible with simulations, and at the end there's the multiple-testing
+# > corrector: tell it how many attempts you made and it gives back the
+# > threshold you should have used.
 
 # %%
 # Setup — esegui questa cella per prima.
@@ -33,7 +43,7 @@ except ModuleNotFoundError:
     import urllib.request
 
     urllib.request.urlretrieve(
-        "https://raw.githubusercontent.com/cryptoverso-lab/non-fidarti-di-me/main/codice/lab/avvio.py",
+        "https://raw.githubusercontent.com/cryptoverso-lab/matematica-di-chi-perde/main/codice/lab/avvio.py",
         "avvio.py",
     )
     import avvio
@@ -66,6 +76,10 @@ def quantile_normale(p: float) -> float:
 
 # %% [markdown]
 # ## 1. Venti idee che non funzionano, e quella che passa
+#
+# ---
+#
+# > **EN** — *1. Twenty ideas that don't work, and the one that passes.*
 
 # %%
 IDEE = 20
@@ -97,6 +111,10 @@ print("Nessuna di esse aveva un vantaggio: era zero, messo li' da noi.")
 
 # %% [markdown]
 # ## 2. La tabella che cambia il significato di ogni risultato
+#
+# ---
+#
+# > **EN** — *2. The table that changes the meaning of every result.*
 
 # %%
 print(f"{'idee provate':>13s} {'prob. che almeno una passi':>28s}")
@@ -113,6 +131,12 @@ print("\nChi prova cento configurazioni TROVERA' qualcosa che supera il test. "
 # Il capitolo elenca le scelte che non compaiono in nessun conteggio: quale
 # asset, quale periodo, quale regola, quando fermarsi. Qui le contiamo davvero,
 # su dati veri.
+#
+# ---
+#
+# > **EN** — *3. The attempts you don't count.* The chapter lists the
+# > choices that show up in no tally: which asset, which period, which rule,
+# > when to stop. Here we actually count them, on real data.
 
 # %%
 SERIE = ["btcusdt", "ethusdt", "solusdt"]
@@ -155,6 +179,11 @@ print("\nSe pubblicassi solo la prima riga, non avrei mentito su nessun numero. 
 # ## 4. Il correttore per test multipli
 #
 # Applicalo ai tuoi risultati passati. Con una certa cautela emotiva.
+#
+# ---
+#
+# > **EN** — *4. The multiple-testing corrector.* Apply it to your past
+# > results. With some emotional caution.
 
 # %%
 def soglia_corretta(tentativi: int, alfa: float = ALFA) -> float:
@@ -178,6 +207,13 @@ print(f"\nil tuo {TUA_STATISTICA:.2f} " +
 # Tutte le difese di questo capitolo si riducono a una pratica sola, che costa
 # dieci minuti e vale più di qualunque tecnica sofisticata. Ecco lo scheletro:
 # copialo in un file di testo e tienilo in ordine cronologico.
+#
+# ---
+#
+# > **EN** — *5. The hypothesis log.* All of this chapter's defences boil
+# > down to a single practice, which costs ten minutes and is worth more than
+# > any sophisticated technique. Here's the skeleton: copy it into a text
+# > file and keep it in chronological order.
 
 # %%
 MODELLO = """\
@@ -207,3 +243,16 @@ print("Dopo sei mesi quel file ti dira' una cosa che nessun backtest puo' dirti:
 # 3. Prendi un tuo risultato passato, stima quanti tentativi ci sono stati dietro
 #    (contando anche quelli informali) e passalo al correttore. È l'esercizio più
 #    scomodo del libro.
+#
+# ---
+#
+# > **EN** — *Exercises.*
+# > 1. In the third cell add a rule and a start date. The number of
+# >    combinations grows as a product, not a sum — and that's the number
+# >    that matters.
+# > 2. In the first cell raise `IDEE` to 500 and count how many pass. About
+# >    5%, as predicted. Each one, shown on its own, would look like a
+# >    discovery.
+# > 3. Take one of your own past results, estimate how many attempts were
+# >    behind it (counting informal ones too), and run it through the
+# >    corrector. It's the most uncomfortable exercise in the book.

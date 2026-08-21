@@ -14,12 +14,21 @@
 # # Lab 4 — Il costo misurato dei tuoi automatismi
 #
 # *Quaderno del capitolo «Perché il tuo cervello non è fatto per questo» di
-# **Non Fidarti di Me**.*
+# **La matematica di chi perde**.*
 #
 # Il capitolo dice che prendere i piccoli utili e tenere le perdite grandi è
 # **misurabile e caro**. Qui lo misuri sui tuoi parametri, e poi provi
 # l'esperimento che il capitolo racconta: distinguere a occhio un processo con un
 # vantaggio reale da uno senza. Quasi nessuno ci riesce.
+#
+# ---
+#
+# > **EN** — *Lab 4 — The measured cost of your reflexes.* Notebook for the
+# > chapter "Why your brain isn't built for this". The chapter says that
+# > taking small profits and holding large losses is **measurable and
+# > expensive**. Here you measure it on your own parameters, then try the
+# > experiment the chapter describes: telling apart by eye a process with a
+# > real edge from one without. Almost nobody can.
 
 # %%
 # Setup — esegui questa cella per prima.
@@ -30,7 +39,7 @@ except ModuleNotFoundError:
     import urllib.request
 
     urllib.request.urlretrieve(
-        "https://raw.githubusercontent.com/cryptoverso-lab/non-fidarti-di-me/main/codice/lab/avvio.py",
+        "https://raw.githubusercontent.com/cryptoverso-lab/matematica-di-chi-perde/main/codice/lab/avvio.py",
         "avvio.py",
     )
     import avvio
@@ -58,6 +67,15 @@ r = rendimenti(prezzi)
 # e resta dentro finché la perdita non raggiunge una soglia molto più larga.
 #
 # Nessuna previsione distingue i due. Solo le due soglie.
+#
+# ---
+#
+# > **EN** — *1. The cost of taking the profit right away.* Two behaviours,
+# > same price series, same capital, same costs. The first buys and never
+# > touches anything again. The second does what real-account experience
+# > documents: closes as soon as it's up a certain percentage, and stays in
+# > until the loss reaches a much wider threshold. No forecast tells the two
+# > apart. Only the two thresholds do.
 
 # %%
 PRENDI_UTILE = 0.10   # ← chiudi quando sei in utile di questa percentuale
@@ -119,6 +137,12 @@ print(f"differenza: {nervoso[-1] / fermo[-1] - 1:+.1%}")
 # Nota le due colonne del calo massimo. Il secondo comportamento ha rinunciato a
 # una parte del risultato **senza comprarsi in cambio nemmeno un po' di
 # tranquillità**. Ha pagato per l'illusione di controllo.
+#
+# ---
+#
+# > **EN** — Note the two maximum-drawdown columns. The second behaviour gave
+# > up part of the result **without buying even a bit of peace of mind in
+# > return**. It paid for the illusion of control.
 
 # %% [markdown]
 # ## 2. L'asimmetria del dolore, e perché appiattisce
@@ -126,6 +150,13 @@ print(f"differenza: {nervoso[-1] / fermo[-1] - 1:+.1%}")
 # I parametri sperimentali della teoria del prospetto: la perdita pesa circa due
 # volte e mezzo il guadagno di pari entità, e la curva si appiattisce
 # allontanandosi dallo zero.
+#
+# ---
+#
+# > **EN** — *2. The asymmetry of pain, and why it flattens.* The
+# > experimental parameters of prospect theory: a loss weighs about two and a
+# > half times a gain of equal size, and the curve flattens out moving away
+# > from zero.
 
 # %%
 CURVATURA = 0.88
@@ -164,6 +195,12 @@ print("È il motivo per cui, dopo una perdita gia' grande, rischiare ancora "
 #
 # Sei serie. Alcune hanno un vantaggio reale, altre no. Scrivi la tua risposta
 # prima di eseguire la cella successiva.
+#
+# ---
+#
+# > **EN** — *3. Can you tell the edge apart from noise?* Six series. Some
+# > have a real edge, others don't. Write down your answer before running the
+# > next cell.
 
 # %%
 rng = np.random.default_rng(seed_for("lab-bias-indovina"))
@@ -201,3 +238,15 @@ print("\nSe le due con vantaggio non sono quelle che avevi indicato, non e' un "
 # 3. Rifai l'esperimento della terza cella cambiando `400` in `4000`. Con dieci
 #    volte le osservazioni la distinzione diventa possibile. È esattamente il
 #    punto del capitolo sul potere statistico.
+#
+# ---
+#
+# > **EN** — *Exercises.*
+# > 1. In the first cell set `PRENDI_UTILE = 0.05` and `SOPPORTA_PERDITA = 0.70`:
+# >    it's the extreme behaviour, and the cost grows accordingly.
+# > 2. Try `PRENDI_UTILE = 0.50` and `SOPPORTA_PERDITA = 0.10` — the opposite
+# >    of what almost everyone does. Watch what happens to the result **and**
+# >    to the maximum drawdown: that isn't free either.
+# > 3. Redo the third cell's experiment changing `400` to `4000`. With ten
+# >    times the observations the distinction becomes possible. It's exactly
+# >    the point of the chapter on statistical power.

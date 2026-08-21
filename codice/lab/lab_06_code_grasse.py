@@ -13,11 +13,19 @@
 # %% [markdown]
 # # Lab 6 — La media che mente
 #
-# *Quaderno del capitolo «La media che mente» di **Non Fidarti di Me**.*
+# *Quaderno del capitolo «La media che mente» di **La matematica di chi perde**.*
 #
 # Tre cose, sui dati veri: quanto la campana sbaglia sulle code, quanto pochi
 # giorni decidono il risultato, e perché i due slogan opposti che si ricavano da
 # quella figura sono la stessa affermazione — e nessuno dei due è un consiglio.
+#
+# ---
+#
+# > **EN** — *Lab 6 — The lying average.* Notebook for the chapter "The
+# > lying average". Three things, on real data: how wrong the bell curve is
+# > on the tails, how few days decide the result, and why the two opposite
+# > slogans drawn from that figure are the same statement — and neither is
+# > advice.
 
 # %%
 # Setup — esegui questa cella per prima.
@@ -28,7 +36,7 @@ except ModuleNotFoundError:
     import urllib.request
 
     urllib.request.urlretrieve(
-        "https://raw.githubusercontent.com/cryptoverso-lab/non-fidarti-di-me/main/codice/lab/avvio.py",
+        "https://raw.githubusercontent.com/cryptoverso-lab/matematica-di-chi-perde/main/codice/lab/avvio.py",
         "avvio.py",
     )
     import avvio
@@ -56,6 +64,13 @@ mu, sigma = float(np.mean(r)), float(np.std(r, ddof=1))
 # Se i rendimenti seguissero la curva a campana, il numero di giorni oltre una
 # certa distanza dalla media sarebbe calcolabile. Confrontiamolo con quelli che
 # ci sono davvero.
+#
+# ---
+#
+# > **EN** — *1. How many extreme days the bell curve predicts, and how many
+# > there really are.* If returns followed the bell curve, the number of days
+# > beyond a certain distance from the mean would be computable. Let's
+# > compare it with the real count.
 
 # %%
 from math import erfc, sqrt
@@ -83,6 +98,12 @@ print(f"\ncurtosi: {curtosi:.1f}   (per la curva a campana vale 3)")
 #
 # La scala verticale è logaritmica: senza, la differenza sulle code — cioè
 # l'unica parte che conta — sarebbe invisibile.
+#
+# ---
+#
+# > **EN** — *2. The shape, drawn.* The vertical scale is logarithmic:
+# > without it, the difference on the tails — the only part that matters —
+# > would be invisible.
 
 # %%
 from math import exp, pi
@@ -105,6 +126,11 @@ with avvio.figura("schermo"):
 # ## 3. Venti giorni su 3.200
 #
 # Togliamo dalla serie i giorni migliori, poi i peggiori, e guardiamo cosa resta.
+#
+# ---
+#
+# > **EN** — *3. Twenty days out of 3,200.* We remove the best days from the
+# > series, then the worst, and look at what's left.
 
 # %%
 ordine = np.argsort(r)
@@ -130,6 +156,13 @@ for quanti in (1, 5, 10, 20, 50):
 # Il pezzo che quasi tutti i libri divulgativi omettono: i giorni migliori e i
 # peggiori **arrivano nella stessa settimana**. Chi esce per evitare i primi
 # manca quasi sempre anche i secondi.
+#
+# ---
+#
+# > **EN** — *4. But they sit close together.* The piece almost every
+# > popular book leaves out: the best and worst days **arrive in the same
+# > week**. Whoever exits to avoid the latter almost always misses the
+# > former too.
 
 # %%
 peggiori_10 = np.sort(ordine[:10])
@@ -161,3 +194,16 @@ print(f"\ndistanza mediana fra un giorno migliore e il peggiore piu' vicino: "
 # 3. Guarda l'ultima tabella. Prova a immaginare una regola che esca prima di
 #    ogni giorno peggiore e rientri prima di ogni giorno migliore: la distanza
 #    mediana appena stampata ti dice quanto tempo avresti per accorgertene.
+#
+# ---
+#
+# > **EN** — *Exercises.*
+# > 1. Change `SERIE` to `"ethusdt"` or `"solusdt"`. Kurtosis stays well
+# >    above 3 and the concentration of the result in few days remains: **it
+# >    is not a quirk of one asset, it's a property of markets.**
+# > 2. In the third cell try removing 100 days. What's left no longer
+# >    resembles anything real: that's why "avoid the worst days" isn't
+# >    advice but a description of a world that doesn't exist.
+# > 3. Look at the last table. Try imagining a rule that exits before every
+# >    worst day and re-enters before every best day: the median distance
+# >    just printed tells you how much time you'd have to notice.

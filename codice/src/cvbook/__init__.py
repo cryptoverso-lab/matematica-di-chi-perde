@@ -1,4 +1,4 @@
-"""cvbook — libreria del libro *Non Fidarti di Me*.
+"""cvbook — libreria del libro *La matematica di chi perde*.
 
 Unico posto in cui nascono i numeri del libro: caricamento degli snapshot,
 stile delle figure, metriche e simulazioni. Testo, figure e notebook Colab

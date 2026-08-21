@@ -13,13 +13,22 @@
 # %% [markdown]
 # # Calcolatore 2 — I costi, sui tuoi numeri
 #
-# *Quaderno del capitolo «I costi che ti mangiano vivo» di **Non Fidarti di Me**.*
+# *Quaderno del capitolo «I costi che ti mangiano vivo» di **La matematica di chi perde**.*
 #
 # Tre risposte, con i tuoi parametri: quanto ti costano i costi in un anno, quale
 # rendimento lordo ti serve **solo per pareggiarli**, e quanto ti sarebbe rimasto
 # operando a quella frequenza su una serie reale.
 #
 # Il numero che quasi nessuno conosce è il secondo.
+#
+# ---
+#
+# > **EN** — *Calculator 2 — Costs, on your own numbers.* Notebook for the
+# > chapter "The costs that eat you alive". Three answers, with your own
+# > parameters: what costs take out of a year, what gross return you need
+# > **just to break even on them**, and what would have been left trading at
+# > that frequency on a real series. The number almost nobody knows is the
+# > second one.
 
 # %%
 # Setup — esegui questa cella per prima.
@@ -30,7 +39,7 @@ except ModuleNotFoundError:
     import urllib.request
 
     urllib.request.urlretrieve(
-        "https://raw.githubusercontent.com/cryptoverso-lab/non-fidarti-di-me/main/codice/lab/avvio.py",
+        "https://raw.githubusercontent.com/cryptoverso-lab/matematica-di-chi-perde/main/codice/lab/avvio.py",
         "avvio.py",
     )
     import avvio
@@ -42,6 +51,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from cvbook.dati import carica
+from cvbook.lingua import t
 from cvbook.metriche import equity, rendimenti
 
 # %% [markdown]
@@ -51,6 +61,13 @@ from cvbook.metriche import equity, rendimenti
 # dieci operazioni chiuse, confronta il prezzo che avevi visto con quello
 # ottenuto, somma le commissioni. Quasi tutti scoprono di stare più vicini allo
 # 0,25% che allo 0,06%.
+#
+# ---
+#
+# > **EN** — *1. Your three numbers.* If you don't know your own round-trip
+# > cost, the chapter explains how to measure it: take ten closed trades,
+# > compare the price you saw with the price you got, add the commissions.
+# > Almost everyone finds themselves closer to 0.25% than to 0.06%.
 
 # %%
 CAPITALE = 10_000.0   # ← il capitale impegnato, in euro
@@ -60,10 +77,12 @@ OPERAZIONI_ANNO = 52  # ← quanti giri completi fai in un anno
 speso = CAPITALE * COSTO_GIRO * OPERAZIONI_ANNO
 pareggio = (1 + COSTO_GIRO) ** OPERAZIONI_ANNO - 1
 
-print(f"in un anno paghi:        {speso:10,.2f} euro")
-print(f"cioe' il:                {speso / CAPITALE:10.2%} del capitale")
-print(f"rendimento lordo per     ")
-print(f"NON perdere nulla:       {pareggio:10.2%}")
+print(t("in un anno paghi:        ", "in a year you pay:       ") + f"{speso:10,.2f}"
+      + t(" euro", " euros"))
+print(t("cioe' il:                ", "that is:                 ") + f"{speso / CAPITALE:10.2%}"
+      + t(" del capitale", " of capital"))
+print(t("rendimento lordo per     ", "gross return to          "))
+print(t("NON perdere nulla:       ", "lose NOTHING:            ") + f"{pareggio:10.2%}")
 
 # %% [markdown]
 # ## 2. La soglia, al variare della frequenza
@@ -71,6 +90,13 @@ print(f"NON perdere nulla:       {pareggio:10.2%}")
 # La riga tratteggiata è, come nel libro, il rendimento medio storico di lungo
 # periodo di un indice azionario ampio. Tutto ciò che sta sopra è territorio in
 # cui il costo si mangia più di quanto un mercato intero abbia mai reso.
+#
+# ---
+#
+# > **EN** — *2. The threshold, as frequency varies.* The dashed line is, as
+# > in the book, the long-run historical average return of a broad equity
+# > index. Everything above it is territory where cost eats more than an
+# > entire market has ever returned.
 
 # %%
 FREQUENZE = np.array([12, 26, 52, 125, 250, 500])
@@ -80,31 +106,35 @@ with avvio.figura("schermo"):
     fig, ax = plt.subplots(figsize=(9, 5))
     for c in COSTI:
         soglia = ((1 + c) ** FREQUENZE - 1) * 100
-        ax.plot(FREQUENZE, soglia, marker="o", label=f"costo {c:.2%} a giro")
+        ax.plot(FREQUENZE, soglia, marker="o", label=t(f"costo {c:.2%} a giro", f"cost {c:.2%} per round trip"))
 
     # Riferimento in grigio, con l'etichetta in legenda invece che sul grafico:
     # una scritta appoggiata sulle curve e' il modo piu' rapido di rendere
     # illeggibile una figura che dice una cosa semplice.
+    # Grey reference, labelled in the legend rather than on the chart: text
+    # sitting on top of the curves is the fastest way to make an otherwise
+    # simple figure unreadable.
     ax.axhline(
         10,
         linestyle="--",
         linewidth=1.2,
         color="#8C8C8C",
         zorder=0,
-        label="~10% annuo: media storica di un indice azionario",
+        label=t("~10% annuo: media storica di un indice azionario",
+                 "~10% a year: historical average of an equity index"),
     )
 
     ax.set_xscale("log")
     ax.set_xticks(FREQUENZE)
     ax.set_xticklabels([str(f) for f in FREQUENZE])
-    ax.set_xlabel("Operazioni complete all'anno")
-    ax.set_ylabel("Rendimento lordo necessario per pareggiare (%)")
+    ax.set_xlabel(t("Operazioni complete all'anno", "Round trips per year"))
+    ax.set_ylabel(t("Rendimento lordo necessario per pareggiare (%)", "Gross return needed to break even (%)"))
     ax.set_ylim(0, None)
     ax.legend(loc="upper left")
     plt.show()
 
 for c in COSTI:
-    print(f"costo {c:.2%}: " + "  ".join(
+    print(t(f"costo {c:.2%}: ", f"cost {c:.2%}: ") + "  ".join(
         f"{f}op→{((1 + c) ** f - 1):.1%}" for f in FREQUENZE))
 
 # %% [markdown]
@@ -113,6 +143,13 @@ for c in COSTI:
 # Stessa esposizione, stesso asset, stesso periodo. L'unica cosa che cambia è
 # **quante volte** si chiude e si riapre la stessa posizione. Nessuna previsione
 # diversa, nessuna decisione diversa.
+#
+# ---
+#
+# > **EN** — *3. What would have been left, on real data.* Same exposure,
+# > same asset, same period. The only thing that changes is **how many times**
+# > the same position is closed and reopened. No different forecast, no
+# > different decision.
 
 # %%
 SERIE = "btcusdt"  # ← prova anche "ethusdt" o "solusdt"
@@ -129,11 +166,15 @@ def con_frequenza(rend: np.ndarray, ogni_n_giorni: int | None, costo: float) -> 
     return float(equity(rend - operazioni * costo)[-1])
 
 
-print(f"{SERIE} · {n} giorni\n")
-print(f"{'frequenza':>22s} " + " ".join(f"{c:>10.2%}" for c in COSTI))
-for ogni, etichetta in [(None, "mai (compra e tieni)"), (365, "una volta l'anno"),
-                        (30, "una volta al mese"), (7, "una volta a settimana"),
-                        (1, "ogni giorno")]:
+print(f"{SERIE} · {n}" + t(" giorni\n", " days\n"))
+print(f"{t('frequenza', 'frequency'):>22s} " + " ".join(f"{c:>10.2%}" for c in COSTI))
+for ogni, etichetta in [
+    (None, t("mai (compra e tieni)", "never (buy and hold)")),
+    (365, t("una volta l'anno", "once a year")),
+    (30, t("una volta al mese", "once a month")),
+    (7, t("una volta a settimana", "once a week")),
+    (1, t("ogni giorno", "every day")),
+]:
     valori = " ".join(f"{con_frequenza(r, ogni, c):10.3f}x" for c in COSTI)
     print(f"{etichetta:>22s} {valori}")
 
@@ -148,3 +189,16 @@ for ogni, etichetta in [(None, "mai (compra e tieni)"), (365, "una volta l'anno"
 # 3. Nella terza cella cambia serie. La colonna del compra-e-tieni cambia molto;
 #    il **rapporto** fra le righe quasi per niente: il costo della frequenza non
 #    dipende da quale asset hai scelto.
+#
+# ---
+#
+# > **EN** — *Exercises.*
+# > 1. **Enter your real frequency** in `OPERAZIONI_ANNO`: count it from last
+# >    year's statement, not from memory. Then compare the break-even
+# >    threshold with what you thought you could get.
+# > 2. Double `COSTO_GIRO` and rerun everything. If a strategy only survives
+# >    at the optimistic cost, that edge belongs to whoever has low costs, not
+# >    to you.
+# > 3. In the third cell, change the series. The buy-and-hold column changes a
+# >    lot; the **ratio** between the rows barely at all: the cost of
+# >    frequency doesn't depend on which asset you picked.

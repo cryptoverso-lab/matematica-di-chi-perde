@@ -13,7 +13,7 @@
 # %% [markdown]
 # # Lab 1 — Chi perde davvero, e quanto
 #
-# *Quaderno del capitolo «Chi perde davvero, e quanto» di **Non Fidarti di Me**.*
+# *Quaderno del capitolo «Chi perde davvero, e quanto» di **La matematica di chi perde**.*
 #
 # Il capitolo mostra tre coordinate senza le quali un risultato non significa
 # niente: **su cosa**, **su quale periodo**, **con quali costi**. Qui le vedi
@@ -27,6 +27,19 @@
 #
 # Esegui le celle dall'alto verso il basso. La prima richiede una ventina di
 # secondi, le altre sono immediate.
+#
+# ---
+#
+# > **EN** — *Lab 1 — Who really loses, and how much.* Notebook for the
+# > chapter "Who really loses, and how much". The chapter shows three
+# > coordinates without which a result means nothing: **on what**, **over
+# > which period**, **at what cost**. Here you watch them move. The book's
+# > figure says that, on this asset and in this period, the moment you
+# > started matters more than anything else. The notebook redoes that
+# > calculation and — above all — **takes it apart**, exactly as the chapter
+# > does: the sample is a single market in a lucky period, and that has to be
+# > looked at directly, not hidden. Run the cells top to bottom. The first
+# > takes about twenty seconds, the rest are immediate.
 
 # %%
 # Setup — esegui questa cella per prima.
@@ -37,7 +50,7 @@ except ModuleNotFoundError:
     import urllib.request
 
     urllib.request.urlretrieve(
-        "https://raw.githubusercontent.com/cryptoverso-lab/non-fidarti-di-me/main/codice/lab/avvio.py",
+        "https://raw.githubusercontent.com/cryptoverso-lab/matematica-di-chi-perde/main/codice/lab/avvio.py",
         "avvio.py",
     )
     import avvio
@@ -68,6 +81,14 @@ print(f"periodo: {date[0]} → {date[-1]}  ({len(prezzi)} giorni)")
 #
 # È il conto che quasi nessuno fa, perché richiede di guardare *tutti* i giorni
 # d'ingresso e non solo quello comodo.
+#
+# ---
+#
+# > **EN** — *1. How many entries end at a loss, by horizon.* For every day
+# > in the history we ask: if someone had entered **that day** and exited
+# > after N days, how would it have gone? Then we count the share of entries
+# > that closed at a loss. It's the calculation almost nobody makes, because
+# > it requires looking at *every* entry day, not just the convenient one.
 
 # %%
 ORIZZONTI = [(30, "1 mese"), (90, "3 mesi"), (365, "1 anno"), (730, "2 anni"), (1460, "4 anni")]
@@ -95,6 +116,15 @@ for giorni, etichetta in ORIZZONTI:
 # che si accavallano quasi tutte fra loro.
 #
 # Il conto onesto delle occasioni indipendenti è più vicino a questo.
+#
+# ---
+#
+# > **EN** — *2. The first limit: observations overlap.* The numbers just
+# > printed look like they're based on thousands of cases. They're not.
+# > 2,875 twelve-month entries over nine years of history **are not 2,875
+# > independent experiments**: they're nine years seen from 2,875 angles that
+# > almost all overlap with each other. The honest count of independent
+# > occasions is closer to this.
 
 # %%
 for giorni, etichetta in ORIZZONTI:
@@ -108,6 +138,11 @@ for giorni, etichetta in ORIZZONTI:
 # %% [markdown]
 # Guarda la colonna di destra. A quattro anni le osservazioni indipendenti sono
 # **due**. Un numero su cui non si costruisce nessuna conclusione.
+#
+# ---
+#
+# > **EN** — Look at the right-hand column. At four years the independent
+# > observations are **two**. Not a number to build any conclusion on.
 
 # %% [markdown]
 # ## 3. Il secondo limite: il periodo è fortunato
@@ -115,6 +150,13 @@ for giorni, etichetta in ORIZZONTI:
 # Cambia la finestra e guarda cosa succede ai numeri. Il capitolo lo dice
 # esplicitamente: la colonna dei quattro anni non dimostra che a quattro anni
 # non si perde — dimostra che *in questa finestra* non è successo.
+#
+# ---
+#
+# > **EN** — *3. The second limit: the period is lucky.* Change the window
+# > and watch what happens to the numbers. The chapter says it explicitly:
+# > the four-year column doesn't prove that you don't lose at four years — it
+# > proves that *in this window* it didn't happen.
 
 # %%
 INIZIO, FINE = "2017-08-17", "2026-06-30"  # ← cambia queste due date
@@ -150,3 +192,19 @@ for giorni, etichetta in ORIZZONTI:
 # Un risultato non è un numero: è un numero **con** il suo periodo, il suo
 # campione e la sua dimensione effettiva. Se una di queste tre cose manca, la
 # risposta corretta a «quindi funziona?» è: *non lo so, e non lo sai nemmeno tu.*
+#
+# ---
+#
+# > **EN** — *Exercises.*
+# > 1. **Set `FINE = "2022-12-31"`** and rerun the cell. The four-year column
+# >    stops being zero. No data changed: the window did.
+# > 2. **Set `INIZIO = "2021-01-01"`.** Buy-and-hold drops a lot. It's the
+# >    chapter that says three months of difference on entry were worth 129
+# >    percentage points.
+# > 3. Change `"btcusdt"` to `"ethusdt"` or `"solusdt"` in the setup cell and
+# >    in the loading one. Does the conclusion hold? On which horizons?
+# >
+# > *Takeaway.* A result is not a number: it's a number **with** its period,
+# > its sample, and its effective size. If any of these three is missing, the
+# > correct answer to "so does it work?" is: *I don't know, and neither do
+# > you.*

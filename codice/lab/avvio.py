@@ -27,7 +27,7 @@ from pathlib import Path
 #: Radice dei file grezzi. Questo file viene scaricato per primo, quando
 #: `cvbook` non c'e' ancora: l'indirizzo va scritto per esteso. Lo tiene
 #: allineato a `cvbook.link` il comando `costruisci.py --sincronizza`.
-BASE = "https://raw.githubusercontent.com/cryptoverso-lab/non-fidarti-di-me/main"
+BASE = "https://raw.githubusercontent.com/cryptoverso-lab/matematica-di-chi-perde/main"
 
 #: I moduli del motore. L'ordine non conta: si scaricano tutti.
 MODULI = [

@@ -13,7 +13,7 @@
 # %% [markdown]
 # # Lab 19 — Le cinque prove del tuo strumento
 #
-# *Quaderno del capitolo «La cassetta degli attrezzi» di **Non Fidarti di Me**.*
+# *Quaderno del capitolo «La cassetta degli attrezzi» di **La matematica di chi perde**.*
 #
 # Questo quaderno **non serve a insegnarti Python**. Serve a mostrarti in trenta
 # secondi cosa vuol dire, in pratica, avere le cinque capacità del capitolo —
@@ -22,6 +22,16 @@
 #
 # Cinque celle, una per prova. Eseguile e poi chiediti, per ciascuna: *questo,
 # con lo strumento che uso, quanto ci metterei?*
+#
+# ---
+#
+# > **EN** — *Lab 19 — The five tests for your tool.* Notebook for the
+# > chapter "The toolbox". This notebook **does not teach you Python**. It
+# > shows you in thirty seconds what it means, in practice, to have the
+# > chapter's five capabilities — so you can compare them with what your
+# > current tool lets you do, instead of trusting my comparison. Five cells,
+# > one per test. Run them and then ask yourself, for each: *how long would
+# > this take me with the tool I use?*
 
 # %%
 # Setup — esegui questa cella per prima.
@@ -32,7 +42,7 @@ except ModuleNotFoundError:
     import urllib.request
 
     urllib.request.urlretrieve(
-        "https://raw.githubusercontent.com/cryptoverso-lab/non-fidarti-di-me/main/codice/lab/avvio.py",
+        "https://raw.githubusercontent.com/cryptoverso-lab/matematica-di-chi-perde/main/codice/lab/avvio.py",
         "avvio.py",
     )
     import avvio
@@ -60,6 +70,13 @@ ASSET = ["btcusdt", "ethusdt", "solusdt", "lunausdt", "fttusdt"]
 # Non cinque grafici da guardare uno per uno: **una tabella, ordinabile**.
 # Se il tuo strumento non lo fa, il capitolo sul cimitero dei token è un capitolo
 # che non avresti potuto scrivere.
+#
+# ---
+#
+# > **EN** — *Test 1 — The same metric on every asset, in one table.* Not
+# > five charts to look at one by one: **one sortable table**. If your tool
+# > can't do this, the chapter on the graveyard of tokens is a chapter you
+# > couldn't have written.
 
 # %%
 inizio = time.perf_counter()
@@ -92,6 +109,14 @@ print(f"\ntempo impiegato: {time.perf_counter() - inizio:.2f} secondi")
 # È l'operazione che trasforma «è andata così» in «così com'è andata sta nel
 # trenta per cento peggiore dei casi possibili». Quasi nessuna piattaforma da
 # trading la fa, e la sua assenza è la ragione per cui quasi nessuno se la chiede.
+#
+# ---
+#
+# > **EN** — *Test 2 — A thousand alternative paths, and where yours falls.*
+# > It's the operation that turns "that's how it went" into "how it went
+# > sits in the worst thirty percent of possible cases". Almost no trading
+# > platform does this, and its absence is why almost nobody asks the
+# > question.
 
 # %%
 r = rendimenti(carica("btcusdt").sort("data")["chiusura"].to_numpy())
@@ -119,6 +144,12 @@ print(f"mediana dei possibili: {np.median(finali):.2f}x")
 #
 # Non il grafico: **i numeri**. Se non puoi, stai delegando a quello strumento
 # non solo l'esecuzione ma anche la verifica.
+#
+# ---
+#
+# > **EN** — *Test 3 — Exporting the raw data.* Not the chart: **the
+# > numbers**. If you can't, you're delegating to that tool not just the
+# > execution but also the verification.
 
 # %%
 percorso = "esportazione.csv"
@@ -137,6 +168,12 @@ print("\nDa questo momento chiunque puo' verificare che i tuoi numeri siano "
 #
 # Il lavoro di sei mesi fa si rifà con un comando? Se vive in una sequenza di
 # clic, la risposta è no per costruzione.
+#
+# ---
+#
+# > **EN** — *Test 4 — Rerunning and getting the exact same number.* Can the
+# > work from six months ago be redone with one command? If it lives in a
+# > sequence of clicks, the answer is no by construction.
 
 # %%
 registro = leggi_registro()
@@ -154,6 +191,12 @@ print("\nI dati di questo libro sono congelati e firmati. Se qualcuno modificass
 #
 # Se la risposta è «mezz'ora», la maggior parte delle verifiche che dovresti fare
 # non le farai. Se è «trenta secondi», le farai tutte.
+#
+# ---
+#
+# > **EN** — *Test 5 — How long it takes to redo everything changing one
+# > parameter.* If the answer is "half an hour", you won't run most of the
+# > checks you should. If it's "thirty seconds", you'll run them all.
 
 # %%
 from cvbook.regole import esegui, rottura
@@ -183,3 +226,15 @@ print("\nE' questo il punto del capitolo: non la velocita' del computer, ma il "
 # - **Meno di tre:** il problema non è che stai lavorando peggio di quanto
 #   potresti. È che ci sono domande che non ti stanno venendo in mente, e per
 #   definizione non puoi accorgertene dall'interno.
+#
+# ---
+#
+# > **EN** — *The score.* Mentally redo the five tests with your current
+# > tool and count how many it passes.
+# > - **Five out of five:** keep it. The best choice is the one you already
+# >   use well.
+# > - **Three or four:** you know where the gaps are, and now you also know
+# >   what they cost.
+# > - **Fewer than three:** the problem isn't that you're working worse than
+# >   you could. It's that there are questions that aren't occurring to you,
+# >   and by definition you can't notice that from the inside.

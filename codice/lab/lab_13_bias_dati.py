@@ -14,7 +14,7 @@
 # # Lab 13 — Come mente un backtest: i dati
 #
 # *Quaderno del capitolo «Come mente un backtest — i dati» di
-# **Non Fidarti di Me**.*
+# **La matematica di chi perde**.*
 #
 # Lo stesso backtest scritto in due versioni, una causale e una con un lookahead
 # di **una riga**. Poi il test di invarianza, che scova quell'errore in modo
@@ -23,6 +23,16 @@
 # E infine i cinque controlli da fare sui dati prima di qualunque calcolo. Dieci
 # minuti, e sono quelli con il miglior rapporto fra tempo speso ed errori
 # trovati.
+#
+# ---
+#
+# > **EN** — *Lab 13 — How a backtest lies: the data.* Notebook for the
+# > chapter "How a backtest lies — the data". The same backtest written in
+# > two versions, one causal and one with a **one-line** lookahead. Then the
+# > invariance test, which catches that error mechanically: you can paste
+# > your own code into it. And finally the five checks to run on the data
+# > before any calculation. Ten minutes, and they have the best ratio of
+# > time spent to errors found.
 
 # %%
 # Setup — esegui questa cella per prima.
@@ -33,7 +43,7 @@ except ModuleNotFoundError:
     import urllib.request
 
     urllib.request.urlretrieve(
-        "https://raw.githubusercontent.com/cryptoverso-lab/non-fidarti-di-me/main/codice/lab/avvio.py",
+        "https://raw.githubusercontent.com/cryptoverso-lab/matematica-di-chi-perde/main/codice/lab/avvio.py",
         "avvio.py",
     )
     import avvio
@@ -64,6 +74,11 @@ def media_mobile(p: np.ndarray, finestra: int) -> np.ndarray:
 # ## 1. Una riga di differenza
 #
 # Le due versioni della stessa regola. Guarda **solo** l'ultima riga di ciascuna.
+#
+# ---
+#
+# > **EN** — *1. One line of difference.* The two versions of the same rule.
+# > Look **only** at the last line of each.
 
 # %%
 media = media_mobile(prezzi, FINESTRA)
@@ -106,6 +121,14 @@ print("\nUna riga. Il risultato non e' un po' piu' ottimista: e' impossibile, "
 #
 # Puoi incollarci dentro il tuo codice: se il test fallisce, hai trovato il tuo
 # lookahead prima che ti costasse dei soldi.
+#
+# ---
+#
+# > **EN** — *2. The invariance test.* Take the calculation, run it on the
+# > whole series, then on a truncated one, and compare the common part.
+# > **They must be identical.** If they change, the calculation is using
+# > future data. You can paste your own code into it: if the test fails,
+# > you've found your lookahead before it cost you money.
 
 # %%
 def test_invarianza(funzione, p: np.ndarray, tagli=(400, 1200, 2400)) -> bool:
@@ -153,12 +176,24 @@ print("  esito:", "PASSA" if test_invarianza(regola_normalizzata_male, prezzi) e
 # Nota il terzo caso: non c'è nessuno sfasamento sbagliato, il codice sembra
 # innocuo. Ma normalizzare con la media dell'intero periodo infila nel **primo**
 # giorno del test un'informazione sull'**ultimo**.
+#
+# ---
+#
+# > **EN** — Note the third case: there's no wrong lag, the code looks
+# > innocent. But normalizing with the mean of the entire period sneaks
+# > information about the **last** day into the **first** day of the test.
 
 # %% [markdown]
 # ## 3. I cinque controlli sui dati
 #
 # Prima di qualunque calcolo. Costano dieci minuti; saltarli costa giorni di
 # lavoro costruito su una base che non regge.
+#
+# ---
+#
+# > **EN** — *3. The five checks on the data.* Before any calculation. They
+# > cost ten minutes; skipping them costs days of work built on a foundation
+# > that doesn't hold.
 
 # %%
 def controlla(nome: str) -> None:
@@ -215,6 +250,19 @@ controlla("lunausdt")
 # scarterebbe un dato vero, e qualunque calcolo che lo tratti come un rendimento
 # normale produce statistiche prive di senso. Su serie che arrivano vicino allo
 # zero, i rendimenti percentuali smettono di essere la rappresentazione giusta.
+#
+# ---
+#
+# > **EN** — Look at the second check on the dead token: a movement of
+# > **over seventeen million percentage points** shows up. It's not a file
+# > error: it's what happens when a price falls to five hundred-thousandths
+# > and then moves by a few decimal digits. In percentage terms these are
+# > absurd numbers; in money they're crumbs. That's why check number two
+# > should be done **by looking**, not by automating a threshold: any filter
+# > that discarded that day would discard real data, and any calculation
+# > that treats it as a normal return produces meaningless statistics. On
+# > series that get close to zero, percentage returns stop being the right
+# > representation.
 
 # %% [markdown]
 # ### Esercizi
@@ -226,3 +274,15 @@ controlla("lunausdt")
 #    passala a `test_invarianza`. È il controllo che consiglio di automatizzare.
 # 3. Scrivi una quarta regola sbagliata: usa il **massimo dell'intera serie** come
 #    soglia. Poi passala al test e guardalo fallire.
+#
+# ---
+#
+# > **EN** — *Exercises.*
+# > 1. In the first cell change `FINESTRA`. The ratio between the two curves
+# >    stays huge for any value: the lookahead isn't a calibration error, it's
+# >    a type error.
+# > 2. Paste into the second cell **your own** function that computes a
+# >    position and pass it to `test_invarianza`. It's the check I recommend
+# >    automating.
+# > 3. Write a fourth, wrong rule: use the **maximum of the entire series**
+# >    as a threshold. Then pass it to the test and watch it fail.

@@ -13,7 +13,7 @@
 # %% [markdown]
 # # Lab 5 — Guardare non è misurare
 #
-# *Quaderno del capitolo «Cosa vuol dire misurare» di **Non Fidarti di Me**.*
+# *Quaderno del capitolo «Cosa vuol dire misurare» di **La matematica di chi perde**.*
 #
 # Tre sguardi sugli stessi identici dati: il prezzo, le variazioni, la
 # distribuzione. Non sono tre livelli di dettaglio — sono **tre domande diverse**,
@@ -22,6 +22,17 @@
 # Poi c'è l'esercizio che conviene fare prima di continuare a leggere il libro:
 # distinguere una serie vera da una generata a caso. Le persone ci riescono poco
 # più della metà delle volte, cioè poco meglio del lancio di una moneta.
+#
+# ---
+#
+# > **EN** — *Lab 5 — Looking is not measuring.* Notebook for the chapter
+# > "What measuring means". Three views of the same identical data: price,
+# > changes, distribution. They aren't three levels of detail — they are
+# > **three different questions**, and the first step of measuring is knowing
+# > which one you're asking. Then there's the exercise worth doing before
+# > reading further in the book: telling a real series apart from a randomly
+# > generated one. People manage it a bit more than half the time — barely
+# > better than a coin toss.
 
 # %%
 # Setup — esegui questa cella per prima.
@@ -32,7 +43,7 @@ except ModuleNotFoundError:
     import urllib.request
 
     urllib.request.urlretrieve(
-        "https://raw.githubusercontent.com/cryptoverso-lab/non-fidarti-di-me/main/codice/lab/avvio.py",
+        "https://raw.githubusercontent.com/cryptoverso-lab/matematica-di-chi-perde/main/codice/lab/avvio.py",
         "avvio.py",
     )
     import avvio
@@ -53,6 +64,12 @@ from cvbook.metriche import rendimenti, volatilita
 # Cambia `SERIE` e riesegui: la forma del primo pannello cambia molto, quella del
 # terzo molto meno. È il motivo per cui il terzo permette confronti che il primo
 # non permette.
+#
+# ---
+#
+# > **EN** — *1. Three views.* Change `SERIE` and rerun: the shape of the
+# > first panel changes a lot, the third much less. That's why the third
+# > allows comparisons the first doesn't.
 
 # %%
 SERIE = "btcusdt"  # ← "btcusdt", "ethusdt", "solusdt"
@@ -89,12 +106,25 @@ print(f"volatilita' annualizzata dell'intero periodo: {volatilita(r):.1%}")
 # Nel secondo pannello guarda una cosa che nel primo non si vede: **le scosse
 # grandi arrivano raggruppate**. Ci sono periodi tranquilli e periodi agitati,
 # e i giorni agitati stanno vicini fra loro. È il capitolo sui regimi.
+#
+# ---
+#
+# > **EN** — In the second panel look at something the first one doesn't
+# > show: **big shocks come clustered**. There are calm periods and turbulent
+# > ones, and turbulent days sit close to each other. It's the chapter on
+# > regimes.
 
 # %% [markdown]
 # ## 2. Vera o finta?
 #
 # Sei grafici. Alcuni sono prezzi reali, altri sono passeggiate casuali con la
 # stessa volatilità. Scrivi la tua risposta **prima** di eseguire la cella dopo.
+#
+# ---
+#
+# > **EN** — *2. Real or fake?* Six charts. Some are real prices, others are
+# > random walks with the same volatility. Write down your answer **before**
+# > running the next cell.
 
 # %%
 rng = np.random.default_rng(seed_for("lab-vero-o-finto"))
@@ -136,6 +166,12 @@ print(
 #
 # Prima di credere a qualunque numero servono quattro risposte. Qui le vedi
 # cambiare il risultato una alla volta.
+#
+# ---
+#
+# > **EN** — *3. The four questions, in code.* Before believing any number
+# > you need four answers. Here you watch them change the result one at a
+# > time.
 
 # %%
 print("Su cosa?")
@@ -173,3 +209,16 @@ print(f"  mediana di 200 sotto-campioni casuali della stessa serie: {np.median(c
 # 3. Nella terza cella, guarda la differenza fra i due «rendimenti medi annui».
 #    Sono lo stesso dato. Uno descrive un giorno tipico che non esiste, l'altro
 #    quello che è successo davvero a chi era dentro.
+#
+# ---
+#
+# > **EN** — *Exercises.*
+# > 1. In the first cell change the series and watch **which panel changes
+# >    the most**. The third is the one that makes different assets and eras
+# >    comparable: that's why all of Part II works there.
+# > 2. In the second cell, raise `FINESTRA` to 1200. With longer series the
+# >    exercise becomes a bit easier — but much less than you'd expect.
+# > 3. In the third cell, look at the difference between the two "average
+# >    annual returns". They're the same data. One describes a typical day
+# >    that doesn't exist, the other what actually happened to whoever was in
+# >    it.

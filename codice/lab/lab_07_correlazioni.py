@@ -14,12 +14,22 @@
 # # Lab 7 — Quando la diversificazione svanisce
 #
 # *Quaderno del capitolo «Quando la diversificazione svanisce» di
-# **Non Fidarti di Me**.*
+# **La matematica di chi perde**.*
 #
 # Tre cose. Prima: il modo intuitivo di misurare la correlazione nei crolli dà
 # la risposta **sbagliata**, e qui lo vedi succedere. Seconda: la correlazione
 # non sta ferma, e sale proprio quando servirebbe che non salisse. Terza: quanto
 # vale davvero avere N asset, con il conto che quasi nessuno fa.
+#
+# ---
+#
+# > **EN** — *Lab 7 — When diversification vanishes.* Notebook for the
+# > chapter "When diversification vanishes". Three things. First: the
+# > intuitive way of measuring correlation during crashes gives the
+# > **wrong** answer, and here you watch it happen. Second: correlation
+# > doesn't sit still, and it rises exactly when you'd need it not to.
+# > Third: what having N assets is really worth, with the calculation almost
+# > nobody does.
 
 # %%
 # Setup — esegui questa cella per prima.
@@ -30,7 +40,7 @@ except ModuleNotFoundError:
     import urllib.request
 
     urllib.request.urlretrieve(
-        "https://raw.githubusercontent.com/cryptoverso-lab/non-fidarti-di-me/main/codice/lab/avvio.py",
+        "https://raw.githubusercontent.com/cryptoverso-lab/matematica-di-chi-perde/main/codice/lab/avvio.py",
         "avvio.py",
     )
     import avvio
@@ -70,6 +80,14 @@ print(f"{len(NOMI)} serie allineate, {len(M)} giorni comuni, dal {date[0]} al {d
 # ovvia, ed è un artefatto — selezionando in base a un valore estremo di una
 # variabile se ne restringe la variabilità, e la correlazione risulta distorta
 # verso il basso.
+#
+# ---
+#
+# > **EN** — *1. The intuitive method, and why it's wrong.* The natural
+# > idea: take the worst days and compute correlation there. It seems
+# > obvious, and it's an artifact — selecting on an extreme value of one
+# > variable restricts its variability, and the correlation ends up biased
+# > downward.
 
 # %%
 coppie = np.triu_indices(len(NOMI), 1)
@@ -92,6 +110,12 @@ print("\nSembra che nei crolli la correlazione SCENDA. E' falso, ed e' il "
 #
 # Si misura la correlazione su finestre mobili e poi si guarda **in quali periodi
 # è più alta**. Nessuna selezione basata sul valore delle variabili.
+#
+# ---
+#
+# > **EN** — *2. The correct method: time windows.* Correlation is measured
+# > on rolling windows, then you look at **in which periods it's higher**.
+# > No selection based on the value of the variables.
 
 # %%
 FINESTRA = 60
@@ -123,6 +147,12 @@ print(f"media nel resto del tempo:   {corr[~brutti].mean():.2f}")
 # La quota di oscillazione che resta, rispetto a possederne uno solo: uno diviso
 # il numero degli asset, più la correlazione moltiplicata per tutto il resto. E
 # poi la radice quadrata.
+#
+# ---
+#
+# > **EN** — *3. What having N assets is really worth.* The share of swing
+# > that remains, compared to holding just one: one divided by the number of
+# > assets, plus correlation times the rest. Then the square root.
 
 # %%
 def oscillazione_residua(n: int, rho: float) -> float:
@@ -153,3 +183,16 @@ print(f"\nnumero di asset DAVVERO indipendenti equivalenti ai tuoi 3: {n_eff:.2f
 # 3. Riesegui la prima cella prendendo il 20% dei giorni peggiori invece del 5%.
 #    L'artefatto si attenua. È la dimostrazione che era un effetto della
 #    selezione e non un fatto del mercato.
+#
+# ---
+#
+# > **EN** — *Exercises.*
+# > 1. In the third cell look at the measured-correlation column: between 4
+# >    and 15 assets the reduction changes very little. **From the fifth one
+# >    on you pay cost and complexity without buying protection.**
+# > 2. Change `FINESTRA` from 60 to 20 and then to 200. With short windows
+# >    correlation swings much more: how much of its instability is the
+# >    market's, and how much is the measurement's?
+# > 3. Rerun the first cell taking the worst 20% of days instead of 5%. The
+# >    artifact fades. It's proof that it was an effect of the selection, not
+# >    a fact about the market.

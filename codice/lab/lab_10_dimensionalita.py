@@ -13,7 +13,7 @@
 # %% [markdown]
 # # Lab 10 — Più parametri, meno sapere
 #
-# *Quaderno del capitolo «Più parametri, meno sapere» di **Non Fidarti di Me**.*
+# *Quaderno del capitolo «Più parametri, meno sapere» di **La matematica di chi perde**.*
 #
 # Costruiamo una regola nel modo in cui si costruisce davvero: **un ingrediente
 # alla volta**, tenendo ogni volta quello che migliora di più il risultato sui
@@ -25,6 +25,18 @@
 #
 # La curva sui dati usati per costruire sale a ogni passo. È garantito — e ha lo
 # stesso identico aspetto che avrebbe se il metodo funzionasse davvero.
+#
+# ---
+#
+# > **EN** — *Lab 10 — More parameters, less knowledge.* Notebook for the
+# > chapter "More parameters, less knowledge". We build a rule the way one
+# > really builds it: **one ingredient at a time**, each time keeping
+# > whatever improves the result the most on the data we're looking at. The
+# > conditions to choose among are **random numbers**: they contain zero
+# > information, about price or anything else. We never look at the second
+# > half of the history while building. The curve on the data used to build
+# > rises at every step. It's guaranteed — and it looks exactly like it
+# > would if the method actually worked.
 
 # %%
 # Setup — esegui questa cella per prima.
@@ -35,7 +47,7 @@ except ModuleNotFoundError:
     import urllib.request
 
     urllib.request.urlretrieve(
-        "https://raw.githubusercontent.com/cryptoverso-lab/non-fidarti-di-me/main/codice/lab/avvio.py",
+        "https://raw.githubusercontent.com/cryptoverso-lab/matematica-di-chi-perde/main/codice/lab/avvio.py",
         "avvio.py",
     )
     import avvio
@@ -63,6 +75,14 @@ print(f"{len(r)} giorni: {len(dentro_campione)} per costruire, "
 # A ogni passo si prova ogni condizione disponibile e si tiene quella che migliora
 # di più il risultato sulla prima metà della storia. La seconda metà non si guarda
 # mai durante la costruzione.
+#
+# ---
+#
+# > **EN** — *1. The experiment.* We reproduce what actually happens: **one
+# > ingredient is added at a time**. At each step every available condition
+# > is tried, and whichever improves the result the most on the first half
+# > of the history is kept. The second half is never looked at during
+# > construction.
 
 # %%
 CONDIZIONI_MAX = 25   # <- quante aggiunte al massimo
@@ -158,6 +178,18 @@ with avvio.figura("schermo"):
 # La curva tratteggiata è la risposta, e va letta con attenzione: migliora per le
 # prime aggiunte, tocca un massimo, e da lì peggiora. Il guaio è che il passo in
 # cui bisognava fermarsi **non è visibile sulla curva continua**.
+#
+# ---
+#
+# > **EN** — The solid curve rises at **every single step**, and not because
+# > the method is learning anything: it rises by construction, because
+# > nobody adds an ingredient that worsens the number they're looking at.
+# > **That curve is identical to the one you'd see if the method actually
+# > worked.** Looking only at the construction result, you cannot tell a
+# > discovery apart from memorized noise. The dashed curve is the answer, and
+# > must be read carefully: it improves for the first few additions, peaks,
+# > then worsens from there. The trouble is that the step where you should
+# > have stopped **is not visible on the solid curve**.
 
 # %% [markdown]
 # ## 2. E se i costi li rimettiamo dentro?
@@ -166,6 +198,14 @@ with avvio.figura("schermo"):
 # succede una cosa che il capitolo sui costi aveva già annunciato: più condizioni
 # significa cambiare posizione più spesso, e ogni cambio si paga. Il risultato
 # **dentro campione** smette perfino di crescere.
+#
+# ---
+#
+# > **EN** — *2. What if we put the costs back in?* The previous cell kept
+# > them at zero to isolate degrees of freedom. Putting them back, something
+# > the costs chapter had already warned about happens: more conditions means
+# > changing position more often, and every change is paid for. The
+# > **in-sample** result even stops growing.
 
 # %%
 rng2 = np.random.default_rng(seed_for("lab-dimensionalita-costi"))
@@ -188,6 +228,12 @@ print("\nDue effetti diversi che spesso vengono confusi: i gradi di liberta' "
 # Prendiamo la regola più semplice immaginabile — «resto investito quando il
 # prezzo sta sopra la sua media a N giorni» — e contiamo le scelte che quella
 # frase nasconde.
+#
+# ---
+#
+# > **EN** — *3. The parameters you don't know you have.* Take the simplest
+# > rule imaginable — "stay invested when price is above its N-day average"
+# > — and count the choices that sentence hides.
 
 # %%
 scelte = {
@@ -215,6 +261,12 @@ print("Non le hai provate tutte. Ne hai provata UNA, per abitudine, e non l'hai 
 #
 # Invece di un numero, un intervallo. Riesegui la stessa regola cambiando una a
 # una le scelte e guarda quanto si sparpagliano i risultati.
+#
+# ---
+#
+# > **EN** — *4. Dispersion: the most useful information in a backtest.*
+# > Instead of a number, a range. Rerun the same rule changing the choices
+# > one at a time and watch how much the results spread.
 
 # %%
 prezzi = carica("btcusdt").sort("data")["chiusura"].to_numpy()
@@ -258,3 +310,16 @@ print("\nQuesto intervallo e' l'informazione onesta. Il numero singolo che di "
 #    qualcosa di importante sul tuo metodo.
 # 3. Nell'ultima cella aggiungi altre due date d'inizio. La dispersione cresce, e
 #    con essa l'onestà del risultato.
+#
+# ---
+#
+# > **EN** — *Exercises.*
+# > 1. In the first cell raise `DISPONIBILI` to 2000. With more conditions to
+# >    choose among, the solid curve rises even more and the search stops
+# >    later: the number of alternatives explored is exactly what determines
+# >    how well noise gets memorized.
+# > 2. Run the first cell's experiment with **your own** indicators instead
+# >    of random numbers. If the two curves separate like here, you've just
+# >    discovered something important about your method.
+# > 3. In the last cell add two more start dates. The dispersion grows, and
+# >    with it the honesty of the result.

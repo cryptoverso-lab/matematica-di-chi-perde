@@ -21,6 +21,7 @@ from .layout import (
     KDP_MIN_LINEWIDTH_PT,
     figsize,
 )
+from .lingua import t
 
 #: Palette brand Cryptoverso (solo per la versione a schermo).
 BRAND = {
@@ -217,9 +218,19 @@ def num(
 MESI_BREVI = ("gen", "feb", "mar", "apr", "mag", "giu",
               "lug", "ago", "set", "ott", "nov", "dic")
 
+#: Stessa cosa in inglese, per `CVBOOK_LANG=en`. Le tacche di data sono
+#: un'etichetta d'asse a tutti gli effetti: seguono la lingua attiva come tutto
+#: il resto.
+_MESI_BREVI_EN = ("jan", "feb", "mar", "apr", "may", "jun",
+                   "jul", "aug", "sep", "oct", "nov", "dec")
+
+
+def _mesi_brevi() -> tuple[str, ...]:
+    return _MESI_BREVI_EN if t("it", "en") == "en" else MESI_BREVI
+
 
 def date_italiane(ax, ogni_giorni: int = 7) -> None:
-    """Etichette di data all'italiana — «8 nov» invece di «2022-11-08».
+    """Etichette di data — «8 nov» invece di «2022-11-08» (in inglese «nov 8»).
 
     Il formato ISO va benissimo in un file di dati e malissimo su una pagina
     stampata: e' lungo, ripete l'anno a ogni tacca e costringe a ruotare le
@@ -227,25 +238,29 @@ def date_italiane(ax, ogni_giorni: int = 7) -> None:
     """
     import matplotlib.dates as mdates
 
+    mesi = _mesi_brevi()
     ax.xaxis.set_major_locator(mdates.DayLocator(interval=ogni_giorni))
     ax.xaxis.set_major_formatter(
         mpl.ticker.FuncFormatter(
             lambda x, pos=None: (
-                f"{mdates.num2date(x).day} {MESI_BREVI[mdates.num2date(x).month - 1]}"
+                f"{mdates.num2date(x).day} {mesi[mdates.num2date(x).month - 1]}"
+                if t("it", "en") == "it"
+                else f"{mesi[mdates.num2date(x).month - 1]} {mdates.num2date(x).day}"
             )
         )
     )
 
 
 def mesi_italiani(ax, ogni_mesi: int = 3) -> None:
-    """Etichette di mese all'italiana — «apr 2021» invece di «2021-04»."""
+    """Etichette di mese — «apr 2021» invece di «2021-04» (in inglese identiche)."""
     import matplotlib.dates as mdates
 
+    mesi = _mesi_brevi()
     ax.xaxis.set_major_locator(mdates.MonthLocator(interval=ogni_mesi))
     ax.xaxis.set_major_formatter(
         mpl.ticker.FuncFormatter(
             lambda x, pos=None: (
-                f"{MESI_BREVI[mdates.num2date(x).month - 1]} {mdates.num2date(x).year}"
+                f"{mesi[mdates.num2date(x).month - 1]} {mdates.num2date(x).year}"
             )
         )
     )
@@ -262,9 +277,11 @@ def firma(fig, fonte: str, estratto: str) -> None:
     """
     # Un calcolo diretto non ha una data di estrazione: dirlo con un trattino
     # sospeso ("estratto il —") sembra un dato mancante. Meglio tacere.
-    testo = f"Fonte: {fonte}"
+    # A direct calculation has no extraction date: a dangling dash ("extracted
+    # on —") would look like missing data. Better to say nothing at all.
+    testo = f"{t('Fonte', 'Source')}: {fonte}"
     if estratto and estratto.strip() not in {"—", "-", "–"}:
-        testo += f" · estratto il {estratto}"
+        testo += f" · {t('estratto il', 'extracted on')} {estratto}"
 
     fig.set_layout_engine("constrained", rect=(0, 0.055, 1, 0.945))
     fig.text(

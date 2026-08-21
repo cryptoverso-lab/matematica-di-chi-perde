@@ -1,4 +1,4 @@
-# Errata — *Non Fidarti di Me*
+# Errata — *La matematica di chi perde*
 
 Questa pagina raccoglie gli errori trovati nel libro dopo la stampa, con la data
 in cui sono stati segnalati e chi li ha segnalati. È l'indirizzo stampato nel

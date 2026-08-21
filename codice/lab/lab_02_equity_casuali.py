@@ -13,7 +13,7 @@
 # %% [markdown]
 # # Lab 2 — Il caso vestito da bravura
 #
-# *Quaderno del capitolo «Il caso vestito da bravura» di **Non Fidarti di Me**.*
+# *Quaderno del capitolo «Il caso vestito da bravura» di **La matematica di chi perde**.*
 #
 # Questo quaderno genera curve di capitale che **non contengono nulla**: nessuna
 # decisione, nessun segnale, vantaggio atteso esattamente zero. Poi fa quello che
@@ -21,6 +21,16 @@
 #
 # L'esercizio finale è il più utile del quaderno: ci metti dentro un risultato
 # che hai visto in giro e ti dice quale percentuale di curve casuali fa meglio.
+#
+# ---
+#
+# > **EN** — *Lab 2 — Chance dressed up as skill.* Notebook for the chapter
+# > "Chance dressed up as skill". This notebook generates capital curves that
+# > **contain nothing**: no decisions, no signal, expected edge exactly zero.
+# > Then it does what everyone who shows off their results does: keeps the
+# > best and throws away the rest. The final exercise is the most useful one
+# > in the notebook: plug in a result you've seen around and it tells you
+# > what percentage of random curves do better.
 
 # %%
 # Setup — esegui questa cella per prima.
@@ -31,7 +41,7 @@ except ModuleNotFoundError:
     import urllib.request
 
     urllib.request.urlretrieve(
-        "https://raw.githubusercontent.com/cryptoverso-lab/non-fidarti-di-me/main/codice/lab/avvio.py",
+        "https://raw.githubusercontent.com/cryptoverso-lab/matematica-di-chi-perde/main/codice/lab/avvio.py",
         "avvio.py",
     )
     import avvio
@@ -51,6 +61,12 @@ from cvbook.simulazioni import equity_casuali, migliori_per_caso
 #
 # Guardale prima di scorrere. Alcune ti sembreranno convincenti — e va bene così,
 # è esattamente il punto del capitolo.
+#
+# ---
+#
+# > **EN** — *1. Twelve curves. Guess which ones are the skilled ones.* Look
+# > at them before scrolling. Some will look convincing to you — and that's
+# > fine, it's exactly the chapter's point.
 
 # %%
 GIORNI = 500          # ← due anni circa di operatività
@@ -74,12 +90,23 @@ with avvio.figura("schermo"):
 # %% [markdown]
 # Non ce ne sono. Sono dodici estrazioni dallo stesso generatore, con vantaggio
 # atteso zero. Le due che ti sono piaciute hanno avuto una buona settimana.
+#
+# ---
+#
+# > **EN** — There aren't any. They are twelve draws from the same generator,
+# > with zero expected edge. The two you liked just had a good week.
 
 # %% [markdown]
 # ## 2. Le migliori cinque su mille
 #
 # Adesso l'operazione che compie, senza dirlo, chiunque presenti i propri
 # risultati: si generano mille tentativi e si mostrano i cinque migliori.
+#
+# ---
+#
+# > **EN** — *2. The five best out of a thousand.* Now the operation that
+# > everyone who presents their own results performs, without saying so:
+# > generate a thousand attempts and show the five best.
 
 # %%
 N = 1000
@@ -115,12 +142,24 @@ print(f"quota sopra 2x CON calo massimo sotto il 20%: "
 # L'ultima riga è il numero del capitolo: **circa uno su cento**. Su diecimila
 # persone che ci provano, cento producono un biennio da fuoriclasse senza avere
 # assolutamente nulla dentro.
+#
+# ---
+#
+# > **EN** — The last line is the chapter's number: **about one in a
+# > hundred**. Out of ten thousand people who try, a hundred produce a
+# > standout two-year run with absolutely nothing inside.
 
 # %% [markdown]
 # ## 3. E adesso il tuo caso
 #
 # Prendi un risultato che ti ha colpito — un grafico, una pubblicità, una curva
 # di un canale — e mettici i tre numeri qui sotto.
+#
+# ---
+#
+# > **EN** — *3. And now your own case.* Take a result that struck you — a
+# > chart, an ad, a curve from some channel — and plug in the three numbers
+# > below.
 
 # %%
 RISULTATO_DICHIARATO = 2.5   # ← capitale finale dichiarato, in volte (2,5 = +150%)
@@ -148,3 +187,18 @@ print(f"su 10.000 persone senza alcuna abilita', ne otterrebbero altrettanto: "
 # 3. Metti `VANTAGGIO = 0.0005` nella prima cella. Ora un vantaggio c'è davvero.
 #    Riesci a distinguerlo a occhio dalle curve senza vantaggio? Quasi nessuno ci
 #    riesce, ed è il motivo per cui esiste il capitolo sulla potenza statistica.
+#
+# ---
+#
+# > **EN** — *Exercises.*
+# > 1. Reduce `DURATA_GIORNI` to 125 (six months) keeping the same result:
+# >    the percentage collapses. A spectacular result over a **short**
+# >    period is harder to get by chance than a spectacular one over a long
+# >    period.
+# > 2. Raise `VOLATILITA_TIPICA` to 0.04. The same figure becomes much easier
+# >    to get by chance: **how much it swings** changes the meaning of how
+# >    much it returns.
+# > 3. Set `VANTAGGIO = 0.0005` in the first cell. Now there really is an
+# >    edge. Can you tell it apart by eye from the curves with no edge?
+# >    Almost nobody can, and that's why the chapter on statistical power
+# >    exists.

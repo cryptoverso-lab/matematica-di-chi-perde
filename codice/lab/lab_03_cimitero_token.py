@@ -13,7 +13,7 @@
 # %% [markdown]
 # # Lab 3 — Il cimitero dei token
 #
-# *Quaderno del capitolo «Il cimitero dei token» di **Non Fidarti di Me**.*
+# *Quaderno del capitolo «Il cimitero dei token» di **La matematica di chi perde**.*
 #
 # Questo quaderno contiene i prezzi veri dei due asset morti di cui parla il
 # capitolo — uno andato a zero in nove giorni, uno il cui mercato è stato chiuso.
@@ -23,6 +23,17 @@
 # Il valore del quaderno non è la cronologia del crollo. È l'ultimo esercizio:
 # ricostruire lo stesso paniere guardando solo i sopravvissuti, e vedere che
 # risposta tranquillizzante si ottiene.
+#
+# ---
+#
+# > **EN** — *Lab 3 — The graveyard of tokens.* Notebook for the chapter "The
+# > graveyard of tokens". This notebook contains the real prices of the two
+# > dead assets the chapter talks about — one that went to zero in nine days,
+# > one whose market was shut down. Keeping that data is harder than it
+# > sounds: most convenient sources expose **only what's still active**. The
+# > notebook's value isn't the timeline of the crash. It's the final
+# > exercise: rebuilding the same basket looking only at the survivors, and
+# > seeing what reassuring answer you get.
 
 # %%
 # Setup — esegui questa cella per prima.
@@ -33,7 +44,7 @@ except ModuleNotFoundError:
     import urllib.request
 
     urllib.request.urlretrieve(
-        "https://raw.githubusercontent.com/cryptoverso-lab/non-fidarti-di-me/main/codice/lab/avvio.py",
+        "https://raw.githubusercontent.com/cryptoverso-lab/matematica-di-chi-perde/main/codice/lab/avvio.py",
         "avvio.py",
     )
     import avvio
@@ -56,6 +67,13 @@ from cvbook.metriche import recupero_necessario
 # Scala logaritmica: ogni tacca vale un fattore dieci. Su scala lineare questo
 # grafico sarebbe una riga verticale seguita da una riga piatta — ed è esattamente
 # così che i crolli appaiono a chi li guarda mentre accadono.
+#
+# ---
+#
+# > **EN** — *1. Nine days.* Logarithmic scale: each tick is a factor of ten.
+# > On a linear scale this chart would be a vertical line followed by a flat
+# > line — and that's exactly how crashes look to whoever watches them
+# > happen.
 
 # %%
 luna = carica("lunausdt").sort("data").filter(
@@ -80,12 +98,24 @@ for d, p in zip(righe["data"].to_list(), righe["chiusura"].to_numpy()):
 # Guarda la penultima riga: la perdita era già del 98,7%. Il giorno dopo il
 # prezzo si è diviso ancora per tremila. **Anche dopo aver perso il 98%, c'era
 # ancora tutto da perdere.**
+#
+# ---
+#
+# > **EN** — Look at the second-to-last row: the loss was already 98.7%. The
+# > next day the price divided again by three thousand. **Even after losing
+# > 98%, there was still everything left to lose.**
 
 # %% [markdown]
 # ## 2. Quando il prezzo smette di esistere
 #
 # Il secondo modo di sparire è peggiore, perché non lascia nemmeno un prezzo.
 # Nota dove finisce la linea: non arriva a zero, **si interrompe**.
+#
+# ---
+#
+# > **EN** — *2. When the price stops existing.* The second way of
+# > disappearing is worse, because it doesn't even leave a price. Note where
+# > the line ends: it doesn't reach zero, **it breaks off**.
 
 # %%
 ftt = carica("fttusdt").sort("data").filter(pl.col("data") >= dt.date(2022, 10, 1))
@@ -108,6 +138,13 @@ print("dopo quella data non esiste piu' un mercato: non c'e' un prezzo, non c'e'
 # Un paniere a peso uguale costruito il 1° aprile 2021. Lo misuriamo in due modi:
 # guardando solo ciò che oggi esiste ancora, e guardando **tutto quello che si era
 # comprato davvero**.
+#
+# ---
+#
+# > **EN** — *3. The basket, with and without the dead.* An equal-weight
+# > basket built on April 1, 2021. We measure it two ways: looking only at
+# > what still exists today, and looking at **everything that was actually
+# > bought**.
 
 # %%
 INIZIO = dt.date(2021, 4, 1)
@@ -166,3 +203,22 @@ print(f"differenza:                     {tutti[-1] / solo_vivi[-1] - 1:+.1%}")
 #    usando una fonte gratuita qualunque di dati storici. Scoprirai che i due
 #    asset morti **non ci sono**, e otterrai la curva tranquillizzante senza
 #    nemmeno accorgerti di aver fatto un errore.
+#
+# ---
+#
+# > **EN** — Neither number is wrong: **they are answers to two different
+# > questions.** The first is "how did these three assets do". The second is
+# > "how would it have gone for me". Almost everyone asks the first and
+# > believes they've answered the second.
+# >
+# > *Exercises.*
+# > 1. Remove `"solusdt"` from `VIVI` and rerun: the distance between the two
+# >    curves changes quite a bit. How much does the conclusion depend on
+# >    **which** names you included?
+# > 2. Move `INIZIO` to January 2022. The real basket does much worse than
+# >    the survivors-only one: the distortion grows when the period contains
+# >    more deaths.
+# > 3. The exercise worth the whole chapter: try rebuilding this same figure
+# >    using any free source of historical data. You'll find the two dead
+# >    assets **aren't there**, and you'll get the reassuring curve without
+# >    even noticing you made a mistake.

@@ -13,7 +13,7 @@
 # %% [markdown]
 # # Lab 18 — Mille futuri invece di uno
 #
-# *Quaderno del capitolo «Mille futuri invece di uno» di **Non Fidarti di Me**.*
+# *Quaderno del capitolo «Mille futuri invece di uno» di **La matematica di chi perde**.*
 #
 # Ogni curva di capitale che hai visto in vita tua è **una realizzazione**. Qui
 # generi le altre storie possibili, fatte della stessa identica materia prima, e
@@ -22,6 +22,17 @@
 # L'output più utile è una frase sola: *«nel 5% dei casi peggiori avresti chiuso a
 # X e attraversato un calo del Y%»*. Quella frase, guardata prima di aprire una
 # posizione, cambia il dimensionamento più di qualunque ragionamento.
+#
+# ---
+#
+# > **EN** — *Lab 18 — A thousand futures instead of one.* Notebook for the
+# > chapter "A thousand futures instead of one". Every capital curve you've
+# > ever seen is **one realization**. Here you generate the other possible
+# > histories, made of the exact same raw material, and look at where the one
+# > that actually happened falls. The most useful output is a single
+# > sentence: *"in the worst 5% of cases you would have closed at X and gone
+# > through a drawdown of Y%."* That sentence, read before opening a
+# > position, changes sizing more than any reasoning.
 
 # %%
 # Setup — esegui questa cella per prima.
@@ -32,7 +43,7 @@ except ModuleNotFoundError:
     import urllib.request
 
     urllib.request.urlretrieve(
-        "https://raw.githubusercontent.com/cryptoverso-lab/non-fidarti-di-me/main/codice/lab/avvio.py",
+        "https://raw.githubusercontent.com/cryptoverso-lab/matematica-di-chi-perde/main/codice/lab/avvio.py",
         "avvio.py",
     )
     import avvio
@@ -62,6 +73,14 @@ reale = np.cumprod(1 + r)
 # tutte le loro code grasse. Vengono **rimescolati a blocchi**, non giorno per
 # giorno — rimescolare i singoli giorni distruggerebbe il raggruppamento della
 # volatilità che il Lab 9 ha misurato, e produrrebbe percorsi troppo docili.
+#
+# ---
+#
+# > **EN** — *1. The other possible histories.* Returns are neither modified
+# > nor modeled: they are exactly those, fat tails and all. They get
+# > **block-shuffled**, not day by day — shuffling individual days would
+# > destroy the volatility clustering Lab 9 measured, producing paths that
+# > are too tame.
 
 # %%
 rng = np.random.default_rng(seed_for("lab-montecarlo"))
@@ -100,11 +119,25 @@ print(f"percorsi che finiscono sotto il capitale iniziale: {esiti['prob_perdita'
 #
 # E nota il calo massimo: quello già visto **non è** il peggio possibile. È solo
 # il peggio di una realizzazione, cioè di un campione di dimensione uno.
+#
+# ---
+#
+# > **EN** — Reread the last line. **With the exact same returns**, a
+# > non-negligible share of paths ends at a loss. Not from a bad decision:
+# > from the combination in which things arrived. And note the max drawdown:
+# > the one already seen **is not** the worst possible. It's only the worst
+# > of one realization, i.e. of a sample of size one.
 
 # %% [markdown]
 # ## 2. Dal grafico alla decisione: tre numeri e una soglia
 #
 # Metti la tua soglia e guarda se la posizione è troppo grande.
+#
+# ---
+#
+# > **EN** — *2. From the chart to the decision: three numbers and a
+# > threshold.* Enter your threshold and see whether the position is too
+# > big.
 
 # %%
 CAPITALE = 20_000.0
@@ -133,6 +166,11 @@ print("\nRegola: riduci la posizione finche' il calo al quinto percentile non st
 # ## 3. Perché a blocchi e non giorno per giorno
 #
 # Il confronto che giustifica l'avvertenza tecnica.
+#
+# ---
+#
+# > **EN** — *3. Why in blocks and not day by day.* The comparison that
+# > justifies the technical caveat.
 
 # %%
 def memoria_della_volatilita(percorso: np.ndarray) -> float:
@@ -174,6 +212,14 @@ print("\nSulle altre due colonne, invece, la differenza qui e' piccola — e va 
 # numero che ti serve è una coda — e in questo quaderno è sempre una coda —
 # diecimila costano qualche secondo in più e danno un valore su cui appoggiare
 # una decisione.
+#
+# ---
+#
+# > **EN** — *4. How many paths you really need.* A thousand are enough for
+# > the median and are borderline for the fifth percentile. If the number
+# > you need is a tail — and in this notebook it always is — ten thousand
+# > cost a few extra seconds and give you a value to actually base a decision
+# > on.
 
 # %%
 print(f"{'percorsi':>10s} {'mediana':>10s} {'5% peggiore':>14s}")
@@ -198,3 +244,15 @@ print("\nLa colonna di sinistra si stabilizza subito, quella di destra molto piu
 # 3. Cambia `SERIE`. Su un asset più volatile la distanza fra mediana e quinto
 #    percentile si allarga: è la misura di quanto poco la mediana descriva quel
 #    mercato.
+#
+# ---
+#
+# > **EN** — *Exercises.*
+# > 1. Paste **your own** returns in place of `r` (a list of percentage
+# >    changes per trade works fine) and read the fifth-percentile sentence.
+# >    It's the most useful thing this notebook can give you.
+# > 2. Change `BLOCCHI` from 5 to 60. The median drawdown grows with block
+# >    length: the choice is a parameter, not a truth, and must be stated.
+# > 3. Change `SERIE`. On a more volatile asset the gap between the median
+# >    and the fifth percentile widens: it's the measure of how little the
+# >    median describes that market.
