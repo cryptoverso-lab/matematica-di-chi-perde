@@ -1,8 +1,25 @@
 """Costruisce i quaderni `.ipynb` dai sorgenti `.py` in formato percent.
 
 I sorgenti sono file Python veri: si eseguono, si leggono, si confrontano in
-git riga per riga. Il `.ipynb` e' un **artefatto di build**, non un sorgente da
-modificare a mano — per questo non e' tracciato nella repository.
+git riga per riga. Il `.ipynb` resta un **artefatto di build**, non un sorgente
+da modificare a mano — ma e' TRACCIATO, e la ragione non e' di comodo.
+
+PERCHE' I `.ipynb` STANNO IN GIT (D-15/D-16/D-51). Colab apre soltanto file
+presi da GitHub: il bottone «Apri in Colab» di ogni pagina di lab punta al
+`.ipynb` di questa cartella. Se non fosse tracciato, tutti e ventinove i
+bottoni darebbero 404 a un lettore col libro in mano e il codice QR gia'
+stampato. Si committano **puliti, senza output**: e' cio' che questo script
+produce, e' tutto cio' che Colab chiede, e committarli eseguiti farebbe
+crescere il repository di qualche megabyte a ogni giro. Gli output veri il
+lettore li ottiene eseguendo — e li vede in pagina perche' l'ingest
+(`estrai_bundle.py`) esegue i quaderni per conto suo.
+
+E PERCHE' GLI IDENTIFICATIVI DI CELLA SONO DERIVATI DAL CONTENUTO. `jupytext`
+li assegna casuali (nbformat 4.5): due costruzioni di fila dello stesso
+sorgente davano due quaderni diversi, quindi tutti e ventinove comparivano
+modificati in `git status` dopo ogni giro, e le impronte che l'ingest pubblica
+(`impronteSorgente.ipynb`) cambiavano senza che il contenuto cambiasse. Vedi
+`_ferma_gli_identificativi`.
 
 La prima cella di ogni quaderno scarica `avvio.py` da un indirizzo scritto per
 esteso: li' `cvbook` non esiste ancora, quindi l'indirizzo non puo' essere
@@ -21,10 +38,13 @@ Uso:
 from __future__ import annotations
 
 import argparse
+import hashlib
 import re
 import subprocess
 import sys
 from pathlib import Path
+
+import nbformat
 
 ROOT = Path(__file__).resolve().parents[2]
 LAB = ROOT / "codice" / "lab"
@@ -142,17 +162,49 @@ def verifica() -> list[str]:
     return problemi
 
 
+def _ferma_gli_identificativi(percorso: Path) -> None:
+    """Identificativi di cella DERIVATI dal contenuto, e file scritto a LF.
+
+    Difetto misurato: `jupytext --to ipynb` assegna a ogni cella un `id`
+    CASUALE (nbformat 4.5). Due costruzioni di fila dello stesso sorgente
+    davano quindi due quaderni diversi — tutti e 29 comparivano modificati in
+    `git status` dopo ogni giro, e il `.ipynb` e' tracciato (D-15/D-16).
+
+    Non e' rumore estetico. L'ingest pubblica `impronteSorgente.ipynb` e
+    `dimensioni.ipynb`: con gli `id` casuali quei due numeri cambiavano a ogni
+    ricostruzione, cioe' il bundle cambiava senza che il contenuto cambiasse, e
+    il presidio del diff (D-06) — l'unica cosa che fa vedere una modifica
+    inattesa — sarebbe annegato nel proprio rumore.
+
+    L'identificativo diventa le prime otto cifre della sha256 di indice piu'
+    sorgente della cella: stabile finche' la cella non cambia, diverso appena
+    cambia, e unico dentro un quaderno perche' l'indice ne fa parte.
+
+    Il file si scrive con `newline=""` per la stessa ragione del bundle: su
+    Windows Python tradurrebbe ogni fine riga in CRLF, e il quaderno su disco
+    starebbe in CRLF mentre in git sta in LF.
+    """
+    quaderno = nbformat.read(percorso, as_version=4)
+    for indice, cella in enumerate(quaderno.cells):
+        seme = f"{indice}\n{cella.source}"
+        cella["id"] = hashlib.sha256(seme.encode("utf-8")).hexdigest()[:8]
+    with percorso.open("w", encoding="utf-8", newline="") as file:
+        nbformat.write(quaderno, file)
+
+
 def costruisci() -> int:
     fatti = 0
     for p in sorgenti():
+        quaderno = p.with_suffix(".ipynb")
         subprocess.run(
             [sys.executable, "-m", "jupytext", "--to", "ipynb", "--output",
-             str(p.with_suffix(".ipynb")), str(p)],
+             str(quaderno), str(p)],
             check=True,
             capture_output=True,
         )
+        _ferma_gli_identificativi(quaderno)
         fatti += 1
-        print(f"quaderno: {p.with_suffix('.ipynb').name}")
+        print(f"quaderno: {quaderno.name}")
     return fatti
 
 
