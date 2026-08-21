@@ -58,6 +58,7 @@ from estrazione.bundle import bundle_di_rotta, rotte_scelte
 from estrazione.comune import ProblemaDiIngest
 from estrazione.esecuzione import esegui
 from estrazione.figure import Figure
+from estrazione.riproducibilita import righe_di_dichiarazione
 from estrazione.sorgente import ATTESI, Estrazione, estrai_dal_sorgente, verifica_conteggi
 from estrazione.sito import checkout_del_sito, scrivi_json, versione_del_contratto
 
@@ -190,6 +191,16 @@ def main() -> None:
     # Cio' che e' stato ESEGUITO si dichiara a parte: e' la riga che distingue
     # un bundle letto da un bundle prodotto da una macchina che ha eseguito i
     # quaderni, e senza di lei i due sarebbero indistinguibili a schermo.
+    # I DUE LAB CHE NON SI RIPRODUCONO SI DICHIARANO A OGNI GIRO (piano 04-12,
+    # voce 10 delle voci rinviate del repo del sito). E' la differenza fra
+    # un'esclusione e un filtro: chi guarda l'uscita dell'ingest — o il log della
+    # Action che dal piano 04-16 lo esegue — legge quali due lab restano fuori
+    # dal confronto e perche', senza aprire un sorgente.
+    if argomenti.lab is None:
+        print("  non riproducibili per contenuto, esclusi dal confronto:")
+        for riga in righe_di_dichiarazione():
+            print(f"    {riga}")
+
     testi = sum(
         1
         for e in estrazioni
