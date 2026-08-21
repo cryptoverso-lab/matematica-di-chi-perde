@@ -45,6 +45,11 @@ from estrazione.dataset import (  # noqa: E402
     provenienza_delle_serie,
     serie_dichiarate,
 )
+from estrazione.esecuzione import (  # noqa: E402
+    CARATTERI_MASSIMI,
+    CELLA_DI_RESA,
+    _tronca,
+)
 from estrazione.sorgente import ATTESI, estrai_dal_sorgente  # noqa: E402
 
 #: Un LaTeX qualunque, scritto come stringa grezza: il backslash e' un
@@ -335,3 +340,66 @@ def test_la_capacita_sulle_formule_esiste_anche_se_il_contenuto_no() -> None:
     assert 'data-formula="in-linea"' in resa.html
     assert 'data-formula="blocco"' in resa.html
     assert resa.testi_formula == [LATEX, LATEX + " = 1"]
+
+
+# ------------------------------------------------------------------ #
+# Il troncamento: si dichiara o non si fa (D-33)                      #
+# ------------------------------------------------------------------ #
+
+
+def test_trenta_righe_passano_intere_e_dichiarano_comunque_il_totale() -> None:
+    """`righeTotali` viaggia SEMPRE, anche quando non si e' tagliato nulla.
+
+    E' la forma piu' forte del vincolo: il contratto del sito lo pretende
+    obbligatorio in ogni caso, perche' «obbligatorio se un altro campo vale
+    true» e' una relazione che il JSON Schema non sa esprimere.
+    """
+    uscita = _tronca("\n".join(f"riga {n}" for n in range(1, 31)))
+    assert uscita.troncato is False
+    assert uscita.righe_totali == 30
+    assert len(uscita.testo.split("\n")) == 30
+
+
+def test_trentuno_righe_diventano_trenta_e_il_totale_resta_trentuno() -> None:
+    uscita = _tronca("\n".join(f"riga {n}" for n in range(1, 32)))
+    assert uscita.troncato is True
+    assert uscita.righe_totali == 31
+    assert len(uscita.testo.split("\n")) == 30
+
+
+def test_una_riga_sola_ma_lunghissima_viene_tagliata_lo_stesso() -> None:
+    """Il caso che il conteggio delle righe non vede: un `print` di un array
+    senza a capo. Senza il tetto in caratteri passerebbe intero — una riga sola,
+    e nessun troncamento — trascinando in pagina decine di migliaia di caratteri.
+    """
+    uscita = _tronca("x" * (CARATTERI_MASSIMI + 500))
+    assert uscita.troncato is True
+    assert uscita.righe_totali == 1
+    assert len(uscita.testo) == CARATTERI_MASSIMI
+
+
+def test_la_cella_di_resa_chiede_svg_e_testo_che_resta_testo() -> None:
+    """Le due righe che decidono se la figura e' leggibile.
+
+    `figure_formats = ['svg']` cambia il formato (il default dell'inline backend
+    e' PNG, e nessun lab dichiara il formato); `svg.fonttype = 'none'` decide se
+    le etichette restano testo o diventano tracciati. Sono asserite qui perche'
+    la cella e' una costante: una modifica distratta non produrrebbe nessun
+    errore, produrrebbe 40 figure opache.
+    """
+    assert "InlineBackend.figure_formats = ['svg']" in CELLA_DI_RESA
+    assert "svg.fonttype'] = 'none'" in CELLA_DI_RESA
+    assert "'dpi': 72" in CELLA_DI_RESA
+
+
+def test_la_cella_di_resa_non_entra_mai_fra_i_blocchi() -> None:
+    """P-5, dal lato che il gate del sito ri-misura.
+
+    Il bundle non deve MAI contenere `InlineBackend`: e' infrastruttura
+    aggiunta in memoria dall'ingest, non contenuto del lab, e non sta nei
+    sorgenti del libro. `verify:labs` lo rifiuta; qui e' la sorgente che deve
+    rispettarlo.
+    """
+    estrazione = estrai_dal_sorgente(LAB / "lab_05_misurare.py")
+    for blocco in estrazione.blocchi:
+        assert "InlineBackend" not in blocco.get("sorgente", "")

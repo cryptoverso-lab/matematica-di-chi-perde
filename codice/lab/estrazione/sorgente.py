@@ -9,6 +9,7 @@ richiedono un kernel.
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -50,16 +51,36 @@ class Estrazione:
     sostituzioni_raw: int
     sostituzioni_titolo: int
     formule: int
+    figure: int = 0
 
 
-def estrai_dal_sorgente(percorso: Path) -> Estrazione:
-    """Struttura, identificativi e impronte di un sorgente.
+def estrai_dal_sorgente(
+    percorso: Path,
+    uscite: dict[int, list] | None = None,
+    tratta_figura: Callable[[str, str], tuple[str, int]] | None = None,
+) -> Estrazione:
+    """Struttura, identificativi, impronte — e, se ci sono, gli output.
 
-    Qui non si esegue nulla: gli output e le figure arrivano dal piano
-    successivo, che manda i quaderni in esecuzione. Questo passaggio produce
-    cio' che si puo' sapere leggendo, ed e' gia' tutto cio' che serve al gate di
-    parita' e alle traduzioni.
+    `uscite` arriva da `esecuzione.esegui` ed e' indicizzato per indice di cella
+    del SORGENTE: senza, i blocchi di codice escono con `output: []`, che e' il
+    modo in cui `--sorgente` legge un file senza avviare un kernel. Con, ogni
+    blocco riceve i propri output nell'ordine in cui il kernel li ha emessi.
+
+    `tratta_figura` e' il pezzo che scrive i file SVG, e arriva da fuori perche'
+    QUI non si sa dove vanno: la cartella e' quella del lab nel checkout del
+    sito, che conosce solo `bundle.py`. L'identificativo della figura invece si
+    deriva qui, dove si conosce l'identificativo del blocco — `c01-1` e' la
+    prima figura di `c01`, ed e' la stessa chiave con cui `{it,en}.json`
+    indicizza `figure`. Derivarla in due posti significherebbe che il controllo
+    del peso e quello dell'`alt` cercano due chiavi diverse per la stessa
+    figura (04-05).
     """
+    if uscite and tratta_figura is None:
+        raise ProblemaDiIngest(
+            f"{percorso.name}: ci sono output da collocare ma nessun modo di "
+            "scrivere le figure.\n"
+            "  E' un errore di programmazione dell'ingest, non del lab."
+        )
     celle = celle_del_sorgente(percorso)
     setup = cella_di_setup(celle, percorso)
 
@@ -70,6 +91,8 @@ def estrai_dal_sorgente(percorso: Path) -> Estrazione:
     sostituzioni_raw = 0
     sostituzioni_titolo = 0
     formule = 0
+    figure = 0
+    ordinali_figura: dict[str, int] = {}
     titolo: str | None = None
 
     for cella in celle:
@@ -111,6 +134,23 @@ def estrai_dal_sorgente(percorso: Path) -> Estrazione:
         sostituzioni_raw += sostituite
         vieta_riferimenti_al_repository(sorgente, cella.dove, "il sorgente della cella")
 
+        output: list[dict] = []
+        for uscita in (uscite or {}).get(cella.indice, []):
+            if uscita.tipo == "testo":
+                output.append(
+                    {
+                        "kind": "testo",
+                        "valore": uscita.testo,
+                        "righeTotali": uscita.righe_totali,
+                        "troncato": uscita.troncato,
+                    }
+                )
+                continue
+            figure += 1
+            ordinali_figura[chiave] = ordinali_figura.get(chiave, 0) + 1
+            file, byte = tratta_figura(f"{chiave}-{ordinali_figura[chiave]}", uscita.svg)
+            output.append({"kind": "figura", "file": file, "byte": byte})
+
         blocchi.append(
             {
                 "id": chiave,
@@ -118,7 +158,7 @@ def estrai_dal_sorgente(percorso: Path) -> Estrazione:
                 "impronta": impronta_breve(sorgente),
                 "linguaggio": "python",
                 "sorgente": sorgente,
-                "output": [],
+                "output": output,
             }
         )
 
@@ -132,6 +172,7 @@ def estrai_dal_sorgente(percorso: Path) -> Estrazione:
         sostituzioni_raw=sostituzioni_raw,
         sostituzioni_titolo=sostituzioni_titolo,
         formule=formule,
+        figure=figure,
     )
 
 
