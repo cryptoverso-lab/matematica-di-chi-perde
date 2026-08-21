@@ -9,6 +9,8 @@ pagina del repository si compongono a render, in un solo modulo del sito
 
 from __future__ import annotations
 
+import json
+from collections.abc import Iterable
 from pathlib import Path
 
 from cvbook.link import ROTTE
@@ -24,6 +26,50 @@ from .dataset import provenienza_delle_serie
 from .esecuzione import esegui
 from .figure import Figure
 from .sorgente import Estrazione, estrai_dal_sorgente
+
+
+def figure_conservate(percorso_it: Path, prodotte: Iterable[str]) -> dict:
+    """L'apparato editoriale delle figure gia' scritto a mano, TENUTO.
+
+    E' l'unico campo del bundle che questa catena non sa produrre. `alt`,
+    `didascalia` e `metodo` sono lavoro editoriale (UI-SPEC 3.4, LAB-03): li
+    scrive una persona nel repo del sito, guardando la figura. Fino al piano
+    04-10 `it.json` veniva ricomposto da zero con un `"figure": {}` LETTERALE,
+    e la conseguenza era misurata: rieseguendo l'ingest su `lab_05_misurare` i
+    due `alt` del pilota sparivano, `pnpm verify:labs` diventava rosso con «la
+    figura non ha un `alt` in questa lingua», e il testo perduto non era piu'
+    da nessuna parte. Un `alt` scritto a mano aveva la vita di una
+    riesecuzione — cioe' di una GitHub Action.
+
+    IL FILTRO SUGLI IDENTIFICATIVI PRODOTTI NON E' UN DETTAGLIO. Senza, l'`alt`
+    di una figura che il quaderno non emette piu' sopravvivrebbe per sempre nel
+    bundle: e' esattamente il residuo che un ingest esiste per non produrre.
+    L'ordine e' quello delle figure prodotte, non quello del file su disco,
+    cosi' due esecuzioni di fila scrivono lo stesso byte.
+
+    `en.json` non passa di qui perche' l'ingest non lo scrive affatto: la
+    fusione riguarda la sola lingua in cui l'apparato nasce.
+    """
+    if not percorso_it.is_file():
+        return {}
+    try:
+        esistente = json.loads(percorso_it.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as errore:
+        raise ProblemaDiIngest(
+            f"`{percorso_it.as_posix()}` esiste ma non e' JSON leggibile: "
+            f"{errore}.\n"
+            "  Va letto PRIMA di riscriverlo, perche' porta l'apparato\n"
+            "  editoriale delle figure che questa catena non sa riprodurre:\n"
+            "  sovrascriverlo alla cieca lo cancellerebbe."
+        ) from errore
+    vecchie = esistente.get("figure") if isinstance(esistente, dict) else None
+    if not isinstance(vecchie, dict):
+        return {}
+    return {
+        identificativo: vecchie[identificativo]
+        for identificativo in prodotte
+        if identificativo in vecchie
+    }
 
 
 def bundle_di_rotta(
@@ -89,7 +135,13 @@ def bundle_di_rotta(
         "titolo": estrazione.titolo or rotta.titolo,
         "domanda": rotta.descrizione,
         "blocchi": estrazione.prosa,
-        "figure": {},
+        # L'apparato delle figure e' l'UNICO campo editoriale del bundle: lo
+        # scrive una persona nel repo del sito, non questa catena. Percio' si
+        # FONDE con cio' che sta su disco invece di essere ricomposto — vedi
+        # `figure_conservate`, che spiega il difetto misurato.
+        "figure": figure_conservate(
+            cartella / "it.json", (identificativo for identificativo, _ in figure.pesate)
+        ),
     }
 
     return lab, prosa, estrazione
