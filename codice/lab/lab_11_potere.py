@@ -32,6 +32,15 @@
 # > On average one passes the standard test. Watching it pass, knowing
 # > there's nothing inside, is worth more than ten pages of explanation.
 
+# %% [markdown]
+# Le righe marcate **PROVA** sono quelle da cambiare: cambiale e riesegui per
+# vedere l'effetto. Il resto — comprese le righe marcate **NON TOCCARE** —
+# serve a mantenere il risultato confrontabile con quello stampato nel libro.
+#
+# The lines marked **TRY** are the ones to change: edit them and rerun to see
+# the effect. Everything else — including lines marked **DO NOT CHANGE** —
+# exists to keep the result comparable with the one printed in the book.
+
 # %%
 # Setup — esegui questa cella per prima.
 # %pip install -q "polars>=1.0"
@@ -76,7 +85,9 @@ from cvbook.metriche import rendimenti
 
 # %%
 VANTAGGIO = 0.001        # ← guadagno medio per operazione, al netto dei costi
+                         # PROVA / TRY: il TUO vantaggio stimato (esercizio 1)
 OSCILLAZIONE = 0.035     # ← deviazione standard del risultato per operazione
+                         # PROVA / TRY: la TUA oscillazione (esercizio 1)
 OPERAZIONI_ANNO = 250    # ← quante ne fai in un anno
 POTENZA = 0.80           # ← probabilita' di accorgersene, se il vantaggio esiste
 ALFA = 0.05              # ← rischio accettato di scambiare rumore per segnale
@@ -158,7 +169,7 @@ print("\nUn vantaggio dello 0,1% per operazione sarebbe un risultato eccellente 
 # %%
 LANCI = 40
 VITTORIE = 26
-PROVE = 200_000
+PROVE = 200_000  # PROVA / TRY: 20000 (veloce) · 200000 (percentuale più precisa)
 
 rng = np.random.default_rng(seed_for("lab-potere-moneta"))
 esiti = rng.binomial(LANCI, 0.5, PROVE)
@@ -177,8 +188,8 @@ print(f"\nE se hai provato piu' di una manciata di strategie prima di trovare "
 # > **EN** — *4. Twenty strategies with no edge at all, all tested.*
 
 # %%
-STRATEGIE = 20
-OSSERVAZIONI = 500
+STRATEGIE = 20        # PROVA / TRY: 200 (vedi esercizio 2)
+OSSERVAZIONI = 500    # PROVA / TRY: 5000 (vedi esercizio 3)
 
 rng = np.random.default_rng(seed_for("lab-potere-multipli"))
 soglia = quantile_normale(1 - ALFA)

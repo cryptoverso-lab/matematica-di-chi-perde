@@ -31,6 +31,15 @@
 # > Third: what having N assets is really worth, with the calculation almost
 # > nobody does.
 
+# %% [markdown]
+# Le righe marcate **PROVA** sono quelle da cambiare: cambiale e riesegui per
+# vedere l'effetto. Il resto — comprese le righe marcate **NON TOCCARE** —
+# serve a mantenere il risultato confrontabile con quello stampato nel libro.
+#
+# The lines marked **TRY** are the ones to change: edit them and rerun to see
+# the effect. Everything else — including lines marked **DO NOT CHANGE** —
+# exists to keep the result comparable with the one printed in the book.
+
 # %%
 # Setup — esegui questa cella per prima.
 # %pip install -q "polars>=1.0"
@@ -57,8 +66,9 @@ import polars as pl
 from cvbook.dati import carica
 from cvbook.metriche import drawdown, rendimenti
 
-NOMI = ["btcusdt", "ethusdt", "solusdt"]
-DA = dt.date(2020, 9, 1)
+NOMI = ["btcusdt", "ethusdt", "solusdt"]  # ← PROVA / TRY: aggiungi "ftsemib" o "eni"
+                                          # (aggiungili anche a avvio.prepara([...]))
+DA = dt.date(2020, 9, 1)  # PROVA / TRY: sposta la data d'inizio
 
 serie = [
     carica(n).filter(pl.col("data") >= DA).select(["data", "chiusura"]).rename({"chiusura": n})
@@ -99,6 +109,7 @@ def correlazione_media(blocco: np.ndarray) -> float:
 
 primo = M[:, 0]
 peggiori = np.argsort(primo)[: len(primo) // 20]  # il 5% dei giorni peggiori
+                                                   # PROVA / TRY: // 5 per il 20% (vedi esercizio 3)
 
 print(f"correlazione media su tutto il periodo:        {correlazione_media(M):.3f}")
 print(f"correlazione media sul 5% dei giorni peggiori: {correlazione_media(M[peggiori]):.3f}")
@@ -118,7 +129,7 @@ print("\nSembra che nei crolli la correlazione SCENDA. E' falso, ed e' il "
 # > No selection based on the value of the variables.
 
 # %%
-FINESTRA = 60
+FINESTRA = 60  # PROVA / TRY: 20 · 60 · 200 (vedi esercizio 2)
 
 corr = np.array([correlazione_media(M[i - FINESTRA:i]) for i in range(FINESTRA, len(M))])
 date_c = date[FINESTRA:]

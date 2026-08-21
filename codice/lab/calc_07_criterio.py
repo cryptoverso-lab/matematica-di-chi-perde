@@ -33,6 +33,15 @@
 # > result**. It's the automatic version of the chapter, and it fits on one
 # > page.
 
+# %% [markdown]
+# Le righe marcate **PROVA** sono quelle da cambiare: cambiale e riesegui per
+# vedere l'effetto. Il resto — comprese le righe marcate **NON TOCCARE** —
+# serve a mantenere il risultato confrontabile con quello stampato nel libro.
+#
+# The lines marked **TRY** are the ones to change: edit them and rerun to see
+# the effect. Everything else — including lines marked **DO NOT CHANGE** —
+# exists to keep the result comparable with the one printed in the book.
+
 # %%
 # Setup — esegui questa cella per prima.
 # %pip install -q "polars>=1.0"
@@ -71,6 +80,8 @@ from cvbook.lingua import t
 # > informative data point in this notebook.
 
 # %%
+# PROVA / TRY: l'intero dizionario qui sotto è da riscrivere con la proposta
+# che vuoi valutare — è il punto del quaderno, non un'eccezione alla regola.
 PROPOSTA = {
     # 1. I dati
     "fonte_dichiarata": None,        # es. "Binance, dump giornalieri" oppure None
@@ -183,8 +194,11 @@ print(t(f"\nE la domanda che non e' fra le cinque: come guadagna? "
 # > The decisive question, and the one almost nobody asks.
 
 # %%
-N_PROVE = 20_000
+N_PROVE = 20_000  # PROVA / TRY: 2000 (veloce) · 20000 · 100000 (coda più precisa)
 rng = np.random.default_rng(seed_for("calc-criterio"))
+# NON TOCCARE / DO NOT CHANGE: il seme fissa l'istogramma e la percentuale
+# citati nel testo; con N_PROVE già a 20.000 il seme conta pochissimo, ma la
+# regola resta la stessa di tutto il libro: non si cambia dopo aver visto il numero.
 
 n = PROPOSTA["numero_operazioni"]
 vinte = int(round(PROPOSTA["quota_vincenti"] * n))

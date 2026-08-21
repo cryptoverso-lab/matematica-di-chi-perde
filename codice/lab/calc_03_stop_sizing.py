@@ -31,6 +31,15 @@
 # > would have been compatible with your tolerance**, in the worst historical
 # > period. It's usually much smaller than the one you had in mind.
 
+# %% [markdown]
+# Le righe marcate **PROVA** sono quelle da cambiare: cambiale e riesegui per
+# vedere l'effetto. Il resto — comprese le righe marcate **NON TOCCARE** —
+# serve a mantenere il risultato confrontabile con quello stampato nel libro.
+#
+# The lines marked **TRY** are the ones to change: edit them and rerun to see
+# the effect. Everything else — including lines marked **DO NOT CHANGE** —
+# exists to keep the result comparable with the one printed in the book.
+
 # %%
 # Setup — esegui questa cella per prima.
 # %pip install -q "polars>=1.0"
@@ -55,7 +64,9 @@ from cvbook.dati import carica
 from cvbook.lingua import t
 from cvbook.metriche import drawdown, drawdown_massimo, equity, rendimenti, sharpe, volatilita
 
-SERIE = "btcusdt"  # ← "btcusdt", "ethusdt", "solusdt"
+SERIE = "btcusdt"  # ← PROVA / TRY: "ethusdt" · "solusdt" (le tre preparate nel setup)
+                   # per un'altra delle 11 serie in codice/dati/registro.json
+                   # aggiungila anche a avvio.prepara([...]) qui sopra
 
 df = carica(SERIE).sort("data")
 prezzi = df["chiusura"].to_numpy()
@@ -176,7 +187,10 @@ print(t(f"il piu' lungo:   {durate.max():6.0f} giorni  ({durate.max() / 365:.1f}
 
 # %%
 CAPITALE = 20_000.0        # ← il tuo capitale totale, in euro
+                           # PROVA / TRY: il tuo capitale reale
 PERDITA_ACCETTABILE = 3_000.0  # ← quanto sei disposto a vedere sparire, in euro
+                                # PROVA / TRY: la tua soglia VERA, non quella
+                                # che diresti a un amico (vedi esercizio 2)
 
 peggiore = abs(drawdown_massimo(curva))
 quota_massima = PERDITA_ACCETTABILE / (CAPITALE * peggiore)

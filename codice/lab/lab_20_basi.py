@@ -33,6 +33,15 @@
 # > three different results from the exact same cell is the fastest way to
 # > understand why reproducibility isn't a detail.
 
+# %% [markdown]
+# Le righe marcate **PROVA** sono quelle da cambiare: cambiale e riesegui per
+# vedere l'effetto. Il resto — comprese le righe marcate **NON TOCCARE** —
+# serve a mantenere il risultato confrontabile con quello stampato nel libro.
+#
+# The lines marked **TRY** are the ones to change: edit them and rerun to see
+# the effect. Everything else — including lines marked **DO NOT CHANGE** —
+# exists to keep the result comparable with the one printed in the book.
+
 # %%
 # Setup — esegui questa cella per prima.
 # %pip install -q "polars>=1.0"
@@ -170,7 +179,7 @@ print("\nMa la velocita' non e' il punto vero. Il punto e' che CAMBIA LE DOMANDE
 
 # %%
 risposte = {}
-for nome in ("btcusdt", "ethusdt", "solusdt"):
+for nome in ("btcusdt", "ethusdt", "solusdt"):  # PROVA / TRY: aggiungi un'altra serie preparata
     p = carica(nome).sort("data")["chiusura"].to_numpy()
     dd = drawdown(np.concatenate([[1.0], np.cumprod(1 + rendimenti(p))]))
     risposte[nome] = float((dd < -0.5).mean())
@@ -195,7 +204,7 @@ r = rendimenti(prezzi)
 reale = float(np.prod(1 + r))
 
 
-def esperimento(seme: int | None, percorsi: int = 400) -> float:
+def esperimento(seme: int | None, percorsi: int = 400) -> float:  # PROVA / TRY: percorsi=4000
     """Quota di percorsi ricampionati che fanno meglio di quello vero.
 
     Attenzione a una sottigliezza che il capitolo sull'aritmetica ha gia'

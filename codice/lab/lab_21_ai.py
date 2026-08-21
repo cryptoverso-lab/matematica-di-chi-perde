@@ -35,6 +35,15 @@
 # > difference. It's the exercise I recommend doing before letting a machine
 # > write anything you'll later use with real money.
 
+# %% [markdown]
+# Le righe marcate **PROVA** sono quelle da cambiare: cambiale e riesegui per
+# vedere l'effetto. Il resto — comprese le righe marcate **NON TOCCARE** —
+# serve a mantenere il risultato confrontabile con quello stampato nel libro.
+#
+# The lines marked **TRY** are the ones to change: edit them and rerun to see
+# the effect. Everything else — including lines marked **DO NOT CHANGE** —
+# exists to keep the result comparable with the one printed in the book.
+
 # %%
 # Setup — esegui questa cella per prima.
 # %pip install -q "polars>=1.0"
@@ -83,6 +92,8 @@ COSTO = 0.0012
 # > the next cell yet.
 
 # %%
+# NON TOCCARE / DO NOT CHANGE: le due versioni sono la coppia corretta/errata
+# su cui si basa l'esercizio — scrivi prima la tua risposta, poi esegui.
 def versione_a(p: np.ndarray, finestra: int = 20) -> np.ndarray:
     """Versione A."""
     posizione = np.zeros(len(p))
@@ -311,7 +322,7 @@ r = rendimenti(prezzi)
 meta = len(r) // 2
 
 print(f"{'idee provate':>13s} {'migliore dentro':>17s} {'la stessa fuori':>17s}")
-for tentativi in (10, 50, 200, 1000):
+for tentativi in (10, 50, 200, 1000):  # PROVA / TRY: aggiungi 5000
     migliore, fuori = -np.inf, np.nan
     for _ in range(tentativi):
         rumore = rng.normal(size=len(r))

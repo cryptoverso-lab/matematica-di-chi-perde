@@ -37,6 +37,15 @@
 # > structure vanish when you destroy it on purpose is the most direct way to
 # > convince yourself it was there.
 
+# %% [markdown]
+# Le righe marcate **PROVA** sono quelle da cambiare: cambiale e riesegui per
+# vedere l'effetto. Il resto — comprese le righe marcate **NON TOCCARE** —
+# serve a mantenere il risultato confrontabile con quello stampato nel libro.
+#
+# The lines marked **TRY** are the ones to change: edit them and rerun to see
+# the effect. Everything else — including lines marked **DO NOT CHANGE** —
+# exists to keep the result comparable with the one printed in the book.
+
 # %%
 # Setup — esegui questa cella per prima.
 # %pip install -q "polars>=1.0"
@@ -60,8 +69,9 @@ import numpy as np
 from cvbook.dati import carica
 from cvbook.metriche import GIORNI_ANNO, rendimenti
 
-SERIE = "btcusdt"   # ← "btcusdt", "ethusdt", "solusdt"
+SERIE = "btcusdt"   # ← PROVA / TRY: "ethusdt" · "solusdt" (le tre preparate nel setup)
 FINESTRA = 30       # ← giorni della finestra mobile
+                    # PROVA / TRY: 10 · 30 · 250 (vedi esercizio 4 qui sotto)
 
 df = carica(SERIE).sort("data")
 r = rendimenti(df["chiusura"].to_numpy())
@@ -178,6 +188,8 @@ def sequenze(maschera: np.ndarray) -> np.ndarray:
 
 
 rng = np.random.default_rng(20260816)
+# NON TOCCARE / DO NOT CHANGE: il seme fissa i numeri di episodi/mediana/il
+# più lungo citati nel testo qui sotto e riusati nella cella 5.
 vere = sequenze(alto)
 finte = sequenze(rng.random(len(alto)) < base)
 

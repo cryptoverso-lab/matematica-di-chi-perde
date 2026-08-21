@@ -34,6 +34,15 @@
 # > before any calculation. Ten minutes, and they have the best ratio of
 # > time spent to errors found.
 
+# %% [markdown]
+# Le righe marcate **PROVA** sono quelle da cambiare: cambiale e riesegui per
+# vedere l'effetto. Il resto — comprese le righe marcate **NON TOCCARE** —
+# serve a mantenere il risultato confrontabile con quello stampato nel libro.
+#
+# The lines marked **TRY** are the ones to change: edit them and rerun to see
+# the effect. Everything else — including lines marked **DO NOT CHANGE** —
+# exists to keep the result comparable with the one printed in the book.
+
 # %%
 # Setup — esegui questa cella per prima.
 # %pip install -q "polars>=1.0"
@@ -59,8 +68,8 @@ from cvbook.regole import esegui
 
 df = carica("btcusdt").sort("data")
 prezzi = df["chiusura"].to_numpy()
-FINESTRA = 20
-COSTO = 0.0012
+FINESTRA = 20  # PROVA / TRY: qualunque valore (vedi esercizio 1) — il rapporto resta enorme
+COSTO = 0.0012  # PROVA / TRY: 0,0006 · 0,0012 · 0,0025
 
 
 def media_mobile(p: np.ndarray, finestra: int) -> np.ndarray:
@@ -90,6 +99,8 @@ causale[1:] = segnale[:-1]
 
 # Versione CON LOOKAHEAD: la posizione di oggi usa il segnale di oggi, cioe'
 # un'informazione che al momento di decidere non esisteva ancora.
+# NON TOCCARE / DO NOT CHANGE: è sbagliata apposta, per il confronto — non è
+# un bug da sistemare.
 con_lookahead = segnale.copy()
 
 a = esegui(prezzi, causale, costo=COSTO)

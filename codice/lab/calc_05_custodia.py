@@ -41,6 +41,15 @@
 # > notebook is for understanding the **shape** of the problem, not for
 # > estimating its level.
 
+# %% [markdown]
+# Le righe marcate **PROVA** sono quelle da cambiare: cambiale e riesegui per
+# vedere l'effetto. Il resto — comprese le righe marcate **NON TOCCARE** —
+# serve a mantenere il risultato confrontabile con quello stampato nel libro.
+#
+# The lines marked **TRY** are the ones to change: edit them and rerun to see
+# the effect. Everything else — including lines marked **DO NOT CHANGE** —
+# exists to keep the result comparable with the one printed in the book.
+
 # %%
 # Setup — esegui questa cella per prima.
 # %pip install -q "polars>=1.0"
@@ -76,8 +85,12 @@ from cvbook.simulazioni import bootstrap_traiettorie
 
 # %%
 RISCHIO_ANNUO = 0.02   # ← la TUA ipotesi: probabilita' che la sede sparisca in un anno
+                       # PROVA / TRY: 0,005 · 0,01 · 0,02 · 0,05 — è un'ipotesi
+                       # tua, non una misura (vedi la nota qui sopra)
 ORIZZONTE = 10         # ← per quanti anni ci tieni i soldi
+                       # PROVA / TRY: 5 · 10 · 20 (anni)
 QUOTA = 0.60           # ← quanta parte del capitale sta nel posto piu' pieno
+                       # PROVA / TRY: 0,20 · 0,60 · 1,00
 
 almeno_uno = 1 - (1 - RISCHIO_ANNUO) ** ORIZZONTE
 
@@ -143,11 +156,16 @@ for p in (0.005, 0.01, 0.02, 0.05):
 # > how much capital sits at a single venue.
 
 # %%
-PERCORSI = 5000
-QUOTE = [1.00, 0.50, 0.20]
+PERCORSI = 5000  # PROVA / TRY: 500 (veloce) · 5000 · 20000 (code più nette)
+QUOTE = [1.00, 0.50, 0.20]  # PROVA / TRY: le tue quote di concentrazione
 
 r = rendimenti(carica("btcusdt").sort("data")["chiusura"].to_numpy())
+# PROVA / TRY: per un'altra serie aggiungila a avvio.prepara([...]) qui sopra
+# — le 11 disponibili sono in codice/dati/registro.json
 rng = np.random.default_rng(seed_for("calc-custodia"))
+# NON TOCCARE / DO NOT CHANGE: il seme fissa i numeri di mediana e "5% peggiore"
+# citati nel testo qui sotto; cambiarlo dopo aver visto il risultato è il
+# p-hacking che il libro smonta altrove.
 giorni = min(365 * ORIZZONTE, len(r))
 mercato = bootstrap_traiettorie(r[:giorni], n_traiettorie=PERCORSI, rng=rng,
                                 a_blocchi=20)[:, -1]
@@ -202,7 +220,9 @@ print(t("\nLa mediana si sposta poco: nel caso tipico non succede niente, ed e' 
 
 # %%
 QUOTA_ATTUALE = 0.85    # ← quanto hai davvero nel posto piu' pieno, oggi
+                        # PROVA / TRY: la tua quota vera
 QUOTA_DECISA = 0.20     # ← il limite che vorresti darti
+                        # PROVA / TRY: il limite che decideresti tu
 
 
 def coda(quota: float) -> tuple[float, float]:

@@ -34,6 +34,15 @@
 # > through a drawdown of Y%."* That sentence, read before opening a
 # > position, changes sizing more than any reasoning.
 
+# %% [markdown]
+# Le righe marcate **PROVA** sono quelle da cambiare: cambiale e riesegui per
+# vedere l'effetto. Il resto — comprese le righe marcate **NON TOCCARE** —
+# serve a mantenere il risultato confrontabile con quello stampato nel libro.
+#
+# The lines marked **TRY** are the ones to change: edit them and rerun to see
+# the effect. Everything else — including lines marked **DO NOT CHANGE** —
+# exists to keep the result comparable with the one printed in the book.
+
 # %%
 # Setup — esegui questa cella per prima.
 # %pip install -q "polars>=1.0"
@@ -59,9 +68,11 @@ from cvbook.dati import carica
 from cvbook.metriche import drawdown_massimo, rendimenti
 from cvbook.simulazioni import bootstrap_traiettorie, distribuzione_esiti
 
-SERIE = "btcusdt"
+SERIE = "btcusdt"  # ← PROVA / TRY: "ethusdt" · "solusdt" (vedi esercizio 3)
 PERCORSI = 5000     # ← mille bastano per la mediana, per le CODE servono di piu'
+                    # PROVA / TRY: 1000 · 5000 · 20000 (vedi sezione 4 qui sotto)
 BLOCCHI = 20        # ← lunghezza dei blocchi ricampionati
+                    # PROVA / TRY: 5 · 20 · 60 (vedi esercizio 2)
 
 r = rendimenti(carica(SERIE).sort("data")["chiusura"].to_numpy())
 reale = np.cumprod(1 + r)
@@ -140,9 +151,11 @@ print(f"percorsi che finiscono sotto il capitale iniziale: {esiti['prob_perdita'
 # > big.
 
 # %%
-CAPITALE = 20_000.0
+CAPITALE = 20_000.0     # PROVA / TRY: il tuo capitale reale
 SOGLIA_PERDITA = 0.30   # ← oltre questo calo cambieresti comportamento
+                        # PROVA / TRY: la tua soglia vera
 QUOTA = 0.50            # ← quanta parte del capitale metti in questa posizione
+                        # PROVA / TRY: la quota che stai davvero valutando
 
 calo_5pct = float(np.percentile([drawdown_massimo(p) for p in percorsi], 5))
 calo_atteso_sul_totale = abs(calo_5pct) * QUOTA

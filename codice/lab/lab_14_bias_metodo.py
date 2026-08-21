@@ -34,6 +34,15 @@
 # > corrector: tell it how many attempts you made and it gives back the
 # > threshold you should have used.
 
+# %% [markdown]
+# Le righe marcate **PROVA** sono quelle da cambiare: cambiale e riesegui per
+# vedere l'effetto. Il resto — comprese le righe marcate **NON TOCCARE** —
+# serve a mantenere il risultato confrontabile con quello stampato nel libro.
+#
+# The lines marked **TRY** are the ones to change: edit them and rerun to see
+# the effect. Everything else — including lines marked **DO NOT CHANGE** —
+# exists to keep the result comparable with the one printed in the book.
+
 # %%
 # Setup — esegui questa cella per prima.
 # %pip install -q "polars>=1.0"
@@ -82,7 +91,7 @@ def quantile_normale(p: float) -> float:
 # > **EN** — *1. Twenty ideas that don't work, and the one that passes.*
 
 # %%
-IDEE = 20
+IDEE = 20          # PROVA / TRY: 500 (vedi esercizio 2)
 OSSERVAZIONI = 400
 
 rng = np.random.default_rng(seed_for("lab-metodo-venti"))
@@ -140,14 +149,14 @@ print("\nChi prova cento configurazioni TROVERA' qualcosa che supera il test. "
 
 # %%
 SERIE = ["btcusdt", "ethusdt", "solusdt"]
-REGOLE = {
+REGOLE = {  # PROVA / TRY: aggiungi una regola (vedi esercizio 1)
     "sopra la media 50": lambda p: sopra_media(p, 50),
     "sopra la media 100": lambda p: sopra_media(p, 100),
     "sopra la media 200": lambda p: sopra_media(p, 200),
     "rottura a 20": lambda p: rottura(p, 20),
     "rottura a 55": lambda p: rottura(p, 55),
 }
-PARTENZE = [0, 365, 730]
+PARTENZE = [0, 365, 730]  # PROVA / TRY: aggiungi una data d'inizio (esercizio 1)
 
 risultati = []
 for nome_serie in SERIE:
@@ -191,8 +200,8 @@ def soglia_corretta(tentativi: int, alfa: float = ALFA) -> float:
     return quantile_normale(1 - alfa / tentativi)
 
 
-TUOI_TENTATIVI = len(risultati)  # ← metti il numero dal TUO registro delle ipotesi
-TUA_STATISTICA = 2.4             # ← la statistica t del tuo risultato migliore
+TUOI_TENTATIVI = len(risultati)  # ← PROVA / TRY: metti il numero dal TUO registro delle ipotesi
+TUA_STATISTICA = 2.4             # ← PROVA / TRY: la statistica t del TUO risultato migliore
 
 print(f"tentativi dichiarati: {TUOI_TENTATIVI}")
 print(f"soglia non corretta:  {quantile_normale(1 - ALFA):.2f}")

@@ -30,6 +30,15 @@
 # > that frequency on a real series. The number almost nobody knows is the
 # > second one.
 
+# %% [markdown]
+# Le righe marcate **PROVA** sono quelle da cambiare: cambiale e riesegui per
+# vedere l'effetto. Il resto — comprese le righe marcate **NON TOCCARE** —
+# serve a mantenere il risultato confrontabile con quello stampato nel libro.
+#
+# The lines marked **TRY** are the ones to change: edit them and rerun to see
+# the effect. Everything else — including lines marked **DO NOT CHANGE** —
+# exists to keep the result comparable with the one printed in the book.
+
 # %%
 # Setup — esegui questa cella per prima.
 # %pip install -q "polars>=1.0"
@@ -71,8 +80,12 @@ from cvbook.metriche import equity, rendimenti
 
 # %%
 CAPITALE = 10_000.0   # ← il capitale impegnato, in euro
+                      # PROVA / TRY: il tuo capitale reale — cambia solo la
+                      # scala, non le percentuali qui sotto
 COSTO_GIRO = 0.0012   # ← costo tutto compreso di un giro completo (0,12%)
+                      # PROVA / TRY: 0,0006 (scontato) · 0,0012 · 0,0025 (al dettaglio)
 OPERAZIONI_ANNO = 52  # ← quanti giri completi fai in un anno
+                      # PROVA / TRY: la tua frequenza reale, contata sull'estratto conto
 
 speso = CAPITALE * COSTO_GIRO * OPERAZIONI_ANNO
 pareggio = (1 + COSTO_GIRO) ** OPERAZIONI_ANNO - 1
@@ -152,7 +165,9 @@ for c in COSTI:
 # > different decision.
 
 # %%
-SERIE = "btcusdt"  # ← prova anche "ethusdt" o "solusdt"
+SERIE = "btcusdt"  # ← PROVA / TRY: "ethusdt" · "solusdt" (le tre preparate nel setup)
+                   # per un'altra delle 11 serie in codice/dati/registro.json
+                   # aggiungila anche a avvio.prepara([...]) qui sopra
 
 r = rendimenti(carica(SERIE).sort("data")["chiusura"].to_numpy())
 n = len(r)

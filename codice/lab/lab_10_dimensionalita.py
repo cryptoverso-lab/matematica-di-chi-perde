@@ -38,6 +38,15 @@
 # > rises at every step. It's guaranteed — and it looks exactly like it
 # > would if the method actually worked.
 
+# %% [markdown]
+# Le righe marcate **PROVA** sono quelle da cambiare: cambiale e riesegui per
+# vedere l'effetto. Il resto — comprese le righe marcate **NON TOCCARE** —
+# serve a mantenere il risultato confrontabile con quello stampato nel libro.
+#
+# The lines marked **TRY** are the ones to change: edit them and rerun to see
+# the effect. Everything else — including lines marked **DO NOT CHANGE** —
+# exists to keep the result comparable with the one printed in the book.
+
 # %%
 # Setup — esegui questa cella per prima.
 # %pip install -q "polars>=1.0"
@@ -87,13 +96,21 @@ print(f"{len(r)} giorni: {len(dentro_campione)} per costruire, "
 # %%
 CONDIZIONI_MAX = 25   # <- quante aggiunte al massimo
 DISPONIBILI = 400     # <- quante condizioni ci sono nel cassetto
+                      # PROVA / TRY: 2000 (vedi esercizio 1)
 
 # In QUESTO esperimento i costi si tengono a zero, e va detto perche'.
 # Aumentando le condizioni il segnale cambia stato piu' spesso, quindi opera di
 # piu': con i costi dentro, la curva mescolerebbe due effetti diversi — i gradi
 # di liberta' e la frequenza. Qui vogliamo isolare il primo. Il secondo lo
 # guardiamo a parte, nella cella 2, che e' altrettanto istruttiva.
+# In THIS experiment costs are held at zero, and here's why: more conditions
+# means the signal flips more often, so it trades more — with costs in, the
+# curve would blend two different effects (degrees of freedom and frequency).
+# Here we want to isolate the first. We look at the second separately in
+# cell 2, which is just as instructive.
 COSTO = 0.0
+# NON TOCCARE / DO NOT CHANGE: deve restare zero qui — è la cella 2 che
+# rimette i costi per isolare il secondo effetto, non questa.
 
 
 def risultato(rend: np.ndarray, posizione: np.ndarray, costo: float = COSTO) -> float:
@@ -284,7 +301,7 @@ def sopra_media(p: np.ndarray, finestra: int, ritardo: int = 1) -> np.ndarray:
 
 varianti = []
 for finestra in (20, 50, 100, 200):
-    for partenza in (0, 200, 400, 600):
+    for partenza in (0, 200, 400, 600):  # PROVA / TRY: aggiungi altre date (esercizio 3)
         p = prezzi[partenza:]
         rend = rendimenti(p)
         varianti.append(risultato(rend, sopra_media(p, finestra)[1:], costo=0.0012))

@@ -34,6 +34,15 @@
 # > generated one. People manage it a bit more than half the time — barely
 # > better than a coin toss.
 
+# %% [markdown]
+# Le righe marcate **PROVA** sono quelle da cambiare: cambiale e riesegui per
+# vedere l'effetto. Il resto — comprese le righe marcate **NON TOCCARE** —
+# serve a mantenere il risultato confrontabile con quello stampato nel libro.
+#
+# The lines marked **TRY** are the ones to change: edit them and rerun to see
+# the effect. Everything else — including lines marked **DO NOT CHANGE** —
+# exists to keep the result comparable with the one printed in the book.
+
 # %%
 # Setup — esegui questa cella per prima.
 # %pip install -q "polars>=1.0"
@@ -72,7 +81,9 @@ from cvbook.metriche import rendimenti, volatilita
 # > allows comparisons the first doesn't.
 
 # %%
-SERIE = "btcusdt"  # ← "btcusdt", "ethusdt", "solusdt"
+SERIE = "btcusdt"  # ← PROVA / TRY: "ethusdt" · "solusdt" (le tre preparate nel setup)
+                   # per un'altra delle 11 serie in codice/dati/registro.json
+                   # aggiungila anche a avvio.prepara([...]) qui sopra
 
 df = carica(SERIE).sort("data")
 prezzi = df["chiusura"].to_numpy()
@@ -128,7 +139,10 @@ print(f"volatilita' annualizzata dell'intero periodo: {volatilita(r):.1%}")
 
 # %%
 rng = np.random.default_rng(seed_for("lab-vero-o-finto"))
-FINESTRA = 400
+# NON TOCCARE / DO NOT CHANGE: scrivi la tua risposta PRIMA di eseguire la
+# cella con la soluzione. Cambiare il seme per "azzeccarci di più" vanifica
+# l'esercizio invece di misurarlo.
+FINESTRA = 400  # PROVA / TRY: 400 · 1200 (vedi esercizio 2)
 
 sigma = float(np.std(r, ddof=1))
 partenze = rng.integers(0, len(prezzi) - FINESTRA, size=6)

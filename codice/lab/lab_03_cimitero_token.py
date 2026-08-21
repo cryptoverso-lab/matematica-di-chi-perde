@@ -35,6 +35,15 @@
 # > exercise: rebuilding the same basket looking only at the survivors, and
 # > seeing what reassuring answer you get.
 
+# %% [markdown]
+# Le righe marcate **PROVA** sono quelle da cambiare: cambiale e riesegui per
+# vedere l'effetto. Il resto — comprese le righe marcate **NON TOCCARE** —
+# serve a mantenere il risultato confrontabile con quello stampato nel libro.
+#
+# The lines marked **TRY** are the ones to change: edit them and rerun to see
+# the effect. Everything else — including lines marked **DO NOT CHANGE** —
+# exists to keep the result comparable with the one printed in the book.
+
 # %%
 # Setup — esegui questa cella per prima.
 # %pip install -q "polars>=1.0"
@@ -147,9 +156,12 @@ print("dopo quella data non esiste piu' un mercato: non c'e' un prezzo, non c'e'
 # > bought**.
 
 # %%
-INIZIO = dt.date(2021, 4, 1)
-VIVI = ["btcusdt", "ethusdt", "solusdt"]
+INIZIO = dt.date(2021, 4, 1)  # ← PROVA / TRY: sposta a gennaio 2022 (vedi esercizio 2)
+VIVI = ["btcusdt", "ethusdt", "solusdt"]  # ← PROVA / TRY: togli "solusdt" (esercizio 1)
 MORTI = ["lunausdt", "fttusdt"]
+# NON TOCCARE / DO NOT CHANGE: MORTI deve restare com'è — sono gli unici due
+# token defunti congelati nel registro dati; la dimostrazione è proprio che
+# le fonti comode non li avrebbero mai lasciati scegliere (vedi esercizio 3)
 
 
 def curva_paniere(nomi: list[str]) -> tuple[list, np.ndarray]:

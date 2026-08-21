@@ -34,6 +34,15 @@
 # > is taken into account. Then the ruin curve — the calculation to make
 # > **before** increasing size, not after.
 
+# %% [markdown]
+# Le righe marcate **PROVA** sono quelle da cambiare: cambiale e riesegui per
+# vedere l'effetto. Il resto — comprese le righe marcate **NON TOCCARE** —
+# serve a mantenere il risultato confrontabile con quello stampato nel libro.
+#
+# The lines marked **TRY** are the ones to change: edit them and rerun to see
+# the effect. Everything else — including lines marked **DO NOT CHANGE** —
+# exists to keep the result comparable with the one printed in the book.
+
 # %%
 # Setup — esegui questa cella per prima.
 # %pip install -q "polars>=1.0"
@@ -75,12 +84,17 @@ from cvbook.metriche import GIORNI_ANNO, rendimenti, rischio_di_rovina
 
 # %%
 VINCITE = 0.55        # ← quota di operazioni vincenti
+                      # PROVA / TRY: 0,52 (vedi esercizio 1) · 0,55 · 0,60
 RAPPORTO = 1.0        # ← quanto si guadagna rispetto a quanto si rischia
-OPERAZIONI = 500
-PERCORSI = 4000
+                      # PROVA / TRY: 0,5 · 1,0 · 2,0
+OPERAZIONI = 500      # PROVA / TRY: 100 (veloce) · 500 · 2000 (curva più liscia)
+PERCORSI = 4000       # PROVA / TRY: 500 (veloce, mediana rumorosa) · 4000 · 20000
 
 frazioni = np.arange(0.01, 0.51, 0.01)
 rng = np.random.default_rng(seed_for("calc-dimensionamento"))
+# NON TOCCARE / DO NOT CHANGE: il seme fissa i numeri citati nel testo qui
+# sotto (la frazione ottimale simulata, le probabilità di rovina) — cambiarlo
+# dopo aver visto il risultato è il p-hacking che il libro smonta altrove.
 esiti = rng.random((PERCORSI, OPERAZIONI)) < VINCITE
 
 mediane, rovine = [], []
@@ -173,9 +187,11 @@ print(t("\nStare sotto costa poco, stare sopra costa moltissimo. E' l'asimmetria
 # > you lose if it goes wrong. It's the second one that must be kept constant.
 
 # %%
-CAPITALE = 20_000.0
+CAPITALE = 20_000.0              # PROVA / TRY: il tuo capitale reale
 RISCHIO_PER_OPERAZIONE = 0.01   # ← percentuale del capitale, fra 0,5% e 2%
+                                 # PROVA / TRY: 0,005 · 0,01 · 0,02
 DISTANZA_USCITA = 0.08          # ← a che distanza esci in perdita
+                                 # PROVA / TRY: 0,04 (stop stretto) · 0,08 · 0,15
 
 rischio_euro = CAPITALE * RISCHIO_PER_OPERAZIONE
 dimensione = rischio_euro / DISTANZA_USCITA
@@ -208,9 +224,11 @@ print(f"{t('rischio per op.', 'risk per trade'):>16s} "
       f"{t('10 perdite di fila', '10 losses in a row'):>20s} "
       f"{t('serve per tornare', 'needed to recover'):>19s} "
       f"{t('prob. di rovina', 'ruin prob.'):>17s}")
-for rischio in (0.005, 0.01, 0.02, 0.05, 0.10, 0.20):
+for rischio in (0.005, 0.01, 0.02, 0.05, 0.10, 0.20):  # PROVA / TRY: aggiungi il tuo rischio per operazione
     resta = (1 - rischio) ** 10
     recupero = 1 / resta - 1
+    # NON TOCCARE / DO NOT CHANGE: seme fissato riga per riga (uno per
+    # rischio) perché la probabilità di rovina stampata sia sempre la stessa.
     prob = rischio_di_rovina(VINCITE, RAPPORTO, rischio, operazioni=1000,
                              soglia=0.2, campioni=4000,
                              rng=np.random.default_rng(seed_for(f"rovina-{rischio}")))
@@ -236,8 +254,8 @@ print(t("\nDieci perdite consecutive, con un metodo che vince il 55% delle volte
 # > perfectly correlated.
 
 # %%
-POSIZIONI = 5
-RISCHIO_CIASCUNA = 0.02
+POSIZIONI = 5           # PROVA / TRY: il numero VERO delle tue posizioni aperte
+RISCHIO_CIASCUNA = 0.02  # PROVA / TRY: il rischio che assegni a ciascuna
 
 print(t(f"{POSIZIONI} posizioni al {RISCHIO_CIASCUNA:.0%} ciascuna\n",
         f"{POSIZIONI} positions at {RISCHIO_CIASCUNA:.0%} each\n"))

@@ -4,7 +4,7 @@
 
 *Leggi in [italiano](README.md).*
 
-<img src="assets/copertina.png" alt="La matematica di chi perde — Luigi Garone" width="260" align="right">
+<img src="assets/copertina-en.png" alt="La matematica di chi perde — Luigi Garone" width="260" align="right">
 
 The cover is a dataset too: two hundred accounts trading with no edge whatsoever, each paying its own costs. One hundred and forty-one end below their starting capital. The yellow curve is the best of the two hundred — not skilled, just lucky, and exactly the chart someone would show you.
 

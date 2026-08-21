@@ -21,7 +21,7 @@ EDIZIONE = "Prima edizione"
 
 #: Data in cui il manoscritto è stato congelato: da qui il testo non cambia più
 #: senza rieseguire `codice/manoscritto/congela.py` e dichiararne il motivo.
-DATA_FREEZE = "2026-08-20"
+DATA_FREEZE = "2026-08-21"
 
 #: Editore. Deciso il 2026-08-16: pubblicazione con un editore, non in
 #: autopubblicazione. Finché il contratto non c'è, il colophon lo dichiara.

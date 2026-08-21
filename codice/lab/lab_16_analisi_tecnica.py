@@ -35,6 +35,15 @@
 # > yardstick of chance, and the correction for the number of attempts.
 # > Nothing in here is trading advice. It's a way of asking the question.
 
+# %% [markdown]
+# Le righe marcate **PROVA** sono quelle da cambiare: cambiale e riesegui per
+# vedere l'effetto. Il resto — comprese le righe marcate **NON TOCCARE** —
+# serve a mantenere il risultato confrontabile con quello stampato nel libro.
+#
+# The lines marked **TRY** are the ones to change: edit them and rerun to see
+# the effect. Everything else — including lines marked **DO NOT CHANGE** —
+# exists to keep the result comparable with the one printed in the book.
+
 # %%
 # Setup — esegui questa cella per prima.
 # %pip install -q "polars>=1.0"
@@ -60,8 +69,9 @@ from cvbook.dati import carica
 from cvbook.metriche import drawdown_massimo
 from cvbook.regole import CATALOGO, compra_e_tieni, esegui, rottura
 
-SERIE = "btcusdt"   # ← "btcusdt", "ethusdt", "solusdt"
+SERIE = "btcusdt"   # ← PROVA / TRY: "ethusdt" · "solusdt" (le tre preparate nel setup)
 COSTO = 0.0012      # ← il tuo costo per operazione
+                    # PROVA / TRY: raddoppialo (vedi esercizio 1)
 
 prezzi = carica(SERIE).sort("data")["chiusura"].to_numpy()
 
@@ -146,7 +156,7 @@ print("\n«Quale regola e' migliore» dipende da quanto paghi. Chi pubblica un "
 # > is compatible with a real phenomenon. An isolated peak almost never is.
 
 # %%
-FINESTRE = np.arange(5, 121, 5)
+FINESTRE = np.arange(5, 121, 5)  # PROVA / TRY: allarga o restringi il passo
 griglia = np.array([esegui(prezzi, rottura(prezzi, int(f)), costo=COSTO)["finale"]
                     for f in FINESTRE])
 
@@ -173,7 +183,7 @@ print(f"mediana della griglia: {np.median(griglia):.2f}x")
 # > **EN** — *4. The second check: the yardstick of chance.*
 
 # %%
-N_CASUALI = 1000
+N_CASUALI = 1000  # PROVA / TRY: 200 (veloce) · 1000 · 10000 (percentile più preciso)
 SCELTA = 20
 
 

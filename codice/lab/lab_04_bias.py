@@ -30,6 +30,15 @@
 # > experiment the chapter describes: telling apart by eye a process with a
 # > real edge from one without. Almost nobody can.
 
+# %% [markdown]
+# Le righe marcate **PROVA** sono quelle da cambiare: cambiale e riesegui per
+# vedere l'effetto. Il resto — comprese le righe marcate **NON TOCCARE** —
+# serve a mantenere il risultato confrontabile con quello stampato nel libro.
+#
+# The lines marked **TRY** are the ones to change: edit them and rerun to see
+# the effect. Everything else — including lines marked **DO NOT CHANGE** —
+# exists to keep the result comparable with the one printed in the book.
+
 # %%
 # Setup — esegui questa cella per prima.
 # %pip install -q "polars>=1.0"
@@ -79,8 +88,10 @@ r = rendimenti(prezzi)
 
 # %%
 PRENDI_UTILE = 0.10   # ← chiudi quando sei in utile di questa percentuale
+                      # PROVA / TRY: 0,05 · 0,10 · 0,50 (vedi esercizi 1 e 2)
 SOPPORTA_PERDITA = 0.50  # ← resti dentro finche' la perdita non arriva a questa
-COSTO = 0.0012
+                         # PROVA / TRY: 0,10 · 0,50 · 0,70 (vedi esercizi 1 e 2)
+COSTO = 0.0012           # PROVA / TRY: 0,0006 · 0,0012 · 0,0025
 
 
 def con_soglie(p: np.ndarray, su: float, giu: float, costo: float) -> np.ndarray:
@@ -161,6 +172,9 @@ print(f"differenza: {nervoso[-1] / fermo[-1] - 1:+.1%}")
 # %%
 CURVATURA = 0.88
 AVVERSIONE = 2.25
+# NON TOCCARE / DO NOT CHANGE: sono i parametri stimati sperimentalmente dalla
+# teoria del prospetto (Kahneman e Tversky), non un valore a piacere — cambiarli
+# smetterebbe di rappresentare quella ricerca.
 
 importi = np.linspace(-10_000, 10_000, 400)
 # np.where valuta entrambi i rami: si eleva a potenza il valore assoluto e si
@@ -204,6 +218,9 @@ print("È il motivo per cui, dopo una perdita gia' grande, rischiare ancora "
 
 # %%
 rng = np.random.default_rng(seed_for("lab-bias-indovina"))
+# NON TOCCARE / DO NOT CHANGE: scrivi la tua risposta PRIMA di eseguire la
+# cella successiva. Cambiare il seme dopo aver sbagliato per ottenere un
+# disegno più facile vanificherebbe l'esercizio, non lo migliorerebbe.
 VANTAGGI = rng.permutation([0.0, 0.0, 0.0, 0.0005, 0.0005, 0.0])
 
 with avvio.figura("schermo"):

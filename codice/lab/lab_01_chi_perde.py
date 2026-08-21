@@ -41,6 +41,15 @@
 # > looked at directly, not hidden. Run the cells top to bottom. The first
 # > takes about twenty seconds, the rest are immediate.
 
+# %% [markdown]
+# Le righe marcate **PROVA** sono quelle da cambiare: cambiale e riesegui per
+# vedere l'effetto. Il resto — comprese le righe marcate **NON TOCCARE** —
+# serve a mantenere il risultato confrontabile con quello stampato nel libro.
+#
+# The lines marked **TRY** are the ones to change: edit them and rerun to see
+# the effect. Everything else — including lines marked **DO NOT CHANGE** —
+# exists to keep the result comparable with the one printed in the book.
+
 # %%
 # Setup — esegui questa cella per prima.
 # %pip install -q "polars>=1.0"
@@ -56,6 +65,9 @@ except ModuleNotFoundError:
     import avvio
 
 avvio.prepara(["btcusdt"])
+# PROVA / TRY: per usare un'altra serie aggiungila qui — le 11 disponibili
+# sono in codice/dati/registro.json: btcusdt · ethusdt · solusdt · lunausdt ·
+# fttusdt · ftsemib · eni · enel · intesa · generali · eurusd
 
 # %%
 import matplotlib.pyplot as plt
@@ -64,7 +76,7 @@ import numpy as np
 from cvbook.dati import carica, citazione
 from cvbook.metriche import drawdown_massimo
 
-df = carica("btcusdt").sort("data")
+df = carica("btcusdt").sort("data")  # ← PROVA / TRY: "ethusdt" · "solusdt" (vedi esercizio 3)
 prezzi = df["chiusura"].to_numpy()
 date = df["data"].to_list()
 fonte, estratto = citazione("btcusdt")
@@ -92,6 +104,7 @@ print(f"periodo: {date[0]} → {date[-1]}  ({len(prezzi)} giorni)")
 
 # %%
 ORIZZONTI = [(30, "1 mese"), (90, "3 mesi"), (365, "1 anno"), (730, "2 anni"), (1460, "4 anni")]
+# PROVA / TRY: aggiungi o cambia un orizzonte, es. (180, "6 mesi")
 
 
 def quota_in_perdita(p: np.ndarray, giorni: int) -> float:
@@ -159,7 +172,8 @@ for giorni, etichetta in ORIZZONTI:
 # > proves that *in this window* it didn't happen.
 
 # %%
-INIZIO, FINE = "2017-08-17", "2026-06-30"  # ← cambia queste due date
+INIZIO, FINE = "2017-08-17", "2026-06-30"
+# PROVA / TRY: FINE = "2022-12-31" · INIZIO = "2021-01-01" (vedi esercizi 1 e 2)
 
 import datetime as dt
 

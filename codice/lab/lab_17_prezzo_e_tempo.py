@@ -40,6 +40,15 @@
 # > segmentation recognizes an extreme **after** the reversal: it describes
 # > finished moves, it does not announce one beginning.
 
+# %% [markdown]
+# Le righe marcate **PROVA** sono quelle da cambiare: cambiale e riesegui per
+# vedere l'effetto. Il resto — comprese le righe marcate **NON TOCCARE** —
+# serve a mantenere il risultato confrontabile con quello stampato nel libro.
+#
+# The lines marked **TRY** are the ones to change: edit them and rerun to see
+# the effect. Everything else — including lines marked **DO NOT CHANGE** —
+# exists to keep the result comparable with the one printed in the book.
+
 # %%
 # Setup — esegui questa cella per prima.
 # %pip install -q "polars>=1.0"
@@ -70,8 +79,10 @@ from cvbook.ciclica import (
 )
 from cvbook.dati import carica
 
-SERIE = "btcusdt"   # ← "btcusdt", "ethusdt", "solusdt", "ftsemib", "eni", "enel", "intesa", "generali"
+SERIE = "btcusdt"   # ← PROVA / TRY: una delle 8 preparate nel setup qui sopra
+                    # (btcusdt · ethusdt · solusdt · ftsemib · eni · enel · intesa · generali)
 SOGLIA = 0.05       # ← quanto deve rientrare il prezzo perché un estremo sia definitivo
+                    # PROVA / TRY: 0,02 · 0,05 · 0,15 (vedi esercizio 1)
 CRIPTO = SERIE.endswith("usdt")
 
 df = carica(SERIE).sort("data")
@@ -249,7 +260,7 @@ print(f"eccesso                      {e['eccesso']:+.1%}")
 import datetime as dt
 
 date = df["data"].to_list()
-for spostamento in (-14, -7, 0, 7, 14):
+for spostamento in (-14, -7, 0, 7, 14):  # PROVA / TRY: aggiungi altri spostamenti (esercizio 3)
     finte = [g + dt.timedelta(days=spostamento) for g in date]
     e2 = effetto_scadenza(finte, volumi, cripto=CRIPTO)
     etichetta = "vera" if spostamento == 0 else f"{spostamento:+d} giorni"

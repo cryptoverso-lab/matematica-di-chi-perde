@@ -54,6 +54,15 @@
 # > gains are capital income, losses are "other income", and the two
 # > categories don't offset each other.
 
+# %% [markdown]
+# Le righe marcate **PROVA** sono quelle da cambiare: cambiale e riesegui per
+# vedere l'effetto. Il resto — comprese le righe marcate **NON TOCCARE** —
+# serve a mantenere il risultato confrontabile con quello stampato nel libro.
+#
+# The lines marked **TRY** are the ones to change: edit them and rerun to see
+# the effect. Everything else — including lines marked **DO NOT CHANGE** —
+# exists to keep the result comparable with the one printed in the book.
+
 # %%
 # Setup — esegui questa cella per prima.
 # %pip install -q "polars>=1.0"
@@ -79,8 +88,11 @@ from cvbook.lingua import t
 from cvbook.regole import esegui, rottura
 
 ALIQUOTA = 0.26        # ← l'aliquota che ti riguarda (0.33 sulle cripto dal 2026)
+                       # PROVA / TRY: 0,26 · 0,33 · quella in vigore quando leggi
 ANNI_RIPORTO = 4       # ← per quanti anni si possono riportare le perdite
+                       # PROVA / TRY: 0 (nessun riporto, vedi esercizio 3) · 4
 CAPITALE = 100_000.0   # ← il capitale di partenza
+                       # PROVA / TRY: il tuo capitale reale
 
 # %% [markdown]
 # ## 1. Non è l'aliquota, è il momento
@@ -184,6 +196,8 @@ def simula_imposta(rendimenti_annui, capitale=CAPITALE, aliquota=ALIQUOTA,
 
 # I risultati annuali di una regola meccanica su Bitcoin. Sostituiscili con i TUOI.
 # Annual results of a mechanical rule on Bitcoin. Replace them with YOUR OWN.
+# PROVA / TRY: sostituisci l'intero blocco RENDIMENTI_ANNUI qui sotto con le
+# tue coppie (anno, rendimento) — vedi l'esercizio 1
 df = carica("btcusdt").sort("data")
 prezzi = df["chiusura"].to_numpy()
 anni_serie = np.array([d.year for d in df["data"].to_list()])
@@ -259,6 +273,10 @@ print(t("\nNota il penultimo numero: l'aliquota effettiva puo' essere PIU' BASSA
 
 # %%
 rng = np.random.default_rng(20260816)
+# NON TOCCARE / DO NOT CHANGE: il seme fissa quali dei 2.000 rimescolamenti
+# vengono disegnati; l'istogramma e il minimo/mediana/massimo citati nel testo
+# restano quelli. Cambiare il seme non falsa la dimostrazione (qualunque
+# rimescolamento mostra lo stesso fenomeno), ma sposta i numeri esatti stampati.
 valori = [r for _, r in RENDIMENTI_ANNUI]
 anni_etichette = [a for a, _ in RENDIMENTI_ANNUI]
 

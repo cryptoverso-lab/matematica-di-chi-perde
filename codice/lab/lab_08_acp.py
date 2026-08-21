@@ -33,6 +33,15 @@
 # > second one: adding assets one at a time and watching the number **not
 # > move**. It's counterintuitive until you see it.
 
+# %% [markdown]
+# Le righe marcate **PROVA** sono quelle da cambiare: cambiale e riesegui per
+# vedere l'effetto. Il resto — comprese le righe marcate **NON TOCCARE** —
+# serve a mantenere il risultato confrontabile con quello stampato nel libro.
+#
+# The lines marked **TRY** are the ones to change: edit them and rerun to see
+# the effect. Everything else — including lines marked **DO NOT CHANGE** —
+# exists to keep the result comparable with the one printed in the book.
+
 # %%
 # Setup — esegui questa cella per prima.
 # %pip install -q "polars>=1.0"
@@ -89,6 +98,8 @@ def allinea(nomi: list[str], da: dt.date = dt.date(2020, 9, 1)) -> np.ndarray:
 
 # %%
 NOMI = ["btcusdt", "ethusdt", "solusdt"]
+# PROVA / TRY: togli "solusdt" (esercizio 1) · aggiungi "ftsemib"/"eni"
+# (aggiungili anche a avvio.prepara([...]))
 
 M = allinea(NOMI)
 C = np.corrcoef(M.T)
@@ -196,7 +207,7 @@ print("\nAggiungere asset dello stesso tipo non aggiunge dimensioni: aggiunge "
 # > several windows and see how stable they are.
 
 # %%
-FINESTRA = 250
+FINESTRA = 250  # PROVA / TRY: 60 (vedi esercizio 2) · 250
 prime = []
 for i in range(FINESTRA, len(M), 25):
     blocco = M[i - FINESTRA:i]

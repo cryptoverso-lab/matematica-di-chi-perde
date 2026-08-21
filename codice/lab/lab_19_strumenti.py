@@ -33,6 +33,15 @@
 # > one per test. Run them and then ask yourself, for each: *how long would
 # > this take me with the tool I use?*
 
+# %% [markdown]
+# Le righe marcate **PROVA** sono quelle da cambiare: cambiale e riesegui per
+# vedere l'effetto. Il resto — comprese le righe marcate **NON TOCCARE** —
+# serve a mantenere il risultato confrontabile con quello stampato nel libro.
+#
+# The lines marked **TRY** are the ones to change: edit them and rerun to see
+# the effect. Everything else — including lines marked **DO NOT CHANGE** —
+# exists to keep the result comparable with the one printed in the book.
+
 # %%
 # Setup — esegui questa cella per prima.
 # %pip install -q "polars>=1.0"
@@ -63,6 +72,8 @@ from cvbook.metriche import cagr, drawdown_massimo, rendimenti, sharpe, volatili
 from cvbook.simulazioni import bootstrap_traiettorie
 
 ASSET = ["btcusdt", "ethusdt", "solusdt", "lunausdt", "fttusdt"]
+# PROVA / TRY: aggiungi "ftsemib" · "eni" · "enel" · "intesa" · "generali" ·
+# "eurusd" (aggiungili anche a avvio.prepara([...]))
 
 # %% [markdown]
 # ## Prova 1 — La stessa metrica su tutti gli asset, in una tabella
@@ -122,6 +133,7 @@ print(f"\ntempo impiegato: {time.perf_counter() - inizio:.2f} secondi")
 r = rendimenti(carica("btcusdt").sort("data")["chiusura"].to_numpy())
 rng = np.random.default_rng(seed_for("lab-strumenti"))
 percorsi = bootstrap_traiettorie(r, n_traiettorie=2000, rng=rng, a_blocchi=20)
+# PROVA / TRY: n_traiettorie=500 (veloce) · 2000 · 10000 (coda più precisa)
 
 reale = float(np.prod(1 + r))
 finali = percorsi[:, -1]

@@ -27,6 +27,15 @@
 # > slogans drawn from that figure are the same statement — and neither is
 # > advice.
 
+# %% [markdown]
+# Le righe marcate **PROVA** sono quelle da cambiare: cambiale e riesegui per
+# vedere l'effetto. Il resto — comprese le righe marcate **NON TOCCARE** —
+# serve a mantenere il risultato confrontabile con quello stampato nel libro.
+#
+# The lines marked **TRY** are the ones to change: edit them and rerun to see
+# the effect. Everything else — including lines marked **DO NOT CHANGE** —
+# exists to keep the result comparable with the one printed in the book.
+
 # %%
 # Setup — esegui questa cella per prima.
 # %pip install -q "polars>=1.0"
@@ -50,7 +59,7 @@ import numpy as np
 from cvbook.dati import carica
 from cvbook.metriche import rendimenti
 
-SERIE = "btcusdt"  # ← prova anche "ethusdt" e "solusdt"
+SERIE = "btcusdt"  # ← PROVA / TRY: "ethusdt" · "solusdt" (le tre preparate nel setup)
 
 df = carica(SERIE).sort("data")
 prezzi = df["chiusura"].to_numpy()
@@ -145,7 +154,7 @@ def senza(indici_da_togliere: np.ndarray) -> float:
 base = float(np.prod(1 + r))
 print(f"tutti i {len(r)} giorni:            {base:9.2f}x\n")
 print(f"{'quanti giorni tolti':>22s} {'togliendo i peggiori':>22s} {'togliendo i migliori':>22s}")
-for quanti in (1, 5, 10, 20, 50):
+for quanti in (1, 5, 10, 20, 50):  # PROVA / TRY: aggiungi 100 (vedi esercizio 2)
     peggiori = senza(ordine[:quanti])
     migliori = senza(ordine[-quanti:])
     print(f"{quanti:>22d} {peggiori:21.2f}x {migliori:21.2f}x")

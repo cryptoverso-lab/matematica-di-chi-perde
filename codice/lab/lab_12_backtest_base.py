@@ -35,6 +35,15 @@
 # > percentile you're in. It's the piece of code I recommend reusing more
 # > than any other.
 
+# %% [markdown]
+# Le righe marcate **PROVA** sono quelle da cambiare: cambiale e riesegui per
+# vedere l'effetto. Il resto — comprese le righe marcate **NON TOCCARE** —
+# serve a mantenere il risultato confrontabile con quello stampato nel libro.
+#
+# The lines marked **TRY** are the ones to change: edit them and rerun to see
+# the effect. Everything else — including lines marked **DO NOT CHANGE** —
+# exists to keep the result comparable with the one printed in the book.
+
 # %%
 # Setup — esegui questa cella per prima.
 # %pip install -q "polars>=1.0"
@@ -60,9 +69,9 @@ from cvbook.dati import carica
 from cvbook.metriche import drawdown_massimo
 from cvbook.regole import compra_e_tieni, esegui, sopra_media
 
-SERIE = "btcusdt"
-FINESTRA = 50
-COSTO = 0.0012
+SERIE = "btcusdt"  # ← PROVA / TRY: "ethusdt" · "solusdt" (le tre preparate nel setup)
+FINESTRA = 50      # PROVA / TRY: 20 · 100 · 200 (vedi esercizio 1)
+COSTO = 0.0012     # PROVA / TRY: raddoppialo (vedi esercizio 2)
 
 prezzi = carica(SERIE).sort("data")["chiusura"].to_numpy()
 
@@ -91,6 +100,9 @@ segnale = np.nan_to_num(np.where(prezzi > media, 1.0, 0.0))
 # Passo 3 — LA RIGA CHE CONTA. La posizione di oggi usa il segnale di IERI.
 # Senza questo sfasamento staremmo decidendo con un'informazione che, al momento
 # della decisione, non esisteva ancora.
+# NON TOCCARE / DO NOT CHANGE: questo sfasamento è la causalità del backtest.
+# L'esercizio 3 ti invita a romperlo apposta per vedere il risultato
+# spettacolare e falso che ne esce — non per lasciarlo rotto dopo.
 posizione = np.zeros(len(prezzi))
 posizione[1:] = segnale[:-1]
 
@@ -124,7 +136,7 @@ print(f"\ncompra e tieni:       {riferimento['finale']:8.2f}x  "
 
 # %%
 completa = sopra_media(prezzi, FINESTRA)
-for taglio in (500, 1500, 2500):
+for taglio in (500, 1500, 2500):  # PROVA / TRY: aggiungi un altro punto di taglio
     parziale = sopra_media(prezzi[:taglio], FINESTRA)
     uguali = np.allclose(parziale, completa[:taglio])
     esito_test = "SI" if uguali else "NO, c'e' un lookahead"

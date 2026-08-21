@@ -37,6 +37,15 @@
 # > in Italian: it is a document meant to be rewritten with your own words,
 # > not a label to translate.
 
+# %% [markdown]
+# Le righe marcate **PROVA** sono quelle da cambiare: cambiale e riesegui per
+# vedere l'effetto. Il resto — comprese le righe marcate **NON TOCCARE** —
+# serve a mantenere il risultato confrontabile con quello stampato nel libro.
+#
+# The lines marked **TRY** are the ones to change: edit them and rerun to see
+# the effect. Everything else — including lines marked **DO NOT CHANGE** —
+# exists to keep the result comparable with the one printed in the book.
+
 # %%
 # Setup — esegui questa cella per prima.
 # %pip install -q "polars>=1.0"
@@ -67,6 +76,8 @@ from cvbook.lingua import t
 # > **EN** — *1. The seven items.*
 
 # %%
+# PROVA / TRY: l'intero dizionario qui sotto è da riscrivere con il TUO piano
+# — è il punto del quaderno, non un'eccezione alla regola.
 PIANO = {
     "perche_sono_qui": "far crescere una parte del patrimonio su un orizzonte di 10 anni",
     "capitale": 20_000.0,
@@ -198,6 +209,8 @@ print(t("(salvato in piano.txt)", "(saved to piano.txt)"))
 # > — is the one that matters, and must be written **before**.
 
 # %%
+# PROVA / TRY: sostituisci l'intero REGISTRO d'esempio con le tue ultime
+# operazioni reali — vedi l'esercizio 1
 REGISTRO = pl.DataFrame({
     "data_apertura": ["2026-01-08", "2026-01-22", "2026-02-11", "2026-03-03", "2026-03-19"],
     "data_chiusura": ["2026-01-12", "2026-02-28", "2026-02-13", "2026-04-30", "2026-03-24"],

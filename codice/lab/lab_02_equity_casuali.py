@@ -32,6 +32,15 @@
 # > in the notebook: plug in a result you've seen around and it tells you
 # > what percentage of random curves do better.
 
+# %% [markdown]
+# Le righe marcate **PROVA** sono quelle da cambiare: cambiale e riesegui per
+# vedere l'effetto. Il resto — comprese le righe marcate **NON TOCCARE** —
+# serve a mantenere il risultato confrontabile con quello stampato nel libro.
+#
+# The lines marked **TRY** are the ones to change: edit them and rerun to see
+# the effect. Everything else — including lines marked **DO NOT CHANGE** —
+# exists to keep the result comparable with the one printed in the book.
+
 # %%
 # Setup — esegui questa cella per prima.
 # %pip install -q "polars>=1.0"
@@ -70,10 +79,14 @@ from cvbook.simulazioni import equity_casuali, migliori_per_caso
 
 # %%
 GIORNI = 500          # ← due anni circa di operatività
+                      # PROVA / TRY: 125 (sei mesi) · 500 · 1000
 VOLATILITA = 0.018    # ← oscillazione tipica per operazione
+                      # PROVA / TRY: 0,01 · 0,018 · 0,04
 VANTAGGIO = 0.0       # ← lascialo a zero: è il punto
 
 rng = np.random.default_rng(seed_for("lab-equity-casuali"))
+# PROVA / TRY: cambia il nome dentro seed_for(...) per vedere altre dodici
+# curve — nessuna delle due versioni contiene più abilità dell'altra
 curve = equity_casuali(12, GIORNI, rendimento_atteso=VANTAGGIO,
                        volatilita_periodo=VOLATILITA, rng=rng)
 
@@ -109,8 +122,11 @@ with avvio.figura("schermo"):
 # > generate a thousand attempts and show the five best.
 
 # %%
-N = 1000
+N = 1000  # PROVA / TRY: 200 (veloce) · 1000 · 10000 (il numero del capitolo si stabilizza)
 rng = np.random.default_rng(seed_for("migliori-per-caso"))
+# NON TOCCARE / DO NOT CHANGE: questa cella mostra le 5 migliori su 1000
+# tentativi senza vantaggio — è la messa in scena del p-hacking, non
+# l'occasione per cercare un seme che renda le 5 migliori ancora più belle.
 tutte = equity_casuali(N, GIORNI, rendimento_atteso=VANTAGGIO,
                        volatilita_periodo=VOLATILITA, rng=rng)
 migliori = migliori_per_caso(tutte, 5)
@@ -163,8 +179,11 @@ print(f"quota sopra 2x CON calo massimo sotto il 20%: "
 
 # %%
 RISULTATO_DICHIARATO = 2.5   # ← capitale finale dichiarato, in volte (2,5 = +150%)
+                             # PROVA / TRY: il risultato che ti ha colpito davvero
 DURATA_GIORNI = 500          # ← su quanti giorni di operatività
+                             # PROVA / TRY: 125 (vedi esercizio 1) · 500
 VOLATILITA_TIPICA = 0.018    # ← oscillazione per operazione, se la conosci
+                             # PROVA / TRY: 0,018 · 0,04 (vedi esercizio 2)
 
 rng = np.random.default_rng(seed_for("confronto-personale"))
 prova = equity_casuali(5000, DURATA_GIORNI, rendimento_atteso=0.0,

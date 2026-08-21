@@ -35,6 +35,15 @@
 # > sense**, optimize it, and look at what a nice in-sample result you get.
 # > Then look out of sample.
 
+# %% [markdown]
+# Le righe marcate **PROVA** sono quelle da cambiare: cambiale e riesegui per
+# vedere l'effetto. Il resto — comprese le righe marcate **NON TOCCARE** —
+# serve a mantenere il risultato confrontabile con quello stampato nel libro.
+#
+# The lines marked **TRY** are the ones to change: edit them and rerun to see
+# the effect. Everything else — including lines marked **DO NOT CHANGE** —
+# exists to keep the result comparable with the one printed in the book.
+
 # %%
 # Setup — esegui questa cella per prima.
 # %pip install -q "polars>=1.0"
@@ -60,9 +69,9 @@ from cvbook.dati import carica
 from cvbook.metriche import drawdown_massimo
 from cvbook.regole import compra_e_tieni, esegui, sopra_media
 
-SERIE = "btcusdt"     # ← prova anche gli altri
-FINESTRE = np.arange(5, 121, 5)
-COSTO = 0.0012
+SERIE = "btcusdt"     # ← PROVA / TRY: "ethusdt" · "solusdt" (esercizio 1)
+FINESTRE = np.arange(5, 121, 5)  # PROVA / TRY: allarga o restringi il passo
+COSTO = 0.0012                   # PROVA / TRY: 0,0006 · 0,0012 · 0,0025
 
 df = carica(SERIE).sort("data")
 prezzi = df["chiusura"].to_numpy()

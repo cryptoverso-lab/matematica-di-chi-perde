@@ -30,6 +30,15 @@
 # > it takes to break even, what volatility costs compounded capital, and what
 # > happens once you add leverage.
 
+# %% [markdown]
+# Le righe marcate **PROVA** sono quelle da cambiare: cambiale e riesegui per
+# vedere l'effetto. Il resto — comprese le righe marcate **NON TOCCARE** —
+# serve a mantenere il risultato confrontabile con quello stampato nel libro.
+#
+# The lines marked **TRY** are the ones to change: edit them and rerun to see
+# the effect. Everything else — including lines marked **DO NOT CHANGE** —
+# exists to keep the result comparable with the one printed in the book.
+
 # %%
 # Setup — esegui questa cella per prima.
 # %pip install -q "polars>=1.0"
@@ -66,6 +75,8 @@ from cvbook.metriche import drawdown_massimo, equity, recupero_necessario, rendi
 
 # %%
 PERDITA = 0.50  # ← la perdita subita, in frazione: 0,50 vuol dire meno 50%
+                # PROVA / TRY: qualunque valore fra 0,01 e 0,99 · guarda cosa
+                # succede vicino a 0,90 (dove la curva diventa quasi verticale)
 
 recupero = recupero_necessario(PERDITA)
 print(t("perdita subita:        ", "loss taken:             ") + f"{PERDITA:6.1%}")
@@ -124,9 +135,14 @@ with avvio.figura("schermo"):
 
 # %%
 MEDIA_GIORNALIERA = 0.0010  # ← rendimento medio per giorno
-GIORNI = 1000
+                            # PROVA / TRY: 0,0005 · 0,0010 · 0,0020 — il freno
+                            # dipende dalla volatilità, non da questo valore
+GIORNI = 1000               # PROVA / TRY: 250 (un anno) · 1000 · 3000
 
 rng = np.random.default_rng(20260816)
+# NON TOCCARE / DO NOT CHANGE: il seme è fisso perché la tabella qui sotto è
+# commentata nel testo con questi numeri esatti; cambiarlo dopo aver visto il
+# risultato è il p-hacking che il libro smonta altrove.
 
 print(f"{t('volatilita/giorno', 'volatility/day'):>18s} "
       f"{t('media aritm.', 'arith. mean'):>14s} "
@@ -165,6 +181,10 @@ for vol in (0.005, 0.01, 0.02, 0.035, 0.05):
 
 # %%
 df = carica("btcusdt").sort("data")
+# PROVA / TRY: per usare un'altra serie aggiungila anche alla cella di setup
+# (avvio.prepara([...])) — le 11 disponibili sono in codice/dati/registro.json:
+# btcusdt · ethusdt · solusdt · lunausdt · fttusdt · ftsemib · eni · enel ·
+# intesa · generali · eurusd
 r_reali = rendimenti(df["chiusura"].to_numpy())
 
 
@@ -186,7 +206,7 @@ def curva_con_leva(rend: np.ndarray, k: float) -> np.ndarray:
 
 print(f"{t('leva', 'leverage'):>5s} {t('capitale finale', 'final capital'):>16s} "
       f"{t('calo massimo', 'max drawdown'):>14s} {t('azzerato il', 'wiped out on'):>14s}")
-for k in (1, 2, 3, 5, 10):
+for k in (1, 2, 3, 5, 10):  # PROVA / TRY: aggiungi 4 o 6, come suggerito negli esercizi
     curva = curva_con_leva(r_reali, k)
     azzerata = np.argmax(curva <= 0.0) if np.any(curva <= 0.0) else None
     quando = str(df["data"][int(azzerata)]) if azzerata is not None else "—"
