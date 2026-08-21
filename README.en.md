@@ -132,7 +132,9 @@ codice/
 ├── ingest/         how the snapshots were built
 └── testing/        the gate that runs all 29 notebooks
 assets/             logo and graphic assets
+.github/workflows/  CI: runs the notebooks and publishes their output to the site
 ERRATA.md           errors found after printing
+CONSEGNA-QUADERNI.md  what must be true for Colab and the downloads to work (Italian)
 ```
 
 Every notebook exists **twice**, as `.ipynb` and as `.py`. This is not duplication: the percent-format `.py` is the version you read in a review, because a diff on notebook JSON is unreadable. The two formats are kept in sync by `codice/lab/costruisci.py`.

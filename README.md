@@ -132,10 +132,14 @@ codice/
 ├── ingest/         come sono stati costruiti gli snapshot
 └── testing/        il gate che esegue i 29 quaderni da cima a fondo
 assets/             logo e asset grafici
+.github/workflows/  la CI: esegue i quaderni e pubblica gli output sul sito
 ERRATA.md           errori trovati dopo la stampa
+CONSEGNA-QUADERNI.md  le condizioni perché Colab e i download funzionino
 ```
 
 Ogni quaderno esiste **due volte**, in `.ipynb` e in `.py`. Non è una duplicazione: il `.py` in formato percent è la versione che si legge in una revisione, perché un diff su un notebook JSON non si legge. I due formati sono tenuti allineati da `codice/lab/costruisci.py`.
+
+Chi pubblica o mantiene questo repository legge prima **[CONSEGNA-QUADERNI.md](CONSEGNA-QUADERNI.md)**: ci sono scritte le condizioni che stanno *fuori* dal codice e che nessun test può rendere verdi — la visibilità pubblica del repository (senza la quale saltano i collegamenti Colab, i download e la prima cella di ogni quaderno), i segreti che servono alla CI, e le variabili che il sito legge.
 
 ---
 
