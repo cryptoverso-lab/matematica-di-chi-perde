@@ -4,6 +4,10 @@
 
 *Leggi in [italiano](README.md).*
 
+<img src="assets/copertina.png" alt="La matematica di chi perde — Luigi Garone" width="260" align="right">
+
+The cover is a dataset too: two hundred accounts trading with no edge whatsoever, each paying its own costs. One hundred and forty-one end below their starting capital. The yellow curve is the best of the two hundred — not skilled, just lucky, and exactly the chart someone would show you.
+
 This repository contains **all the code behind the book** «La matematica di chi perde» (Luigi Garone): the 21 labs, the 8 calculators, the `cvbook` computation engine, the generators of the 43 printed figures, and the frozen data snapshots everything runs on.
 
 The book does not ask to be taken on faith. Every claim in it comes from a computation, every computation lives in this repository, and every figure can be reproduced by running the code on the **frozen data** the book used to print it. If a number doesn't convince you, open it and challenge it.

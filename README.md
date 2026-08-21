@@ -4,6 +4,10 @@
 
 *Read this in [English](README.en.md).*
 
+<img src="assets/copertina.png" alt="La matematica di chi perde — Luigi Garone" width="260" align="right">
+
+Anche quella copertina è un dato: duecento conti che operano senza alcun vantaggio, ciascuno pagando i propri costi. Centoquarantuno chiudono sotto il capitale iniziale. La curva gialla è la migliore delle duecento — non è brava, è fortunata, ed è esattamente il grafico che ti farebbero vedere.
+
 Questo repository contiene **tutto il codice del libro**: i 21 laboratori, gli 8 calcolatori, il motore di calcolo `cvbook`, i generatori delle 43 figure stampate e gli snapshot dei dati su cui tutto gira.
 
 Il libro non chiede di essere creduto sulla parola. Ogni affermazione del volume nasce da un calcolo, ogni calcolo è qui dentro, e ogni figura si riproduce eseguendo il codice sui **dati congelati** che il libro ha usato per stamparla. Se un numero non ti convince, aprilo e contestalo.
