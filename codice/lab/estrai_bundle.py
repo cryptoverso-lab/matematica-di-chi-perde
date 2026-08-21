@@ -170,6 +170,16 @@ def main() -> None:
         "{{TITOLO_LIBRO}}, "
         f"{sum(e.formule for e in estrazioni)} formule"
     )
+    # Le code inglesi si dichiarano: sono la meta' del contenuto delle celle
+    # markdown, e fino al piano 04-10 finivano dentro `it.json`. Un numero
+    # stampato e' cio' che distingue «tolte» da «non c'erano».
+    print(
+        f"  bilingui: {sum(e.code_inglesi for e in estrazioni)} code inglesi "
+        f"tolte dall'italiano, di cui "
+        f"{sum(e.code_inglesi_nude for e in estrazioni)} senza marcatore; "
+        f"{sum(e.prosa_solo_inglese for e in estrazioni)} celle tutte inglesi, "
+        "senza un blocco italiano"
+    )
     # Cio' che e' stato ESEGUITO si dichiara a parte: e' la riga che distingue
     # un bundle letto da un bundle prodotto da una macchina che ha eseguito i
     # quaderni, e senza di lei i due sarebbero indistinguibili a schermo.

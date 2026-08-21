@@ -36,12 +36,27 @@ from .prosa import ProsaSconosciuta, converti, titolo_e_corpo
 #: `plt.show()` tolto, una cella commentata — non produrrebbe nessun errore,
 #: produrrebbe una pagina con un grafico in meno. Che nessuno nota, finche' non
 #: e' il proprio.
+#: `code_inglesi` vale 221 e dice una cosa sola: **ogni** cella markdown del
+#: corpus e' bilingue, nessuna esclusa. E' il conteggio che rende sicura la
+#: divisione fatta da `prosa.separa_lingue`: se un giorno una cella non venisse
+#: riconosciuta, il numero scenderebbe invece di lasciare l'inglese dentro la
+#: pagina italiana — che e' precisamente il difetto silenzioso da cui la
+#: divisione nasce. `code_inglesi_nude` conta il ramo fragile, quello
+#: riconosciuto dall'impronta e non dal marcatore: 29, una per lab, ed e' la
+#: sola cella del corpus che non dichiara la propria coda.
+#: `prosa_solo_inglese` vale 1: `lab_21_ai.py` cella 17 e' tutta inglese perche'
+#: traduce cio' che la cella di codice prima di lei STAMPA. Non produce un
+#: blocco italiano, ed e' corretto — ma e' un'eccezione, e un'eccezione contata
+#: e' un'eccezione che non puo' diventare due senza che nessuno lo veda.
 ATTESI = {
     "sorgenti": 29,
     "magic": 29,
     "raw_base": 29,
     "titolo": 29,
     "figure": 40,
+    "code_inglesi": 221,
+    "code_inglesi_nude": 29,
+    "prosa_solo_inglese": 1,
 }
 
 
@@ -59,6 +74,9 @@ class Estrazione:
     sostituzioni_titolo: int
     formule: int
     figure: int = 0
+    code_inglesi: int = 0
+    code_inglesi_nude: int = 0
+    prosa_solo_inglese: int = 0
 
 
 def estrai_dal_sorgente(
@@ -99,6 +117,9 @@ def estrai_dal_sorgente(
     sostituzioni_titolo = 0
     formule = 0
     figure = 0
+    code_inglesi = 0
+    code_inglesi_nude = 0
+    prosa_solo_inglese = 0
     ordinali_figura: dict[str, int] = {}
     titolo: str | None = None
 
@@ -132,6 +153,17 @@ def estrai_dal_sorgente(
             vieta_riferimenti_al_repository(resa.html, cella.dove, "la prosa della cella")
             sostituzioni_titolo += resa.sostituzioni_titolo
             formule += resa.formule
+            code_inglesi += 1 if resa.coda_inglese else 0
+            code_inglesi_nude += 1 if resa.coda_senza_marcatore else 0
+            if resa.html == "":
+                # La cella era TUTTA inglese: in italiano non ha niente da
+                # dire, e un blocco vuoto in pagina sarebbe peggio della sua
+                # assenza. L'ordinale e' gia' stato consumato sopra, quindi
+                # gli identificativi delle celle successive NON scorrono: il
+                # bundle salta un `p`, e chi confronta due edizioni continua
+                # a leggere lo stesso blocco sotto lo stesso nome (D-13).
+                prosa_solo_inglese += 1
+                continue
             blocchi.append({"id": chiave, "tipo": "prosa", "impronta": impronta})
             prosa[chiave] = {"testo": resa.html, "daImpronta": impronta}
             continue
@@ -180,6 +212,9 @@ def estrai_dal_sorgente(
         sostituzioni_titolo=sostituzioni_titolo,
         formule=formule,
         figure=figure,
+        code_inglesi=code_inglesi,
+        code_inglesi_nude=code_inglesi_nude,
+        prosa_solo_inglese=prosa_solo_inglese,
     )
 
 
@@ -196,6 +231,9 @@ def verifica_conteggi(estrazioni: list[Estrazione], problemi: list[str]) -> None
         "raw_base": sum(e.sostituzioni_raw for e in estrazioni),
         "titolo": sum(e.sostituzioni_titolo for e in estrazioni),
         "figure": sum(e.figure for e in estrazioni),
+        "code_inglesi": sum(e.code_inglesi for e in estrazioni),
+        "code_inglesi_nude": sum(e.code_inglesi_nude for e in estrazioni),
+        "prosa_solo_inglese": sum(e.prosa_solo_inglese for e in estrazioni),
     }
     for nome, atteso in ATTESI.items():
         if nome == "sorgenti":

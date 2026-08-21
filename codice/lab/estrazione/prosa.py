@@ -38,6 +38,14 @@ sito, non per la prosa del bundle, dove il grassetto e' una scelta di chi
 scrive.
 
 IL CODICE NON PASSA DI QUI, e non si traduce (D-12).
+
+LE CELLE SONO BILINGUI, E LA CELLA SI DIVIDE PRIMA DI ESSERE CONVERTITA. Ogni
+cella markdown del corpus porta il proprio testo inglese in coda: 221 celle su
+221, misurate. Fino al piano 04-10 la coda finiva dentro `it.json` insieme
+all'italiano, e la conseguenza era una pagina italiana con un blocco inglese
+sotto ogni capoverso — non un difetto di resa del sito, ma una divisione che
+non aveva fatto nessuno. `separa_lingue` la fa, e le forme che riconosce sono
+DUE perche' due sono quelle misurate: vedi la sua docstring.
 """
 
 from __future__ import annotations
@@ -47,6 +55,8 @@ import re
 from dataclasses import dataclass, field
 
 from cvbook.edizione import TITOLO
+
+from .comune import impronta_breve
 
 
 class ProsaSconosciuta(Exception):
@@ -61,6 +71,15 @@ class Resa:
     sostituzioni_titolo: int = 0
     formule: int = 0
     testi_formula: list[str] = field(default_factory=list)
+    #: La coda inglese della cella, in markdown e NON convertita. Oggi serve a
+    #: contarla — e' cio' che tiene pinnato «tutte le celle sono bilingui» — e
+    #: a dimostrare che e' stata tolta dall'italiano. Non viene resa in HTML di
+    #: proposito: convertirla significherebbe far fallire l'ingest su un
+    #: costrutto inglese che oggi nessuna pagina pubblica.
+    coda_inglese: str = ""
+    #: `True` quando la coda e' stata riconosciuta dall'impronta e non dal
+    #: marcatore: e' il ramo fragile, e va contato a parte.
+    coda_senza_marcatore: bool = False
 
 
 #: Le forme che fanno fermare l'ingest, con la ragione gia' scritta accanto:
@@ -322,9 +341,96 @@ def titolo_e_corpo(sorgente: str, dove: str) -> tuple[str | None, str]:
     return None, sorgente
 
 
+#: La citazione che apre la coda inglese: `> **EN** —`. Il trattino e' quello
+#: lungo nel corpus, ma la classe accetta anche il breve e il medio: un giorno
+#: qualcuno scrivera' l'uno per l'altro, e non e' quello il motivo per cui una
+#: pagina italiana deve pubblicare l'inglese.
+CITAZIONE_EN_RE = re.compile(r"^[ ]*\*\*EN\*\*[ ]*[—–-][ ]*", re.M)
+CITAZIONE_RE = re.compile(r"^\s*>[ ]?")
+
+#: L'UNICA cella bilingue del corpus SENZA marcatore, pinnata per IMPRONTA e
+#: non per testo: e' la cella di istruzioni «PROVA / TRY», identica in tutti e
+#: 29 i sorgenti — misurata, una sola impronta per 29 occorrenze, ed e' la
+#: stessa che il bundle pubblica come `daImpronta` di `p02`.
+#:
+#: Pinnare l'impronta invece della frase e' cio' che rende sicuro il ramo che
+#: NON ha un marcatore da cercare. Senza, l'unica regola disponibile sarebbe
+#: «l'ultimo capoverso e' inglese», che su una cella qualunque e' un'ipotesi:
+#: applicata al capoverso sbagliato cancellerebbe prosa italiana dal bundle.
+#: Con l'impronta, la regola vale per un testo di cui si sa gia' tutto, e il
+#: giorno in cui quel testo cambia la cella smette di essere riconosciuta e il
+#: conteggio pinnato di `sorgente.ATTESI` diventa rosso.
+CELLA_BILINGUE_SENZA_MARCATORE = "829dca82a024"
+
+
+def separa_lingue(sorgente: str, dove: str) -> tuple[str, str, bool]:
+    """L'italiano e l'inglese di una cella bilingue. Torna `(it, en, nuda)`.
+
+    I 29 sorgenti sono gia' bilingui, e nessuno se n'era accorto fino al piano
+    04-09: ogni cella markdown porta il proprio testo inglese in coda. Le forme
+    sono DUE, e sono state contate su tutto il corpus prima di scrivere questa
+    funzione — perche' un convertitore che ne conoscesse una sola lascerebbe
+    l'inglese dentro l'italiano proprio nella cella che spiega al lettore quali
+    righe puo' toccare:
+
+    | Forma | Quante | Come si riconosce |
+    |---|---|---|
+    | una riga `---` seguita SOLO da `> **EN** — …` | 192 | dal marcatore |
+    | la cella «PROVA / TRY», due capoversi senza separatore | 29 | dall'impronta |
+    | monolingue | 0 | — |
+
+    Misurato anche cio' che rende sicura la prima forma: ogni cella markdown del
+    corpus contiene **zero o una** riga `---`, e in tutte e 192 quelle che ne
+    hanno una la coda che segue e' fatta di sole righe di citazione. Un `---`
+    che fosse una riga di separazione vera resta quindi tale: si riconosce
+    perche' cio' che lo segue non e' la citazione, e la cella torna intera.
+    """
+    righe = sorgente.split("\n")
+    tagli = [i for i, riga in enumerate(righe) if SEPARAZIONE_RE.match(riga.strip())]
+    if tagli:
+        taglio = tagli[-1]
+        coda = [riga for riga in righe[taglio + 1 :] if riga.strip()]
+        e_citazione = bool(coda) and all(riga.lstrip().startswith(">") for riga in coda)
+        spogliata = "\n".join(CITAZIONE_RE.sub("", riga) for riga in coda)
+        if e_citazione and CITAZIONE_EN_RE.match(spogliata):
+            italiano = "\n".join(righe[:taglio]).strip("\n")
+            inglese = CITAZIONE_EN_RE.sub("", spogliata, count=1).strip("\n")
+            return italiano, inglese, False
+        return sorgente, "", False
+
+    if impronta_breve(sorgente) == CELLA_BILINGUE_SENZA_MARCATORE:
+        capoversi = [pezzo for pezzo in re.split(r"\n[ \t]*\n", sorgente) if pezzo.strip()]
+        if len(capoversi) != 2:
+            _fallisci(
+                dove,
+                "la cella bilingue senza marcatore non ha due capoversi: "
+                "l'impronta la riconosce ma la forma non e' quella misurata",
+            )
+        return capoversi[0].strip("\n"), capoversi[1].strip("\n"), True
+
+    return sorgente, "", False
+
+
 def converti(sorgente: str, dove: str) -> Resa:
-    """L'HTML di una cella markdown, con i conteggi che il chiamante pinna."""
+    """L'HTML di una cella markdown, con i conteggi che il chiamante pinna.
+
+    LA CELLA SI DIVIDE PRIMA DI ESSERE CONVERTITA: cio' che entra in `it.json`
+    e' il solo ramo italiano. La coda inglese esce da `Resa.coda_inglese`, in
+    markdown, e non viene convertita — vedi il campo.
+
+    UNA CELLA PUO' ESSERE TUTTA INGLESE, e allora `html` esce vuoto. Nel corpus
+    ce n'e' UNA (`lab_21_ai.py`, cella 17): traduce cio' che la cella di codice
+    prima di lei STAMPA, quindi in italiano quel testo esiste gia' — dentro un
+    output, non dentro un capoverso. Il ramo italiano e' legittimamente vuoto, e
+    tocca al chiamante contarlo: e' `sorgente.ATTESI['prosa_solo_inglese']`, che
+    vale 1 e diventa rosso se ne comparisse una seconda.
+    """
     resa = Resa(html="")
+    sorgente, resa.coda_inglese, resa.coda_senza_marcatore = separa_lingue(sorgente, dove)
+    if sorgente.strip() == "":
+        if resa.coda_inglese == "":
+            _fallisci(dove, "una cella markdown vuota")
+        return resa
     conteggio = sorgente.count(TITOLO)
     testo = sorgente.replace(TITOLO, "{{TITOLO_LIBRO}}") if conteggio else sorgente
     resa.sostituzioni_titolo = conteggio

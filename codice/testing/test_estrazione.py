@@ -239,14 +239,22 @@ def test_il_corpus_intero_si_converte_senza_costrutti_sconosciuti() -> None:
     ereditato invece che rimisurato sarebbe stato verde su un corpus che non
     esiste piu'.
     """
-    celle = titoli = formule = 0
+    celle = titoli = formule = solo_inglese = 0
     for percorso in _sorgenti():
         estrazione = estrai_dal_sorgente(percorso)
         celle += sum(1 for blocco in estrazione.blocchi if blocco["tipo"] == "prosa")
         titoli += estrazione.sostituzioni_titolo
         formule += estrazione.formule
+        solo_inglese += estrazione.prosa_solo_inglese
 
-    assert celle == 221, "celle di prosa convertite"
+    # 220 e non 221 dal piano 04-10, e la differenza e' UNA cella dichiarata:
+    # `lab_21_ai.py` cella 17 e' tutta inglese — traduce cio' che la cella di
+    # codice prima di lei stampa — quindi in italiano non produce un blocco.
+    # Il conteggio non e' stato abbassato per far passare il test: la somma dei
+    # due numeri e' ancora 221, ed e' asserita.
+    assert celle == 220, "celle di prosa convertite"
+    assert solo_inglese == ATTESI["prosa_solo_inglese"], "celle tutte inglesi"
+    assert celle + solo_inglese == 221, "celle markdown del corpus"
     assert titoli == ATTESI["titolo"], (
         "il titolo del libro compare una volta per file: un'occorrenza in piu' "
         "o in meno va guardata prima che finisca in 58 file del bundle (D-64)"
