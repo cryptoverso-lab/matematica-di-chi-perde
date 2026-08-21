@@ -190,6 +190,8 @@ def sequenze(maschera: np.ndarray) -> np.ndarray:
 rng = np.random.default_rng(20260816)
 # NON TOCCARE / DO NOT CHANGE: il seme fissa i numeri di episodi/mediana/il
 # più lungo citati nel testo qui sotto e riusati nella cella 5.
+# The seed fixes the episode/median/longest numbers quoted in the text below
+# and reused in cell 5.
 vere = sequenze(alto)
 finte = sequenze(rng.random(len(alto)) < base)
 

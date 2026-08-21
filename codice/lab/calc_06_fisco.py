@@ -277,6 +277,10 @@ rng = np.random.default_rng(20260816)
 # vengono disegnati; l'istogramma e il minimo/mediana/massimo citati nel testo
 # restano quelli. Cambiare il seme non falsa la dimostrazione (qualunque
 # rimescolamento mostra lo stesso fenomeno), ma sposta i numeri esatti stampati.
+# The seed fixes which of the 2,000 shuffles get drawn; the histogram and the
+# min/median/max quoted in the text stay those. Changing the seed doesn't
+# invalidate the demonstration (any shuffle shows the same phenomenon), but
+# it shifts the exact printed numbers.
 valori = [r for _, r in RENDIMENTI_ANNUI]
 anni_etichette = [a for a, _ in RENDIMENTI_ANNUI]
 

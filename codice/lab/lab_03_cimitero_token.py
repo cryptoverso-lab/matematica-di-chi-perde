@@ -162,6 +162,9 @@ MORTI = ["lunausdt", "fttusdt"]
 # NON TOCCARE / DO NOT CHANGE: MORTI deve restare com'è — sono gli unici due
 # token defunti congelati nel registro dati; la dimostrazione è proprio che
 # le fonti comode non li avrebbero mai lasciati scegliere (vedi esercizio 3)
+# MORTI must stay as it is — these are the only two dead tokens frozen in the
+# data registry; the whole demonstration is that convenient sources would
+# never have let you choose them (see exercise 3)
 
 
 def curva_paniere(nomi: list[str]) -> tuple[list, np.ndarray]:

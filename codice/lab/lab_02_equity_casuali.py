@@ -127,6 +127,9 @@ rng = np.random.default_rng(seed_for("migliori-per-caso"))
 # NON TOCCARE / DO NOT CHANGE: questa cella mostra le 5 migliori su 1000
 # tentativi senza vantaggio — è la messa in scena del p-hacking, non
 # l'occasione per cercare un seme che renda le 5 migliori ancora più belle.
+# This cell shows the 5 best out of 1000 attempts with no edge — it's the
+# staging of p-hacking, not a chance to hunt for a seed that makes the 5
+# best look even more impressive.
 tutte = equity_casuali(N, GIORNI, rendimento_atteso=VANTAGGIO,
                        volatilita_periodo=VOLATILITA, rng=rng)
 migliori = migliori_per_caso(tutte, 5)

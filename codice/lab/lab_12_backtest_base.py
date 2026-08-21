@@ -103,6 +103,9 @@ segnale = np.nan_to_num(np.where(prezzi > media, 1.0, 0.0))
 # NON TOCCARE / DO NOT CHANGE: questo sfasamento è la causalità del backtest.
 # L'esercizio 3 ti invita a romperlo apposta per vedere il risultato
 # spettacolare e falso che ne esce — non per lasciarlo rotto dopo.
+# This lag is the backtest's causality. Exercise 3 invites you to break it on
+# purpose to see the spectacular, fake result that comes out — not to leave
+# it broken afterwards.
 posizione = np.zeros(len(prezzi))
 posizione[1:] = segnale[:-1]
 

@@ -111,6 +111,8 @@ DISPONIBILI = 400     # <- quante condizioni ci sono nel cassetto
 COSTO = 0.0
 # NON TOCCARE / DO NOT CHANGE: deve restare zero qui — è la cella 2 che
 # rimette i costi per isolare il secondo effetto, non questa.
+# It must stay zero here — it's cell 2 that puts costs back in to isolate
+# the second effect, not this one.
 
 
 def risultato(rend: np.ndarray, posizione: np.ndarray, costo: float = COSTO) -> float:

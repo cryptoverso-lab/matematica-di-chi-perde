@@ -142,6 +142,8 @@ rng = np.random.default_rng(seed_for("lab-vero-o-finto"))
 # NON TOCCARE / DO NOT CHANGE: scrivi la tua risposta PRIMA di eseguire la
 # cella con la soluzione. Cambiare il seme per "azzeccarci di più" vanifica
 # l'esercizio invece di misurarlo.
+# Write down your answer BEFORE running the cell with the solution. Changing
+# the seed to "get it more right" defeats the exercise instead of measuring it.
 FINESTRA = 400  # PROVA / TRY: 400 · 1200 (vedi esercizio 2)
 
 sigma = float(np.std(r, ddof=1))

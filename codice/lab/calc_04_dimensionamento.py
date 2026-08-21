@@ -95,6 +95,9 @@ rng = np.random.default_rng(seed_for("calc-dimensionamento"))
 # NON TOCCARE / DO NOT CHANGE: il seme fissa i numeri citati nel testo qui
 # sotto (la frazione ottimale simulata, le probabilità di rovina) — cambiarlo
 # dopo aver visto il risultato è il p-hacking che il libro smonta altrove.
+# The seed fixes the numbers quoted in the text below (the simulated optimal
+# fraction, the ruin probabilities) — changing it after seeing the result is
+# the p-hacking the book takes apart elsewhere.
 esiti = rng.random((PERCORSI, OPERAZIONI)) < VINCITE
 
 mediane, rovine = [], []
@@ -229,6 +232,8 @@ for rischio in (0.005, 0.01, 0.02, 0.05, 0.10, 0.20):  # PROVA / TRY: aggiungi i
     recupero = 1 / resta - 1
     # NON TOCCARE / DO NOT CHANGE: seme fissato riga per riga (uno per
     # rischio) perché la probabilità di rovina stampata sia sempre la stessa.
+    # Seed fixed row by row (one per risk level) so the printed ruin
+    # probability is always the same.
     prob = rischio_di_rovina(VINCITE, RAPPORTO, rischio, operazioni=1000,
                              soglia=0.2, campioni=4000,
                              rng=np.random.default_rng(seed_for(f"rovina-{rischio}")))

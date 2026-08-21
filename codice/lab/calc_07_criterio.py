@@ -199,6 +199,9 @@ rng = np.random.default_rng(seed_for("calc-criterio"))
 # NON TOCCARE / DO NOT CHANGE: il seme fissa l'istogramma e la percentuale
 # citati nel testo; con N_PROVE già a 20.000 il seme conta pochissimo, ma la
 # regola resta la stessa di tutto il libro: non si cambia dopo aver visto il numero.
+# The seed fixes the histogram and the percentage quoted in the text; with
+# N_PROVE already at 20,000 the seed barely matters, but the rule stays the
+# same as the rest of the book: you don't change it after seeing the number.
 
 n = PROPOSTA["numero_operazioni"]
 vinte = int(round(PROPOSTA["quota_vincenti"] * n))

@@ -175,6 +175,9 @@ AVVERSIONE = 2.25
 # NON TOCCARE / DO NOT CHANGE: sono i parametri stimati sperimentalmente dalla
 # teoria del prospetto (Kahneman e Tversky), non un valore a piacere — cambiarli
 # smetterebbe di rappresentare quella ricerca.
+# These are the parameters experimentally estimated by prospect theory
+# (Kahneman and Tversky), not an arbitrary value — changing them would stop
+# representing that research.
 
 importi = np.linspace(-10_000, 10_000, 400)
 # np.where valuta entrambi i rami: si eleva a potenza il valore assoluto e si
@@ -221,6 +224,9 @@ rng = np.random.default_rng(seed_for("lab-bias-indovina"))
 # NON TOCCARE / DO NOT CHANGE: scrivi la tua risposta PRIMA di eseguire la
 # cella successiva. Cambiare il seme dopo aver sbagliato per ottenere un
 # disegno più facile vanificherebbe l'esercizio, non lo migliorerebbe.
+# Write down your answer BEFORE running the next cell. Changing the seed
+# after getting it wrong, to get an easier draw, would defeat the exercise,
+# not improve it.
 VANTAGGI = rng.permutation([0.0, 0.0, 0.0, 0.0005, 0.0005, 0.0])
 
 with avvio.figura("schermo"):

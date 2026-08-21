@@ -143,6 +143,9 @@ rng = np.random.default_rng(20260816)
 # NON TOCCARE / DO NOT CHANGE: il seme è fisso perché la tabella qui sotto è
 # commentata nel testo con questi numeri esatti; cambiarlo dopo aver visto il
 # risultato è il p-hacking che il libro smonta altrove.
+# The seed is fixed because the table below is discussed in the text with
+# these exact numbers; changing it after seeing the result is the p-hacking
+# the book takes apart elsewhere.
 
 print(f"{t('volatilita/giorno', 'volatility/day'):>18s} "
       f"{t('media aritm.', 'arith. mean'):>14s} "

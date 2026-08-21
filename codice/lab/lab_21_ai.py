@@ -94,6 +94,8 @@ COSTO = 0.0012
 # %%
 # NON TOCCARE / DO NOT CHANGE: le due versioni sono la coppia corretta/errata
 # su cui si basa l'esercizio — scrivi prima la tua risposta, poi esegui.
+# The two versions are the correct/wrong pair the exercise is built on — write
+# down your answer first, then run them.
 def versione_a(p: np.ndarray, finestra: int = 20) -> np.ndarray:
     """Versione A."""
     posizione = np.zeros(len(p))

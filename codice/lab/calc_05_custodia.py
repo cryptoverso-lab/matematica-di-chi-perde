@@ -166,6 +166,9 @@ rng = np.random.default_rng(seed_for("calc-custodia"))
 # NON TOCCARE / DO NOT CHANGE: il seme fissa i numeri di mediana e "5% peggiore"
 # citati nel testo qui sotto; cambiarlo dopo aver visto il risultato è il
 # p-hacking che il libro smonta altrove.
+# The seed fixes the median and "worst 5%" numbers quoted in the text below;
+# changing it after seeing the result is the p-hacking the book takes apart
+# elsewhere.
 giorni = min(365 * ORIZZONTE, len(r))
 mercato = bootstrap_traiettorie(r[:giorni], n_traiettorie=PERCORSI, rng=rng,
                                 a_blocchi=20)[:, -1]

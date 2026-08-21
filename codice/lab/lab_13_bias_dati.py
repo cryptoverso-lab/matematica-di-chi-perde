@@ -101,6 +101,7 @@ causale[1:] = segnale[:-1]
 # un'informazione che al momento di decidere non esisteva ancora.
 # NON TOCCARE / DO NOT CHANGE: è sbagliata apposta, per il confronto — non è
 # un bug da sistemare.
+# It's wrong on purpose, for the comparison — not a bug to fix.
 con_lookahead = segnale.copy()
 
 a = esegui(prezzi, causale, costo=COSTO)
