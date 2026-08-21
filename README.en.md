@@ -179,10 +179,6 @@ This material is for **education and research**. It is not investment advice, no
 
 <div align="center">
 
-<br>
-
-<img src="assets/cryptoverso-logo.svg" alt="Cryptoverso" width="56">
-
-**Luigi Garone — [Cryptoverso](https://cryptoverso.net)**
+<a href="https://cryptoverso.net"><img src="assets/cryptoverso.svg" alt="Cryptoverso" width="132"></a>
 
 </div>

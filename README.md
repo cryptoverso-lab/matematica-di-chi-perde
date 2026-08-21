@@ -179,10 +179,6 @@ Questo materiale ha finalità **didattica e di ricerca**. Non è consulenza in m
 
 <div align="center">
 
-<br>
-
-<img src="assets/cryptoverso-logo.svg" alt="Cryptoverso" width="56">
-
-**Luigi Garone — [Cryptoverso](https://cryptoverso.net)**
+<a href="https://cryptoverso.net"><img src="assets/cryptoverso.svg" alt="Cryptoverso" width="132"></a>
 
 </div>
