@@ -57,8 +57,8 @@ LAB = ROOT / "codice" / "lab"
 sys.path.insert(0, str(ROOT / "codice" / "src"))
 sys.path.insert(0, str(LAB))
 
-from costruisci import sorgenti  # noqa: E402
 from cvbook.link import RAW_BASE, ROTTE  # noqa: E402
+from prosa import ProsaSconosciuta, converti, titolo_e_corpo  # noqa: E402
 
 #: Il file che dichiara che una cartella e' il checkout del repo del sito.
 #: Il percorso arriva da fuori (argomento della riga di comando), quindi prima
@@ -339,18 +339,46 @@ def estrai_dal_sorgente(percorso: Path) -> Estrazione:
     setup = cella_di_setup(celle, percorso)
 
     blocchi: list[dict] = []
+    prosa: dict[str, dict] = {}
     ordinali = {"markdown": 0, "code": 0}
     magic = 0
     sostituzioni_raw = 0
+    sostituzioni_titolo = 0
+    formule = 0
+    titolo: str | None = None
 
     for cella in celle:
         ordinali[cella.tipo] += 1
         chiave = identificativo(cella.tipo, ordinali[cella.tipo])
 
         if cella.tipo == "markdown":
-            blocchi.append(
-                {"id": chiave, "tipo": "prosa", "impronta": impronta_breve(cella.sorgente)}
-            )
+            # L'impronta si calcola sul sorgente della cella COM'E' NEL FILE, non
+            # sull'HTML che ne esce: e' il testo del libro a cambiare, ed e' su
+            # quel cambiamento che il gate di parita' deve accendersi. Un'impronta
+            # calcolata sull'uscita cambierebbe anche il giorno in cui cambia
+            # questo convertitore, rendendo obsolete traduzioni che nessuno ha
+            # toccato.
+            impronta = impronta_breve(cella.sorgente)
+            testo = cella.sorgente
+            if ordinali["markdown"] == 1:
+                titolo, testo = titolo_e_corpo(testo, cella.dove)
+                if titolo is None:
+                    raise ProblemaDiIngest(
+                        f"{percorso.name}: la prima cella markdown non comincia "
+                        "con il titolo del lab (`# ...`).\n"
+                        "  Il titolo e' un campo del bundle, non un capoverso: "
+                        "senza, la pagina non ha un titolo\n"
+                        "  e il campo `titolo` di `it.json` andrebbe inventato."
+                    )
+            try:
+                resa = converti(testo, cella.dove)
+            except ProsaSconosciuta as fallimento:
+                raise ProblemaDiIngest(str(fallimento)) from fallimento
+            vieta_riferimenti_al_repository(resa.html, cella.dove, "la prosa della cella")
+            sostituzioni_titolo += resa.sostituzioni_titolo
+            formule += resa.formule
+            blocchi.append({"id": chiave, "tipo": "prosa", "impronta": impronta})
+            prosa[chiave] = {"testo": resa.html, "daImpronta": impronta}
             continue
 
         magic += len(MAGIC.findall(cella.sorgente))
@@ -371,13 +399,13 @@ def estrai_dal_sorgente(percorso: Path) -> Estrazione:
 
     return Estrazione(
         blocchi=blocchi,
-        prosa={},
-        titolo=None,
+        prosa=prosa,
+        titolo=titolo,
         setup=setup,
         magic=magic,
         sostituzioni_raw=sostituzioni_raw,
-        sostituzioni_titolo=0,
-        formule=0,
+        sostituzioni_titolo=sostituzioni_titolo,
+        formule=formule,
     )
 
 
@@ -546,8 +574,6 @@ def verifica_conteggi(estrazioni: list[Estrazione], problemi: list[str]) -> None
     for nome, atteso in ATTESI.items():
         if nome == "sorgenti":
             continue
-        if nome == "titolo" and misurati[nome] == 0:
-            continue  # la sostituzione del titolo arriva con `prosa.py`
         if misurati[nome] != atteso:
             problemi.append(
                 f"conteggio `{nome}`: {misurati[nome]} sul corpus, atteso {atteso}.\n"
@@ -595,7 +621,9 @@ def main() -> None:
                 f"{percorso.name}: {len(estrazione.blocchi)} blocchi "
                 f"({prosa} di prosa, {codice} di codice), "
                 f"setup alla cella {estrazione.setup.indice}, "
-                f"{estrazione.sostituzioni_raw} sostituzioni di {{{{RAW_BASE}}}}"
+                f"{estrazione.sostituzioni_raw} sostituzioni di {{{{RAW_BASE}}}}, "
+                f"{estrazione.sostituzioni_titolo} di {{{{TITOLO_LIBRO}}}}, "
+                f"{estrazione.formule} formule"
             )
             sys.exit(0)
 
@@ -613,6 +641,7 @@ def main() -> None:
             estrazioni.append(estrazione)
             cartella = sito / "content" / "labs" / lab["codice"]
             scrivi_json(cartella / "lab.json", lab)
+            scrivi_json(cartella / "it.json", prosa)
             scritti += 1
 
         if argomenti.lab is None:
@@ -634,7 +663,10 @@ def main() -> None:
         f"{scritti} bundle scritti in content/labs/ del repo del sito "
         f"(contratto versione {versione}): {blocchi} blocchi, "
         f"{sum(e.sostituzioni_raw for e in estrazioni)} sostituzioni di "
-        "{{RAW_BASE}}"
+        "{{RAW_BASE}}, "
+        f"{sum(e.sostituzioni_titolo for e in estrazioni)} di "
+        "{{TITOLO_LIBRO}}, "
+        f"{sum(e.formule for e in estrazioni)} formule"
     )
     sys.exit(1 if problemi else 0)
 
