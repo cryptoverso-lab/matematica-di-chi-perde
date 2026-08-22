@@ -80,19 +80,33 @@ def _copia_con(tmp_path: Path, nome_file: str, prima: str, dopo: str) -> Path:
 
 
 @pytest.mark.lento
-def test_il_pilota_produce_sei_output_testuali_e_due_figure() -> None:
+def test_il_pilota_produce_cinque_output_testuali_e_due_figure() -> None:
     """I numeri del pilota, misurati e pinnati.
 
-    Sono OTTO output in tutto, che e' il numero che la ricerca dichiara: sei
-    testuali e due figure. Il piano li leggeva come «otto testuali piu' due
-    figure» — sono dieci, e non e' cio' che il quaderno emette.
+    SETTE output in tutto: cinque testuali e due figure.
+
+    Erano SEI testuali fino al 2026-08-22. Il sesto era la riga di rumore di
+    `pip` (`…: No module named pip`), che la normalizzazione di
+    `estrazione/riservatezza.py` ora scarta: non e' un risultato del quaderno,
+    e' un messaggio dell'ambiente che lo esegue, e finiva pubblicato su tutte e
+    58 le pagine insieme al percorso assoluto della macchina di build.
+
+    Il nome del test e' stato cambiato con il numero. Un test che si chiama
+    «sei output» e ne pretende cinque e' una bugia che si legge nel report
+    prima ancora di aprire il file, ed e' il modo in cui un conteggio pinnato
+    smette di essere un presidio e diventa un residuo.
+
+    Restano dentro `motore locale: .` e `WindowsPath('.')`: quelli SONO
+    risultati del quaderno — dicono al lettore dove il motore e' stato
+    caricato — e il punto e' il segnaposto relativo che ha preso il posto della
+    radice assoluta.
     """
     uscite = esegui(LAB / "lab_05_misurare.py")
     tutte = [u for lista in uscite.values() for u in lista]
     testi = [u for u in tutte if u.tipo == "testo"]
     figure = [u for u in tutte if u.tipo == "figura"]
 
-    assert len(testi) == 6, [u.testo[:40] for u in testi]
+    assert len(testi) == 5, [u.testo[:40] for u in testi]
     assert len(figure) == 2
     assert all(u.svg.lstrip().startswith("<?xml") or "<svg" in u.svg for u in figure)
 
