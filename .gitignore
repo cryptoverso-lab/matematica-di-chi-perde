@@ -12,3 +12,20 @@ codice/dati/cache/
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# ARTEFATTI DI PIANIFICAZIONE — MAI IN UN REPOSITORY PUBBLICO.
+#
+# Regola di Luigi del 2026-08-22: su repo pubbliche `.planning/` e `.claude/`
+# non si pubblicano mai. Qui oggi non esistono, e queste righe servono a farle
+# restare inesistenti anche il giorno in cui un agente o uno strumento le crea
+# per conto suo: un divieto che dipende da «non e' ancora successo» non e' un
+# divieto.
+#
+# Il gitignore GLOBALE le ignora gia', ma quello vive sulla macchina di chi
+# sviluppa: chi clona questo repository non ce l'ha. Un presidio che protegge
+# solo la macchina su cui e' stato scritto non protegge il repository.
+.planning/
+.claude/
+
+# Grafi del codice: rigenerabili, sempre e solo locali.
+graphify-out/
