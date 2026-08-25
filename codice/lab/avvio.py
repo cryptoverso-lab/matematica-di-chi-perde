@@ -30,17 +30,36 @@ from pathlib import Path
 BASE = "https://raw.githubusercontent.com/cryptoverso-lab/matematica-di-chi-perde/main"
 
 #: I moduli del motore. L'ordine non conta: si scaricano tutti.
+#:
+#: QUESTO ELENCO NON SI SCRIVE A OCCHIO. Non basta che ci sia cio' che un
+#: quaderno importa: serve anche cio' che importano i moduli importati. Il
+#: 2026-08-21 `lingua.py` e' nato e non e' entrato qui, e `stile.py` lo importa:
+#: risultato, ventisette quaderni su ventinove morivano alla prima cella con
+#: `No module named 'cvbook.lingua'` — **in mano al lettore soltanto**. In casa
+#: non si vedeva, perche' in casa `cvbook` e' gia' importabile dal repository e
+#: nessuno passa da questa lista; e non si vedeva nemmeno in CI, perche' anche
+#: la CI esegue i quaderni dentro il checkout. Quattro giorni con ventisette
+#: codici QR stampabili che portavano a un errore.
+#:
+#: Adesso l'elenco e' verificato da `codice/testing/test_avvio.py`, che calcola
+#: la chiusura transitiva degli import dei quaderni e fallisce se qui ne manca
+#: uno. Se aggiungi un modulo a `cvbook`, non ricordartelo: il gate te lo dice.
 MODULI = [
     "__init__.py",
     "layout.py",
+    "lingua.py",
     "stile.py",
     "dati.py",
     "metriche.py",
     "simulazioni.py",
     "regole.py",
     "ciclica.py",
-    "link.py",
 ]
+#: `link.py` stava qui e non ci sta piu': nessun quaderno lo raggiunge. Serve a
+#: `costruisci.py` e a `genera_indice.py`, che girano dentro la repository e non
+#: passano mai da questo scaricamento. Toglierlo non cambia niente per il
+#: lettore se non trenta millisecondi di rete in meno; resta scritto perche' un
+#: giorno qualcuno lo rimettera' credendo che manchi.
 
 #: Le serie disponibili. Ogni quaderno chiede solo quelle che gli servono.
 #: Le sei non cripto servono ai quaderni che rifanno fuori dalle criptovalute

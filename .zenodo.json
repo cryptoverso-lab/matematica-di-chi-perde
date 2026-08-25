@@ -1,0 +1,27 @@
+{
+  "title": "La matematica di chi perde — codice, dati congelati e quaderni di calcolo",
+  "description": "<p>Codice sorgente, snapshot di dati congelati e 29 quaderni di calcolo eseguibili del saggio <em>La matematica di chi perde — Il trading spiegato con dati, statistica e codice che puoi rieseguire tu</em>, di Luigi Garone.</p><p>Ogni figura stampata nel libro e' l'uscita di uno script contenuto in questo archivio, eseguito su dati versionati e verificati per impronta: nessuna figura e' disegnata a mano e nessun numero e' scritto a mano. I 29 quaderni sono gli stessi che il libro richiama con un codice QR in ogni capitolo.</p><p>Questo deposito esiste per una ragione precisa: il libro stampa indirizzi web, e la carta dura piu' dei domini. E' l'archivio permanente citato nel colophon, ed e' cio' che rende il libro verificabile anche il giorno in cui il dominio, l'organizzazione GitHub o la piattaforma dei quaderni non esistessero piu'.</p><p>Il <strong>codice</strong> e' distribuito con licenza MIT. Il <strong>testo del libro non fa parte di questo deposito</strong> e resta protetto: tutti i diritti riservati.</p>",
+  "upload_type": "software",
+  "language": "ita",
+  "license": "MIT",
+  "access_right": "open",
+  "creators": [
+    {
+      "name": "Garone, Luigi",
+      "affiliation": "Cryptoverso"
+    }
+  ],
+  "keywords": [
+    "trading",
+    "finanza quantitativa",
+    "statistica",
+    "backtest",
+    "riproducibilita",
+    "criptovalute",
+    "gestione del rischio",
+    "Python",
+    "ricerca riproducibile",
+    "educazione finanziaria"
+  ],
+  "notes": "Gli snapshot dei dati sono ricavati da fonti pubbliche (dump storici di Binance, Yahoo Finance) con la data di estrazione dichiarata nel registro `codice/dati/registro.json`; sono inclusi per rendere le figure del libro riproducibili bit per bit e non costituiscono una ridistribuzione a fini commerciali."
+}

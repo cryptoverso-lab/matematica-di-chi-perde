@@ -1,0 +1,94 @@
+# La promessa stampata in quarta di copertina, provata come la prova un lettore.
+#
+# PERCHE' NON BASTA `quaderni.yml`. Quel workflow esegue i 29 quaderni DENTRO il
+# checkout, con `uv sync --locked` e senza toccare la rete: `avvio.prepara`
+# riconosce di stare dentro la repository e usa gli snapshot Parquet versionati.
+# Prova una cosa vera e utile — i quaderni girano e producono il bundle — ma NON
+# prova la frase stampata sul libro, che e' un'altra: *premi Esegui e ottieni la
+# figura stampata nella pagina che stai leggendo*.
+#
+# Un lettore non ha niente di tutto questo. Ha:
+#   - una cartella VUOTA, senza il repository da nessuna parte;
+#   - `cvbook` che non esiste e va scaricato da `raw.githubusercontent.com`
+#     insieme agli snapshot dei dati;
+#   - pacchetti NON pinnati: numpy e matplotlib sono quelli dell'immagine di
+#     Colab, polars arriva da `%pip install "polars>=1.0"`, e fra sei mesi
+#     saranno versioni che oggi non esistono.
+#
+# Sono le tre condizioni che rompono davvero un quaderno, e nessuna delle tre e'
+# coperta altrove. Questo workflow le riproduce.
+#
+# CIO' CHE RESTA SCOPERTO, DETTO INVECE CHE NASCOSTO. Non gira dentro Colab:
+# Colab richiede un accesso Google interattivo e non ha un'esecuzione headless
+# pubblica. Quello che resta fuori e' l'immagine specifica di Google — le sue
+# versioni preinstallate in un dato giorno — e si chiude solo aprendone uno a
+# mano. Tutto il resto e' qui.
+#
+# PERCHE' A CALENDARIO E NON SU PUSH. Questo gate non serve a intercettare un
+# errore di chi scrive: quello lo prende `quaderni.yml` a ogni push. Serve a
+# intercettare il mondo che cambia sotto un libro gia' stampato — una versione
+# nuova di polars, un'API di matplotlib rimossa, un file spostato. Sono eventi
+# che non hanno un push a cui agganciarsi, quindi si guardano a orologio.
+
+name: Prova Colab
+
+on:
+  schedule:
+    # Ogni lunedi' alle 6:00 UTC. Il giorno e l'ora non contano: conta che passi
+    # regolarmente e che il primo lunedi' in cui diventa rosso sia il lunedi' in
+    # cui il mondo e' cambiato, non tre mesi dopo, con le recensioni gia' scritte.
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+    inputs:
+      python:
+        description: "Versione dell'interprete su cui provare"
+        required: false
+        default: '3.12'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: prova-colab-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lettore:
+    name: I 29 quaderni girano in una cartella vuota, con la rete
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    # Due interpreti, e non e' abbondanza. Colab cambia la versione di Python
+    # senza preavviso e senza che nessuno se ne accorga fino a quando qualcosa
+    # non si rompe: provarne due dice se il libro dipende da una versione sola.
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12', '3.13']
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+
+      # `prova_colab.py` non ha dipendenze oltre alla libreria standard: si
+      # occupa lui di creare l'ambiente pulito e di installarci dentro cio' che
+      # Colab ha di suo. Va eseguito con un interprete qualunque, e quello del
+      # runner va benissimo.
+      - name: 'Gate — i quaderni girano come li apre un lettore'
+        run: python codice/testing/prova_colab.py --python ${{ matrix.python }}
+
+      # L'esito serve anche quando il gate e' verde: dice quanto ha impiegato
+      # ogni quaderno, e un rallentamento e' il primo sintomo di un file che sta
+      # crescendo o di una rete che risponde peggio.
+      - name: Conserva l'esito
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: prova-colab-${{ matrix.python }}
+          path: codice/testing/prova-colab-esito.json
+          retention-days: 30
