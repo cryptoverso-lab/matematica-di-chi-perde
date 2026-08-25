@@ -2,9 +2,15 @@
 
 Il colophon stampato non si scrive a mano: nasce da qui, come l'indice dei lab
 nasce da `cvbook.link`. I valori che alla chiusura del manoscritto non esistono
-ancora — editore, ISBN, archivio permanente — restano `None` e vengono stampati
-come dichiarazione di ciò che manca, non come un numero inventato. Diventano
-veri cambiando una riga qui.
+ancora restano `None`, e diventano veri cambiando una riga qui.
+
+Su cosa succede quando un valore è `None` il modulo tiene due comportamenti
+diversi, ed è voluto. **Editore e ISBN spariscono dalla pagina**: sono dati
+anagrafici, e una riga che dichiara di non sapere ancora chi pubblica mette in
+pagina un dubbio di lavorazione, che non riguarda chi legge. **L'archivio
+permanente resta e si dichiara**: lì il lettore ha bisogno di sapere dove
+trovare il codice fra dieci anni, e «in corso di assegnazione, per ora vive
+nella repository» è un'informazione, non una lacuna.
 
 Regola: nessun dato di edizione va scritto dentro un `.qmd`.
 """
@@ -23,22 +29,20 @@ EDIZIONE = "Prima edizione"
 #: senza rieseguire `codice/manoscritto/congela.py` e dichiararne il motivo.
 DATA_FREEZE = "2026-08-25"
 
-#: Editore. Deciso il 2026-08-25 da Luigi, e ribalta la scelta del 2026-08-16:
-#: il libro **si autopubblica**, non passa da una casa editrice. Esce sotto il
-#: marchio che porta già in quarta di copertina e negli indirizzi dei quaderni.
-#: Nota sul canale: con l'ISBN gratuito di KDP, Amazon elenca comunque l'opera
-#: come «Independently published» nella scheda prodotto e non lascia scegliere
-#: un nome di editore. Il colophon del libro può nominare il marchio lo stesso —
-#: Cryptoverso esiste ed è dell'autore — ma le due diciture non coincidono.
-#: Con un ISBN proprio, invece, il nome dell'editore è quello dichiarato qui.
-EDITORE: str | None = "Cryptoverso"
+#: Editore, e ISBN che ne dipende. Si compilano insieme, alla decisione:
+#: `EDITORE = "..."`, `ISBN = "978-..."`, poi si rigenera il libro e si
+#: ricongela.
+#:
+#: Finché sono `None` il libro **non ne parla**: la riga non viene stampata,
+#: né in seconda pagina né nel colophon. È la scelta del 2026-08-25, e cambia
+#: quella di prima: non si stampa più un ripiego («da definire», «assegnato
+#: alla pubblicazione»), perché una pagina dei diritti che dichiara ciò che non
+#: sa ancora invecchia male e mette in pagina un dubbio che è di lavorazione,
+#: non del lettore. Il presidio non sparisce, si sposta dove serve davvero:
+#: `pacchetto_amazon.py` rifiuta di considerare caricabile un pacchetto con
+#: l'ISBN mancante, quindi il libro non può uscire senza.
+EDITORE: str | None = None
 
-#: ISBN. **Ancora aperto al 2026-08-25**: Luigi sta valutando se prendere quello
-#: gratuito di KDP (zero costi, legato ad Amazon, non riutilizzabile altrove)
-#: oppure un ISBN proprio dall'agenzia italiana (a pagamento, riutilizzabile su
-#: altri canali, e permette di dichiarare l'editore anche nella scheda prodotto).
-#: Finché è `None` il colophon dichiara apertamente che manca, invece di
-#: stampare un codice inventato.
 ISBN: str | None = None
 
 #: Identificativo permanente dell'archivio di codice e dati (dopo la repository

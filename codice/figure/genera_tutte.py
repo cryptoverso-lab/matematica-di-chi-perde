@@ -27,13 +27,17 @@ OUT = {
 MANIFEST = ROOT / "figure" / "manifest.json"
 
 
-#: Marchi che entrano nelle pagine del libro (colophon ed epilogo). Non sono
+#: Marchi che entrano nelle pagine del libro (oggi il solo colophon). Non sono
 #: figure — non nascono da dati — ma seguono la stessa regola: nell'interno del
 #: libro non entra un solo pixel a colori, altrimenti la stampa dell'intero
 #: volume viene quotata a colori. Qui vengono convertiti in scala di grigi.
+#:
+#: La firma autografa dell'autore non c'e' piu': in chiusura di un libro che
+#: insegna a non fidarsi di chi parla, una firma a mano e' un gesto da
+#: testimonial. Restava l'ultima immagine prima del colophon, e diceva il
+#: contrario dell'ultima riga stampata sopra di lei.
 MARCHI = {
     "marchio-cryptoverso": ROOT / "copertina" / "asset" / "logo" / "cryptoverso-logo-01.png",
-    "firma-autore": ROOT / "copertina" / "asset" / "brand" / "firma-luigi-garone.png",
 }
 
 
