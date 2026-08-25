@@ -43,14 +43,25 @@ CARTELLA_ROTTE = ROOT / "manoscritto" / "_rotte"
 #: QR e indirizzo o stanno insieme in fondo alla pagina, o vanno insieme a
 #: quella dopo.
 #:
+#: Il `\\nobreak` davanti all'`\\mbox` chiude l'altra meta' dello stesso difetto.
+#: Tenere insieme QR e indirizzo non basta se poi la rottura del riquadro cade
+#: *subito prima* del blocco: il testo resta su una pagina e il QR compare da
+#: solo in cima a quella dopo, dentro un moncone di riquadro (visto a p. 69).
+#: `\\nobreak` in modo verticale mette una penalita' infinita fra il capoverso e
+#: il blocco, e la colla di `\\parskip` che segue non e' piu' un punto di rottura
+#: legale perche' viene dopo una penalita': cosi' TeX e' costretto a spezzare
+#: piu' su, fra le righe di testo, e il QR scende sempre accompagnato da almeno
+#: una riga del capoverso che lo introduce.
+#:
 #: Il percorso della figura e' relativo alla radice del progetto, che e' da
 #: dove Quarto compila il `.tex`: il LaTeX grezzo non passa dalla riscrittura
 #: dei percorsi che Quarto fa sulle immagini Markdown.
 RICHIAMO = """<!-- File generato da codice/lab/genera_indice.py — non modificare a mano. -->
 
 ```{=latex}
+\\nobreak
 \\noindent\\mbox{\\begin{tabular}{@{}l@{}}
-\\includegraphics[width=22mm]{figure/qr/@CODICE@.pdf}\\\\[.4em]
+\\includegraphics[width=26mm]{figure/qr/@CODICE@.pdf}\\\\[.4em]
 \\texttt{@ROTTA@}
 \\end{tabular}}
 ```
