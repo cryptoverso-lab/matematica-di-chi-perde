@@ -191,6 +191,20 @@ ROTTE_SERVIZIO: dict[str, tuple[str, str]] = {
 #: degli stessi dati divergono alla prima variazione» — applicato qui: se il
 #: titolare cambia, cambia in un posto solo.
 SITO_CRYPTOVERSO = "https://cryptoverso.net"
+
+#: Il recapito per l'esercizio dei diritti, stampato SOLO sulla pagina web del
+#: sottodominio — nel libro non compare nessuna email, e non deve comparire.
+#:
+#: Sta qui, e non e' una duplicazione di comodo. La pagina rimanda a
+#: `cryptoverso.net` per diritti e reclamo, ma titolare e recapito no: senza
+#: quei due dati non si esercita nessun diritto, e il 28 agosto 2026 e' stato
+#: misurato che `cryptoverso.net` **su HTTPS non risponde affatto** — il dominio
+#: canonico risolve ancora al parcheggio del fornitore. Un'informativa la cui
+#: unica strada verso un diritto e' un collegamento cieco non e' un rimando: e'
+#: un vicolo. Quando il sito sara' deployato questi due dati resteranno
+#: comunque i suoi, e l'informativa di Cryptoverso resta quella che fa fede.
+RECAPITO = "info@cryptoverso.net"
+
 PAGINE_LEGALI = {
     "privacy": f"{SITO_CRYPTOVERSO}/note-legali/privacy",
     "cookie": f"{SITO_CRYPTOVERSO}/note-legali/cookie",
