@@ -51,8 +51,19 @@ def _checkout_del_sito_o_salta() -> Path:
     """
     grezzo = os.environ.get(VARIABILE_SITO)
     if grezzo is None:
-        candidato = RADICE.parents[1] / "Logika.studio" / "Cryptoverso" / "cryptoverso-website"
-        grezzo = str(candidato)
+        # Il default e' il REPOSITORY FRATELLO, non un percorso assoluto.
+        # Prima qui c'era `parents[1] / "Logika.studio" / "Cryptoverso" /
+        # "cryptoverso-website"`: il giorno in cui le due repository si sono
+        # spostate sotto la stessa cartella, quel percorso ha smesso di
+        # esistere e questi due test hanno cominciato a saltare in silenzio —
+        # verdi in apparenza, mai eseguiti in realta'. Un percorso assoluto
+        # scritto in un sorgente non sopravvive a un trasloco; «il fratello di
+        # questa repository» si', perche' e' la relazione che regge davvero.
+        # The default is the SIBLING repository, not an absolute path: the
+        # previous absolute one stopped existing the day the two repositories
+        # moved under the same folder, and these two tests started skipping
+        # silently — green in appearance, never run in fact.
+        grezzo = str(RADICE.parent / "cryptoverso-website")
     try:
         sito = checkout_del_sito(grezzo)
     except ProblemaDiIngest:
