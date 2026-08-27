@@ -80,13 +80,22 @@ def disegna(destinazione: str = "stampa"):
     peggiore = np.percentile(cali, 5)
     dx.set_ylim(0, dx.get_ylim()[1] * 1.30)
     alto = dx.get_ylim()[1]
+    # Fondo bianco sotto le due etichette: la verticale della storia reale
+    # attraversa tutto il riquadro, e quella di sinistra le finiva addosso —
+    # il tratteggio cancellava una lettera di «peggiore». Il riferimento resta
+    # a tutta altezza, il testo gli passa davanti.
+    # White background under both labels: the full-height reference line was
+    # cutting a letter out of the left one.
+    sfondo = dict(boxstyle="square,pad=0.12", facecolor="white", edgecolor="none")
     dx.annotate(tr(f"il 5% peggiore: {num(peggiore)}%", f"the worst 5%: {num(peggiore)}%"),
                 xy=(peggiore, alto * 0.58), xytext=(0.02, 0.98),
                 textcoords="axes fraction", fontsize=6.5, ha="left", va="top",
+                bbox=sfondo, zorder=5,
                 arrowprops=dict(arrowstyle="->", linewidth=0.6, color="#595959"))
     dx.annotate(tr(f"la storia reale: {num(reale_dd)}%", f"the real history: {num(reale_dd)}%"),
                 xy=(reale_dd, alto * 0.74), xytext=(0.98, 0.86),
                 textcoords="axes fraction", fontsize=6.5, ha="right", va="top",
+                bbox=sfondo, zorder=5,
                 arrowprops=dict(arrowstyle="->", linewidth=0.6, color="#595959"))
 
     dx.set_xlabel(tr("Calo massimo (%)", "Maximum drawdown (%)"))

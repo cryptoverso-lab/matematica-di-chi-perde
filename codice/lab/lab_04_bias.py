@@ -91,7 +91,16 @@ PRENDI_UTILE = 0.10   # ← chiudi quando sei in utile di questa percentuale
                       # PROVA / TRY: 0,05 · 0,10 · 0,50 (vedi esercizi 1 e 2)
 SOPPORTA_PERDITA = 0.50  # ← resti dentro finche' la perdita non arriva a questa
                          # PROVA / TRY: 0,10 · 0,50 · 0,70 (vedi esercizi 1 e 2)
-COSTO = 0.0012           # PROVA / TRY: 0,0006 · 0,0012 · 0,0025
+COSTO = 0.0012           # ← costo di un GIRO COMPLETO — chiudere e riaprire
+                         # PROVA / TRY: 0,0006 · 0,0012 · 0,0025
+# NON TOCCARE / DO NOT CHANGE: qui lo 0,12% e' il costo di un giro completo, ed
+# e' la convenzione che il libro dichiara fino al capitolo sull'analisi tecnica.
+# Addebitarlo due volte per giro — una in uscita e una al rientro — e' la
+# convenzione severa, che il libro introduce solo dal cap. 18b in avanti: con
+# quella il quaderno chiudeva a 8,46 volte dove il capitolo stampa 9,0.
+# Here 0.12% is the cost of a full round trip, the convention the book declares
+# up to the technical-analysis chapter. Charging it twice per round trip is the
+# stricter convention, introduced only from ch. 18b on.
 
 
 def con_soglie(p: np.ndarray, su: float, giu: float, costo: float) -> np.ndarray:
@@ -100,7 +109,8 @@ def con_soglie(p: np.ndarray, su: float, giu: float, costo: float) -> np.ndarray
     Sono tre le cose che questo comportamento paga rispetto al non far nulla,
     e vale la pena tenerle distinte perche' pesano in modo molto diverso:
 
-    1. il costo dell'uscita e quello del rientro, cioe' due volte `costo`;
+    1. il costo del giro completo — uscita piu' rientro — addebitato una volta
+       sola, in uscita, secondo la convenzione dichiarata dal capitolo;
     2. il giorno passato fuori dal mercato ad ogni chiusura — ed e' questa la
        voce piu' cara, perche' il capitolo sulla media che mente ha mostrato
        che pochissimi giorni contengono quasi tutto il risultato;
@@ -115,19 +125,27 @@ def con_soglie(p: np.ndarray, su: float, giu: float, costo: float) -> np.ndarray
             corrente = quota * p[i]
             variazione = p[i] / ingresso - 1.0
             if variazione >= su or variazione <= -giu:
-                liquido = corrente * (1.0 - costo)   # esce: paga il costo
+                liquido = corrente * (1.0 - costo)   # esce: paga il giro intero
                 dentro, corrente = False, liquido
             valore[i] = corrente
         else:
-            ingresso = p[i]                          # rientra il giorno dopo
-            quota = liquido * (1.0 - costo) / p[i]   # e ripaga il costo
+            ingresso = p[i]          # rientra il giorno dopo, senza ripagare:
+            quota = liquido / p[i]   # il giro e' gia' stato addebitato in uscita
             dentro = True
             valore[i] = quota * p[i]
 
-    return valore
+    # Anche l'ingresso del primo giorno e' un'operazione, e va pagato: sotto
+    # sta il compra-e-tieni che lo paga, e le due colonne devono essere
+    # confrontabili fino all'ultimo centesimo.
+    return valore * (1.0 - costo)
 
 
-fermo = equity(r)
+# Anche chi non tocca niente paga il proprio ingresso: e' un'operazione, e il
+# metro di confronto non puo' viaggiare gratis mentre l'altro comportamento
+# paga. Sono dodici centesimi per mille euro, tutti a favore della tesi.
+# Whoever never touches anything still pays for the entry: it is one trade, and
+# the benchmark cannot travel for free while the other behaviour pays.
+fermo = equity(r) * (1 - COSTO)
 nervoso = con_soglie(prezzi, PRENDI_UTILE, SOPPORTA_PERDITA, COSTO)
 
 with avvio.figura("schermo"):

@@ -123,7 +123,10 @@ def disegna(destinazione: str = "stampa"):
                    f"the real rule: {percentile:.0f}th percentile"),
                 xy=(scelta["finale"], dx.get_ylim()[1] * 0.90),
                 xytext=(0.98, 0.99), textcoords="axes fraction",
-                fontsize=6.5, ha="right", va="top",
+                fontsize=6.5, ha="right", va="top", zorder=5,
+                # Fondo bianco: la verticale a tutta altezza passava dentro la
+                # parola «percentile» e ne cancellava la prima lettera.
+                bbox=dict(boxstyle="square,pad=0.12", facecolor="white", edgecolor="none"),
                 arrowprops=dict(arrowstyle="->", linewidth=0.6, color="#595959"))
     dx.set_xscale("log")
     dx.set_xlabel(t("Capitale finale (volte)", "Final capital (times)"))

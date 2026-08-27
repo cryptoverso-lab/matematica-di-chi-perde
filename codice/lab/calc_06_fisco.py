@@ -203,10 +203,21 @@ prezzi = df["chiusura"].to_numpy()
 anni_serie = np.array([d.year for d in df["data"].to_list()])
 curva = esegui(prezzi, rottura(prezzi, 20))["curva"]
 
+# Il rendimento di un anno si misura dalla chiusura dell'anno PRECEDENTE, non
+# dalla sua prima seduta. Partendo dalla prima seduta si perde il movimento del
+# passaggio d'anno — dieci passaggi in dieci anni — e i rendimenti annuali non
+# ricompongono piu' il risultato della regola: il prodotto usciva 33,66 dove la
+# curva vale 35,66, e con esso tutte le cifre del capitolo (1.740.075 invece di
+# 1.824.475). Con questa base il prodotto degli anni coincide con la curva.
+# A year's return is measured from the PREVIOUS year's close, not from its own
+# first session: otherwise the turn-of-year move is lost and the annual returns
+# no longer multiply back to the rule's result.
 RENDIMENTI_ANNUI = []
+base_anno = float(curva[0])
 for a in sorted(set(anni_serie.tolist())):
-    indici = np.where(anni_serie == a)[0]
-    RENDIMENTI_ANNUI.append((int(a), float(curva[indici[-1]] / curva[indici[0]] - 1.0)))
+    ultimo = int(np.where(anni_serie == a)[0][-1])
+    RENDIMENTI_ANNUI.append((int(a), float(curva[ultimo]) / base_anno - 1.0))
+    base_anno = float(curva[ultimo])
 
 righe, imposte, mai_usate = simula_imposta(RENDIMENTI_ANNUI)
 
@@ -244,20 +255,36 @@ print(t(f"differenza:                         {differito / righe[-1]['capitale']
         f"difference:                         {differito / righe[-1]['capitale'] - 1:14.1%}"))
 print(t(f"\nimposte versate:                    {imposte:14,.0f}",
         f"\ntax paid:                           {imposte:14,.0f}"))
+# ALIQUOTA EFFETTIVA: numeratore e denominatore devono venire dallo STESSO
+# percorso. Dividere le imposte del percorso TASSATO per il guadagno del
+# percorso LORDO significa mettere insieme due capitali diversi — chi paga ogni
+# anno, da li' in poi, capitalizza su meno — e il rapporto usciva 21,7%, cioe'
+# SOTTO l'aliquota nominale. Il guadagno lordo di chi paga lungo la strada e'
+# quello che gli resta piu' quello che ha versato: su quello si misura quanta
+# parte se n'e' andata, e viene il 30,2%, cioe' SOPRA la nominale.
+# Numerator and denominator must come from the SAME path: the gross gain of
+# whoever pays along the way is what they keep plus what they paid.
+guadagno_realizzato = righe[-1]["capitale"] - CAPITALE + imposte
+
 print(t(f"guadagno lordo complessivo:         {lordo_composto - CAPITALE:14,.0f}",
         f"total gross gain:                   {lordo_composto - CAPITALE:14,.0f}"))
-print(t(f"aliquota EFFETTIVA sul guadagno:    {imposte / (lordo_composto - CAPITALE):14.1%}",
-        f"EFFECTIVE rate on the gain:         {imposte / (lordo_composto - CAPITALE):14.1%}"))
+print(t(f"guadagno realizzato da chi ha pagato:{guadagno_realizzato:13,.0f}",
+        f"gain realized by whoever paid:      {guadagno_realizzato:14,.0f}"))
+print(t(f"aliquota EFFETTIVA sul guadagno:    {imposte / guadagno_realizzato:14.1%}",
+        f"EFFECTIVE rate on the gain:         {imposte / guadagno_realizzato:14.1%}"))
 print(t(f"perdite mai usate (scadute):        {mai_usate:14,.0f}",
         f"losses never used (expired):        {mai_usate:14,.0f}"))
 
-print(t("\nNota il penultimo numero: l'aliquota effettiva puo' essere PIU' BASSA di "
-        "quella nominale, e il danno al capitale finale essere comunque enorme. "
-        "Perche' il danno non viene dall'aliquota. Viene dal momento.",
-        "\nNote the second-to-last number: the effective rate can be LOWER than "
-        "the nominal one, and the damage to final capital still be enormous. "
-        "Because the damage doesn't come from the rate. It comes from the "
-        "timing."))
+print(t("\nGuarda l'aliquota effettiva: e' PIU' ALTA di quella nominale, e non "
+        "per un'aliquota diversa. E' l'effetto delle perdite scadute — anni in "
+        "rosso che non hanno mai trovato un anno positivo entro il termine — "
+        "sommato al fatto che l'imposta versata presto smette di comporre. "
+        "Il danno non viene dall'aliquota: viene dal momento.",
+        "\nLook at the effective rate: it is HIGHER than the nominal one, and "
+        "not because of a different rate. It is the effect of expired losses — "
+        "red years that never met a positive year within the window — plus the "
+        "fact that tax paid early stops compounding. The damage doesn't come "
+        "from the rate: it comes from the timing."))
 
 # %% [markdown]
 # ## 3. L'esercizio più utile: mescola l'ordine

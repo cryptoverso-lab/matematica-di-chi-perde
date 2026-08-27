@@ -163,15 +163,25 @@ for quanti in (1, 5, 10, 20, 50):  # PROVA / TRY: aggiungi 100 (vedi esercizio 2
 # ## 4. Ma stanno vicini
 #
 # Il pezzo che quasi tutti i libri divulgativi omettono: i giorni migliori e i
-# peggiori **arrivano nella stessa settimana**. Chi esce per evitare i primi
-# manca quasi sempre anche i secondi.
+# peggiori **si toccano**. Guarda marzo 2020 nella tabella qui sotto — il 12 è
+# il peggiore di tutta la serie, il 13 è fra i migliori, e il 19 pure: tre dei
+# venti giorni che decidono nove anni, nella stessa settimana.
+#
+# L'ultima riga misura quanto vale il fenomeno in generale, e va letta per
+# quello che dice: la **mediana** della distanza fra un giorno migliore e il
+# peggiore più vicino è di due settimane, non di una. Ci sono coppie a un
+# giorno di distanza e coppie a un anno. Chi esce per evitare i giorni peggiori
+# non ha comunque il tempo di accorgersene.
 #
 # ---
 #
-# > **EN** — *4. But they sit close together.* The piece almost every
-# > popular book leaves out: the best and worst days **arrive in the same
-# > week**. Whoever exits to avoid the latter almost always misses the
-# > former too.
+# > **EN** — *4. But they touch.* The piece almost every popular book leaves
+# > out: the best and the worst days **touch each other**. Look at March 2020
+# > in the table below — the 12th is the worst of the whole series, the 13th
+# > is among the best, and so is the 19th: three of the twenty days that
+# > decide nine years, in the same week. The last line measures the general
+# > case, and says something more sober: the **median** distance between a
+# > best day and the nearest worst one is two weeks, not one.
 
 # %%
 peggiori_10 = np.sort(ordine[:10])

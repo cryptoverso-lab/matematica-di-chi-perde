@@ -128,6 +128,11 @@ with avvio.figura("schermo"):
 for k, (q, c) in enumerate(zip(quote, cumulata), start=1):
     print(f"componente {k}: {q:6.1%}   cumulata {c:6.1%}")
 print(f"\ncomponenti necessarie per arrivare al 90%: {int(np.searchsorted(cumulata, 0.90)) + 1}")
+print(f"giorni usati: {len(M)} — il calendario delle sole cripto, che non chiudono mai")
+print("Il capitolo stampa 78,7% perche' misura queste stesse tre serie sui soli "
+      "giorni in cui e' aperta anche la borsa di Milano: e' l'unico modo di "
+      "confrontarle con il paniere esteso. Due decimi di punto di differenza, "
+      "e il numero effettivo di scommesse — 1,55 — e' identico.")
 
 # %% [markdown]
 # La prima componente — una sola direzione, cioè sostanzialmente «oggi il settore

@@ -74,7 +74,13 @@ def _simula_disposition(prezzi: np.ndarray) -> np.ndarray:
             dentro = True
             capitale[i] = quota * prezzi[i]
 
-    return capitale
+    # L'ingresso del primo giorno si paga anche qui. Il compra-e-tieni lo paga
+    # (`tieni` e' moltiplicato per 1 - COSTO), e senza questa riga il
+    # comportamento nervoso partiva gratis: un'asimmetria contabile a favore
+    # del comportamento che il capitolo contesta, che e' il verso peggiore in
+    # cui puo' andare. Vale dodici centesimi per mille euro e non sposta il 9,0
+    # stampato, ma il punto e' la simmetria, non l'entita'.
+    return capitale * (1.0 - COSTO)
 
 
 def disegna(destinazione: str = "stampa"):

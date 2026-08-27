@@ -196,7 +196,7 @@ for giorni, etichetta in ORIZZONTI:
 #    quattro anni smette di essere zero. Non è cambiato nessun dato: è cambiata
 #    la finestra.
 # 2. **Metti `INIZIO = "2021-01-01"`.** Il compra-e-tieni scende parecchio. È il
-#    capitolo che dice che tre mesi di differenza sull'ingresso valevano
+#    capitolo che dice che dieci mesi di differenza sull'ingresso valevano
 #    129 punti percentuali.
 # 3. Cambia `"btcusdt"` in `"ethusdt"` o `"solusdt"` nella cella del setup e in
 #    quella del caricamento. La conclusione regge? Su quali orizzonti?
@@ -213,7 +213,7 @@ for giorni, etichetta in ORIZZONTI:
 # > 1. **Set `FINE = "2022-12-31"`** and rerun the cell. The four-year column
 # >    stops being zero. No data changed: the window did.
 # > 2. **Set `INIZIO = "2021-01-01"`.** Buy-and-hold drops a lot. It's the
-# >    chapter that says three months of difference on entry were worth 129
+# >    chapter that says ten months of difference on entry were worth 129
 # >    percentage points.
 # > 3. Change `"btcusdt"` to `"ethusdt"` or `"solusdt"` in the setup cell and
 # >    in the loading one. Does the conclusion hold? On which horizons?

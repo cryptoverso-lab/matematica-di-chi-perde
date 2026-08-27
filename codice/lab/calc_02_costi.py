@@ -176,6 +176,12 @@ n = len(r)
 def con_frequenza(rend: np.ndarray, ogni_n_giorni: int | None, costo: float) -> float:
     """Capitale finale restando sempre investiti ma rientrando ogni N giorni."""
     operazioni = np.zeros(len(rend))
+    # L'ingresso del primo giorno si paga sempre, anche a chi non rientrera'
+    # mai piu': e' un'operazione. Senza questa riga il compra-e-tieni era
+    # l'unica riga della tabella a viaggiare gratis, e il confronto con le
+    # altre frequenze partiva gia' truccato di dodici centesimi per mille euro.
+    # The first day's entry is always paid, even by whoever never re-enters.
+    operazioni[0] = 1.0
     if ogni_n_giorni is not None:
         operazioni[::ogni_n_giorni] = 1.0
     return float(equity(rend - operazioni * costo)[-1])

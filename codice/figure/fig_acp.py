@@ -91,8 +91,18 @@ def disegna(destinazione: str = "stampa"):
         x = np.arange(1, len(d["quote"]) + 1) + (j - 0.5) * larghezza
         sx.bar(x, d["quote"], width=larghezza, facecolor=colore, edgecolor="black",
                linewidth=0.75, hatch=retino, label=f"{d['asset']} {t('asset', 'assets')}")
+        # L'etichetta della prima componente va dalla parte esterna della
+        # propria barra, non centrata su di essa: le due barre della prima
+        # componente sono alte 79% e 41%, e la scritta della piu' bassa,
+        # centrata, finiva per meta' sopra il pieno scuro di quella accanto —
+        # la prima cifra spariva.
+        # The first-component label sits on the outer side of its own bar: the
+        # two bars are 79% and 41% tall, and the shorter one's centred label
+        # had half of itself over the neighbouring dark fill.
+        verso = "right" if j == 0 else "left"
         sx.annotate(f"{d['quote'][0]:.0f}%", xy=(x[0], d["quote"][0]),
-                    xytext=(0, 3), textcoords="offset points", ha="center", fontsize=6.5)
+                    xytext=(-2 if j == 0 else 2, 3), textcoords="offset points",
+                    ha=verso, fontsize=6.5)
 
         dx.plot(np.arange(1, len(d["cumulata"]) + 1), d["cumulata"], color="black",
                 linestyle=tratto, linewidth=1.2, marker=marcatore, markersize=3.0,

@@ -67,7 +67,7 @@ import numpy as np
 
 from cvbook import seed_for
 from cvbook.dati import carica
-from cvbook.regole import esegui, rottura, sopra_media
+from cvbook.regole import compra_e_tieni, esegui, rottura, sopra_media
 
 ALFA = 0.05
 
@@ -167,7 +167,10 @@ for nome_serie in SERIE:
             if len(p) < 400:
                 continue
             finale = esegui(p, regola(p), costo=0.0012)["finale"]
-            riferimento = float(p[-1] / p[0])
+            # Il denominatore passa dallo stesso motore delle regole, con gli
+            # stessi costi: `p[-1] / p[0]` faceva entrare il compra-e-tieni
+            # senza pagare il proprio ingresso mentre ogni regola pagava.
+            riferimento = esegui(p, compra_e_tieni(p), costo=0.0012)["finale"]
             risultati.append((nome_serie, nome_regola, partenza,
                               finale, finale / riferimento))
 

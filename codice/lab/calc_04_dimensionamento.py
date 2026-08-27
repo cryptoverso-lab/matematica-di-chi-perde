@@ -267,7 +267,11 @@ print(t(f"{POSIZIONI} posizioni al {RISCHIO_CIASCUNA:.0%} ciascuna\n",
 print(f"{t('correlazione', 'correlation'):>13s} {t('rischio complessivo', 'overall risk'):>21s}")
 for rho in (0.0, 0.3, 0.7, 0.9, 1.0):
     varianza = POSIZIONI * RISCHIO_CIASCUNA**2 * (1 + (POSIZIONI - 1) * rho)
-    print(f"{rho:13.1f} {np.sqrt(varianza / POSIZIONI) * np.sqrt(POSIZIONI):21.1%}")
+    # `sqrt(varianza)`, e basta: prima qui c'era `sqrt(varianza / POSIZIONI) *
+    # sqrt(POSIZIONI)`, che vale esattamente lo stesso e non e' lo stesso da
+    # leggere. In un libro il cui valore e' che il codice si possa seguire,
+    # una divisione e una moltiplicazione che si annullano sono un ostacolo.
+    print(f"{rho:13.1f} {np.sqrt(varianza):21.1%}")
 
 print(t("\nNei momenti brutti la correlazione sale — il Lab 7 lo misura — quindi il "
         "numero da usare per il limite complessivo e' quello delle righe in basso, "

@@ -137,8 +137,12 @@ for nome, regola in CATALOGO.items():
     valori = "".join(f"{esegui(prezzi, regola(prezzi), costo=c)['finale']:10.2f}x"
                      for c in (0.0, 0.0006, 0.0012, 0.0025, 0.005))
     print(f"{nome:>22s} {valori}")
+# Anche il compra-e-tieni ha un'operazione — il proprio ingresso — quindi la
+# sua riga cambia con la colonna, di poco ma cambia. Stamparla costante era
+# comodo e falso: diceva che il metro di confronto non paga i costi.
 print(f"{'compra e tieni':>22s} " +
-      "".join(f"{riferimento['finale']:10.2f}x" for _ in range(5)))
+      "".join(f"{esegui(prezzi, compra_e_tieni(prezzi), costo=c)['finale']:10.2f}x"
+              for c in (0.0, 0.0006, 0.0012, 0.0025, 0.005)))
 
 print("\n«Quale regola e' migliore» dipende da quanto paghi. Chi pubblica un "
       "backtest senza costi non ha mentito su nessun numero: ha omesso una voce, "
@@ -200,7 +204,14 @@ def posizione_casuale(n: int, n_operazioni: int, rng) -> np.ndarray:
 
 scelta = esegui(prezzi, rottura(prezzi, SCELTA), costo=COSTO)
 n_op = int(scelta["operazioni"])
-rng = np.random.default_rng(seed_for("lab-tecnica"))
+rng = np.random.default_rng(seed_for("tecnica-verifica"))
+# NON TOCCARE / DO NOT CHANGE: è il seme della figura stampata nel capitolo.
+# Con quello — stesse mille posizioni casuali, stesse operazioni, stessi costi
+# — questa cella ridisegna l'istogramma del libro e stampa il suo percentile.
+# Con un seme qualunque il quaderno resta corretto ma risponde 98,9 dove la
+# pagina dice 98: due numeri per la stessa domanda, ed è la cosa che questo
+# libro promette di non fare.
+# This is the seed of the figure printed in the chapter.
 casuali = np.array([
     esegui(prezzi, posizione_casuale(len(prezzi), n_op, rng), costo=COSTO)["finale"]
     for _ in range(N_CASUALI)

@@ -62,12 +62,19 @@ def disegna(destinazione: str = "stampa"):
     # Tutte e tre le etichette sopra e a sinistra del proprio punto: la curva
     # sale da sinistra verso destra, quindi a sinistra del punto lo spazio e'
     # sempre libero. Scritta a destra, quella del 25% finiva sul tracciato.
+    # ...tranne quella del 25%, che a sinistra non ha piu' spazio: il suo punto
+    # sta a un quarto dell'asse e l'etichetta, scritta verso sinistra, usciva
+    # dal riquadro e finiva a cavallo della linea dell'asse. Quella va a
+    # destra, dove sotto la curva il campo e' libero.
+    # ...except the 25% one: its point sits a quarter along the axis and the
+    # label, written leftwards, ran past the spine.
     for q in (0.25, 0.50, 0.75):
         r = recupero_necessario(q) * 100
         dx.plot([q * 100], [r], marker="o", markersize=3.2, color="black")
+        a_destra = q == 0.25
         dx.annotate(f"{q:.0%} → +{r:.0f}%", xy=(q * 100, r),
-                    xytext=(-6, 8), textcoords="offset points", fontsize=6.5,
-                    ha="right", va="bottom")
+                    xytext=(6 if a_destra else -6, 8), textcoords="offset points",
+                    fontsize=6.5, ha="left" if a_destra else "right", va="bottom")
     dx.set_xlabel(tr("Quota del capitale nella sede (%)", "Share of capital at the venue (%)"))
     dx.set_ylabel(tr("Guadagno necessario per tornare in pari (%)", "Gain needed to break even (%)"))
     dx.set_ylim(0, 420)

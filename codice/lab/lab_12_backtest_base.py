@@ -197,7 +197,15 @@ def posizione_casuale(n: int, giorni_dentro: int, n_operazioni: int, rng) -> np.
 
 def metro_del_caso(prezzi: np.ndarray, posizione: np.ndarray, *,
                    n_casuali: int = N_CASUALI, costo: float = COSTO,
-                   seme: str = "metro") -> dict:
+                   seme: str = "metro-del-caso") -> dict:
+    # NON TOCCARE / DO NOT CHANGE: «metro-del-caso» e' il seme della figura
+    # stampata nel capitolo. Con quello — stesse mille strategie, stessi giorni
+    # dentro, stesse operazioni — questa cella ridisegna l'istogramma del libro
+    # e stampa il suo percentile. Con un seme qualunque il quaderno resta
+    # corretto ma risponde con un numero diverso da quello in pagina, ed e'
+    # esattamente la promessa che il libro fa in copertina.
+    # This is the seed of the figure printed in the chapter: with it the cell
+    # redraws the book's histogram and prints its percentile.
     """Quale percentile occupa questa posizione, fra tante casuali equivalenti?"""
     vera = esegui(prezzi, posizione, costo=costo)
     n_op = int(vera["operazioni"])

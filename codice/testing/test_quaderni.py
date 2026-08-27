@@ -14,8 +14,6 @@ Uso:  uv run python -m pytest codice/testing/test_quaderni.py -q
 
 from __future__ import annotations
 
-import os
-import subprocess
 import sys
 from pathlib import Path
 
@@ -33,18 +31,8 @@ QUADERNI = sorted(p.name for p in LAB.glob("*.py") if p.name not in ESCLUSI)
 
 @pytest.mark.lento
 @pytest.mark.parametrize("quaderno", QUADERNI)
-def test_il_quaderno_gira(quaderno: str) -> None:
-    ambiente = os.environ | {"MPLBACKEND": "Agg", "PYTHONIOENCODING": "utf-8"}
-    esito = subprocess.run(
-        [sys.executable, quaderno],
-        cwd=LAB,
-        capture_output=True,
-        text=True,
-        encoding="utf-8",
-        errors="replace",
-        env=ambiente,
-        timeout=900,
-    )
+def test_il_quaderno_gira(quaderno: str, esito_quaderno) -> None:
+    esito = esito_quaderno(quaderno)
     assert esito.returncode == 0, (
         f"{quaderno} non gira:\n{esito.stderr[-2500:]}"
     )

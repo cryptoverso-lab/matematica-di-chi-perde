@@ -61,13 +61,24 @@ def disegna(destinazione: str = "stampa"):
     # parte della propria riga. Prima «capitale» finiva sul picco delle barre.
     dx.set_ylim(0, dx.get_ylim()[1] * 1.28)
     alto = dx.get_ylim()[1]
-    dx.axvline(100, color="black", linewidth=1.0, ymax=0.90)
-    dx.axvline(mediana, color="#595959", linestyle="--", linewidth=0.9, ymax=0.78)
+    # Le due verticali sono TRATTEGGIATE e attraversano tutto il riquadro.
+    # Prima quella del capitale iniziale era un tratto pieno che si fermava al
+    # 90% dell'asse: nero, spesso, alto piu' di ogni barra e con lo stesso
+    # disegno dell'istogramma, veniva letta come la classe piu' numerosa —
+    # centoventotto curve che chiudono esattamente a 100. E' un riferimento,
+    # non un dato, e adesso lo sembra. Stessa correzione gia' fatta su
+    # `fig_montecarlo` e `fig_tecnica_verifica`.
+    # Both verticals are DASHED and span the whole box: the solid one that
+    # stopped at 90% read as the tallest histogram bar.
+    dx.axvline(100, color="black", linewidth=1.0, linestyle=(0, (4, 2)))
+    dx.axvline(mediana, color="#595959", linestyle=(0, (1, 1.6)), linewidth=1.0)
+    sfondo = dict(boxstyle="square,pad=0.12", facecolor="white", edgecolor="none")
     dx.annotate(t("capitale iniziale", "starting capital"), xy=(100, alto * 0.90), xytext=(4, 0),
-                textcoords="offset points", fontsize=6.5, ha="left", va="center")
+                textcoords="offset points", fontsize=6.5, ha="left", va="center",
+                bbox=sfondo, zorder=5)
     dx.annotate(t(f"mediana {num(mediana)}", f"median {num(mediana)}"), xy=(mediana, alto * 0.78),
                 xytext=(-4, 0), textcoords="offset points", fontsize=6.5,
-                ha="right", va="center", color="#404040")
+                ha="right", va="center", color="#404040", bbox=sfondo, zorder=5)
     dx.set_title(t("Da dove vengono", "Where they come from"), fontsize=8)
     dx.set_xlabel(t("Capitale finale", "Final capital"))
     dx.set_ylabel(t("Numero di curve", "Number of curves"))

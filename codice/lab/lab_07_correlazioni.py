@@ -170,17 +170,33 @@ def oscillazione_residua(n: int, rho: float) -> float:
     return float(np.sqrt(1 / n + (1 - 1 / n) * rho))
 
 
-rho_misurata = correlazione_media(M)
-print(f"correlazione media misurata su queste serie: {rho_misurata:.2f}\n")
+# Due stimatori della stessa parola. `correlazione_media(M)` è la correlazione
+# **statica** su tutto il periodo: 0,675. La media delle finestre mobili della
+# cella precedente è 0,73, ed è quella che il capitolo usa in ogni suo conto.
+# Non sono la stessa cosa e non vanno confuse — è l'errore che il capitolo
+# stesso ha dovuto correggere. Qui si usa quella del capitolo.
+#
+# Two estimators of the same word: the static correlation over the whole period
+# (0.675) and the average of the rolling windows (0.73). The chapter's numbers
+# all use the second one, so this table uses it too.
+rho_misurata = float(corr.mean())
+rho_statica = correlazione_media(M)
+print(f"correlazione media delle finestre mobili (quella del capitolo): {rho_misurata:.2f}")
+print(f"correlazione statica sull'intero periodo:                       {rho_statica:.2f}\n")
+etichetta_misurata = f"a corr. {rho_misurata:.2f}".replace(".", ",")
 print(f"{'asset':>6s} {'indipendenti':>14s} {'a corr. 0,3':>14s} "
-      f"{f'a corr. {rho_misurata:.2f}':>14s} {'a corr. 0,9':>14s}")
+      f"{etichetta_misurata:>14s} {'a corr. 0,9':>14s}")
 for n in (2, 3, 4, 5, 10, 15, 30):
     valori = "".join(f"{oscillazione_residua(n, rho) * 100:13.1f}%"
                      for rho in (0.0, 0.3, rho_misurata, 0.9))
     print(f"{n:6d} {valori}")
 
-n_eff = 1 / (1 / 3 + (1 - 1 / 3) * rho_misurata)
-print(f"\nnumero di asset DAVVERO indipendenti equivalenti ai tuoi 3: {n_eff:.2f}")
+# `len(NOMI)` e non un 3 scritto a mano: la cella sopra invita ad aggiungere
+# serie, e con un 3 fisso il numero effettivo restava quello di tre asset
+# qualunque cosa il lettore ci mettesse dentro.
+quanti = len(NOMI)
+n_eff = 1 / (1 / quanti + (1 - 1 / quanti) * rho_misurata)
+print(f"\nnumero di asset DAVVERO indipendenti equivalenti ai tuoi {quanti}: {n_eff:.2f}")
 
 # %% [markdown]
 # ### Esercizi

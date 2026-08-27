@@ -103,9 +103,21 @@ def disegna(destinazione: str = "stampa"):
         ax.grid(which="minor", visible=False)
 
     assi[0].set_ylabel(t("Capitale finale (× quello iniziale)", "Final capital (× starting capital)"))
-    assi[0].set_ylim(4e-4, 60)
-    assi[0].set_yticks([0.001, 0.01, 0.1, 1, 10])
-    assi[0].set_yticklabels(["0,001×", "0,01×", "0,1×", "1×", "10×"])
+    # Il fondo dell'asse si prende dai dati, non a occhio. Con il 4e-4 scritto
+    # a mano l'ultimo punto del costo piu' alto su ENI — 252 operazioni l'anno
+    # allo 0,25% — cadeva sotto il bordo: la curva usciva dal riquadro senza
+    # il proprio marcatore, e chi guardava non poteva sapere dove finisse. Un
+    # punto disegnato fuori dal grafico e' un dato tolto senza dirlo.
+    # The axis floor comes from the data: with the hand-written 4e-4 the last
+    # point of the highest cost on ENI fell below the frame, and the curve ran
+    # off the box without its marker.
+    minimo = min(float(np.min(c)) for d in numeri.values() for c in d["curve"].values())
+    assi[0].set_ylim(minimo / 2.2, 60)
+    assi[0].set_yticks([v for v in (1e-4, 0.001, 0.01, 0.1, 1, 10) if v > minimo / 2.2])
+    assi[0].set_yticklabels(
+        [e for v, e in ((1e-4, "0,0001×"), (0.001, "0,001×"), (0.01, "0,01×"),
+                        (0.1, "0,1×"), (1, "1×"), (10, "10×")) if v > minimo / 2.2]
+    )
 
     # Le tre etichette di costo stanno una volta sola, sul pannello di sinistra:
     # gli stili di tratto sono gli stessi a destra. In legenda e non sulle

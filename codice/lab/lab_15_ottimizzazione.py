@@ -223,10 +223,12 @@ valore_fuori = esegui(
 print(f"combinazioni provate: {tentativi:,}")
 print(f"la migliore: investire {'FUORI dal' if invertita else 'dal'} giorno {dal} "
       f"al giorno {al} del mese, saltando il {GIORNI_SETTIMANA[escluso]}")
+# Il compra-e-tieni fra parentesi passa dallo stesso motore delle regole, con
+# gli stessi costi: la cella 2 lo faceva gia', questa lo prendeva grezzo.
 print(f"  sulla prima meta':   {valore_dentro:8.2f}x   (compra e tieni: "
-      f"{prima[-1] / prima[0]:.2f}x)")
+      f"{esegui(prima, compra_e_tieni(prima), costo=COSTO)['finale']:.2f}x)")
 print(f"  sulla seconda meta': {valore_fuori:8.2f}x   (compra e tieni: "
-      f"{seconda[-1] / seconda[0]:.2f}x)")
+      f"{esegui(seconda, compra_e_tieni(seconda), costo=COSTO)['finale']:.2f}x)")
 print(f"\nrestringimento dentro→fuori: un fattore "
       f"{valore_dentro / max(valore_fuori, 1e-9):.1f}")
 print("\nDentro campione e' una curva che si mostrerebbe volentieri, e sotto non "

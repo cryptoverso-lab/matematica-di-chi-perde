@@ -160,7 +160,14 @@ def disegna(destinazione: str = "stampa"):
                   f"dentro {num(m['media_difficile'], 2)}",
                   f"outside {num(m['media_tranquilla'], 2)} · "
                   f"inside {num(m['media_difficile'], 2)}"),
-                transform=ax.transAxes, fontsize=6.5, ha="right", va="bottom")
+                transform=ax.transAxes, fontsize=6.5, ha="right", va="bottom",
+                # Fondo bianco come per l'etichetta della media: nel pannello
+                # esteso la curva scende fin qui negli ultimi mesi e passava
+                # dentro «dentro 0,26».
+                # White background, as for the mean label: in the extended
+                # panel the curve dips down here in the final months.
+                bbox=dict(boxstyle="square,pad=0.15", facecolor="white",
+                          edgecolor="none"), zorder=5)
         ax.set_title(t(f"{len(nomi)} asset: {etichetta}", f"{len(nomi)} assets: {etichetta}"),
                      fontsize=7)
         ax.set_ylim(0, 1)

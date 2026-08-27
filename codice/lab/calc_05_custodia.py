@@ -142,18 +142,29 @@ for p in (0.005, 0.01, 0.02, 0.05):
     print(f"{p:14.1%} " + "".join(f"{1 - (1 - p) ** a:14.1%}" for a in (5, 10, 20)))
 
 # %% [markdown]
-# ## 3. Dieci anni di mercato vero, con e senza il rischio di sede
+# ## 3. Nove anni di mercato vero, con e senza il rischio di sede
 #
 # I rendimenti sono quelli realmente accaduti, ricampionati a blocchi. L'unica
 # cosa aggiunta è l'evento raro. Le tre curve differiscono **solo** per quanta
 # parte del capitale sta in una sede sola.
 #
+# **Qui l'orizzonte non lo scegli tu: lo dettano i dati.** `bootstrap_traiettorie`
+# restituisce percorsi lunghi quanto i rendimenti da cui pesca, e di Bitcoin ce
+# ne sono 3.239 — nove anni scarsi. Sorteggiare l'evento di custodia su dieci
+# anni, come faceva questa cella, significava caricare un anno di rischio in più
+# su percorsi che non c'erano: la probabilità saliva dal 16,6% al 18,3% e i
+# percorsi sotto il capitale dal 24,8% al 27,7%, cioè il quaderno rispondeva a
+# una domanda diversa da quella della figura del capitolo.
+#
 # ---
 #
-# > **EN** — *3. Ten years of real market, with and without custody risk.*
+# > **EN** — *3. Nine years of real market, with and without custody risk.*
 # > The returns are the ones that actually happened, block-resampled. The
 # > only thing added is the rare event. The three curves differ **only** in
-# > how much capital sits at a single venue.
+# > how much capital sits at a single venue. **The horizon here isn't yours to
+# > pick: the data set it.** The resampled paths are as long as the returns
+# > they draw from — 3,239 of them, barely nine years — so drawing the custody
+# > event over ten would load a year of risk onto paths that don't exist.
 
 # %%
 PERCORSI = 5000  # PROVA / TRY: 500 (veloce) · 5000 · 20000 (code più nette)
@@ -162,17 +173,17 @@ QUOTE = [1.00, 0.50, 0.20]  # PROVA / TRY: le tue quote di concentrazione
 r = rendimenti(carica("btcusdt").sort("data")["chiusura"].to_numpy())
 # PROVA / TRY: per un'altra serie aggiungila a avvio.prepara([...]) qui sopra
 # — le 11 disponibili sono in codice/dati/registro.json
-rng = np.random.default_rng(seed_for("calc-custodia"))
-# NON TOCCARE / DO NOT CHANGE: il seme fissa i numeri di mediana e "5% peggiore"
-# citati nel testo qui sotto; cambiarlo dopo aver visto il risultato è il
-# p-hacking che il libro smonta altrove.
-# The seed fixes the median and "worst 5%" numbers quoted in the text below;
-# changing it after seeing the result is the p-hacking the book takes apart
-# elsewhere.
-giorni = min(365 * ORIZZONTE, len(r))
-mercato = bootstrap_traiettorie(r[:giorni], n_traiettorie=PERCORSI, rng=rng,
+rng = np.random.default_rng(seed_for("custodia"))
+# NON TOCCARE / DO NOT CHANGE: è lo stesso seme della figura del capitolo. Con
+# questo, gli stessi 5.000 percorsi e gli stessi anni, la tabella qui sotto è
+# quella stampata nel libro — che è la promessa del libro, non un dettaglio.
+# Cambiarlo dopo aver visto il risultato è il p-hacking che il libro smonta.
+# This is the same seed as the chapter's figure. With it — same 5,000 paths,
+# same number of years — the table below is the one printed in the book.
+anni_percorso = max(1, round(len(r) / 365))
+mercato = bootstrap_traiettorie(r, n_traiettorie=PERCORSI, rng=rng,
                                 a_blocchi=20)[:, -1]
-colpito = (rng.random((PERCORSI, ORIZZONTE)) < RISCHIO_ANNUO).any(axis=1)
+colpito = (rng.random((PERCORSI, anni_percorso)) < RISCHIO_ANNUO).any(axis=1)
 
 with avvio.figura("schermo"):
     fig, ax = plt.subplots()
@@ -184,14 +195,17 @@ with avvio.figura("schermo"):
                 label=t(f"{quota:.0%} in una sede", f"{quota:.0%} at one venue"))
     ax.axvline(1.0, linewidth=1.2, linestyle=":")
     ax.set_xscale("log")
-    ax.set_xlabel(t(f"Capitale dopo {ORIZZONTE} anni (volte quello iniziale, scala log)",
-                     f"Capital after {ORIZZONTE} years (× starting, log scale)"))
+    ax.set_xlabel(t(f"Capitale dopo {anni_percorso} anni (volte quello iniziale, scala log)",
+                     f"Capital after {anni_percorso} years (× starting, log scale)"))
     ax.set_ylabel(t("Percorsi con esito peggiore o uguale (%)", "Paths with equal or worse outcome (%)"))
     ax.legend()
     plt.show()
 
-print(t(f"probabilita' di almeno un evento nei {ORIZZONTE} anni: {colpito.mean():.1%}\n",
-        f"probability of at least one event in {ORIZZONTE} years: {colpito.mean():.1%}\n"))
+print(t(f"orizzonte dei percorsi, dettato dai dati: {anni_percorso} anni "
+        f"({len(r)} rendimenti)",
+        f"path horizon, set by the data: {anni_percorso} years ({len(r)} returns)"))
+print(t(f"probabilita' di almeno un evento nei {anni_percorso} anni: {colpito.mean():.1%}\n",
+        f"probability of at least one event in {anni_percorso} years: {colpito.mean():.1%}\n"))
 print(f"{t('quota in una sede', 'share at one venue'):>18s} {t('mediana', 'median'):>10s} "
       f"{t('5% peggiore', 'worst 5%'):>13s} {t('sotto il capitale', 'below capital'):>19s}")
 for quota in QUOTE:
