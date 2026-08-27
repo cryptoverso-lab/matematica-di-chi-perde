@@ -166,15 +166,32 @@ for taglio in (500, 1500, 2500):  # PROVA / TRY: aggiungi un altro punto di tagl
 N_CASUALI = 1000
 
 
-def posizione_casuale(n: int, n_operazioni: int, rng) -> np.ndarray:
-    """Entra ed esce a caso, esattamente `n_operazioni` volte."""
+def _ripartisci(totale: int, parti: int, rng) -> np.ndarray:
+    """Divide `totale` in `parti` addendi casuali, ciascuno almeno 1."""
+    if parti == 1:
+        return np.array([totale])
+    libero = totale - parti
+    tagli = np.sort(rng.integers(0, libero + 1, size=parti - 1))
+    return np.diff(np.concatenate([[0], tagli, [libero]])) + 1
+
+
+def posizione_casuale(n: int, giorni_dentro: int, n_operazioni: int, rng) -> np.ndarray:
+    """Entra ed esce a caso, con gli STESSI giorni dentro e le stesse operazioni.
+
+    Allineare solo le operazioni non basta: due strategie con lo stesso numero
+    di entrate possono stare dentro al mercato per meta' del tempo o per il
+    doppio, e su un asset che sale il tempo di esposizione vale piu' di
+    qualunque bravura. Il metro deve tenere fissi tutti e due i numeri.
+    """
+    blocchi = max(n_operazioni // 2, 1)
+    dentro = _ripartisci(giorni_dentro, blocchi, rng)
+    fuori = _ripartisci(n - giorni_dentro, blocchi + 1, rng)
     pos = np.zeros(n)
-    punti = np.sort(rng.choice(n - 1, size=n_operazioni, replace=False))
-    stato, precedente = 0.0, 0
-    for i in punti:
-        pos[precedente:i] = stato
-        stato, precedente = 1.0 - stato, i
-    pos[precedente:] = stato
+    i = 0
+    for b in range(blocchi):
+        i += int(fuori[b])
+        pos[i:i + int(dentro[b])] = 1.0
+        i += int(dentro[b])
     return pos
 
 
@@ -184,14 +201,17 @@ def metro_del_caso(prezzi: np.ndarray, posizione: np.ndarray, *,
     """Quale percentile occupa questa posizione, fra tante casuali equivalenti?"""
     vera = esegui(prezzi, posizione, costo=costo)
     n_op = int(vera["operazioni"])
+    giorni_dentro = int(np.asarray(posizione).sum())
     rng = np.random.default_rng(seed_for(seme))
     casuali = np.array([
-        esegui(prezzi, posizione_casuale(len(prezzi), n_op, rng), costo=costo)["finale"]
+        esegui(prezzi, posizione_casuale(len(prezzi), giorni_dentro, n_op, rng),
+               costo=costo)["finale"]
         for _ in range(n_casuali)
     ])
     return {
         "risultato": vera["finale"],
         "operazioni": n_op,
+        "giorni_dentro": giorni_dentro,
         "casuali": casuali,
         "percentile": float((casuali < vera["finale"]).mean() * 100),
     }

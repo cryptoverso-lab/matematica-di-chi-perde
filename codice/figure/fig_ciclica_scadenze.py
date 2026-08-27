@@ -35,16 +35,21 @@ SERIE = [
     ("solusdt", "Solana", True),
 ]
 
+#: La didascalia stampata in pagina, parola per parola. Non e' una copia
+#: libera: `test_conformita` verifica che coincida con quella del `.qmd`.
+#: Trentatre' su quarantatre' erano divergenti, e quattro portavano numeri
+#: di una versione precedente del calcolo.
 DIDASCALIA = (
-    "Quanto volume in più si scambia nel giorno in cui scadono i derivati. Sulle "
-    "quattro azioni italiane e sull'indice la scadenza è il terzo venerdì del "
-    "mese, sulle criptovalute l'ultimo: date di calendario, pubbliche, note con "
-    "anni di anticipo, che non contengono nessuna informazione su dove andrà il "
-    "prezzo. La barra chiara confronta con un giorno qualunque; quella scura, "
-    "che è quella che conta, con un altro venerdì dello stesso mercato — perché "
-    "la scadenza cade sempre di venerdì, e il venerdì non è un giorno qualunque. "
-    "Sulle azioni italiane il confronto onesto non toglie quasi niente. Sulle "
-    "criptovalute porta via tutto: lì non era la scadenza, era il venerdì."
+    "Quanto volume in più si scambia nel giorno in cui scadono i derivati. "
+    "Sulle quattro azioni italiane e sull'indice la scadenza è il terzo "
+    "venerdì del mese, sulle criptovalute l'ultimo: date di calendario, "
+    "pubbliche, note con anni di anticipo, che non contengono nessuna "
+    "informazione su dove andrà il prezzo. La barra chiara confronta con un "
+    "giorno qualunque; quella scura, che è quella che conta, con un altro "
+    "venerdì dello stesso mercato — perché la scadenza cade sempre di "
+    "venerdì, e il venerdì non è un giorno qualunque. Sulle azioni italiane "
+    "il confronto onesto non toglie quasi niente. Sulle criptovalute porta "
+    "via tutto: lì non era la scadenza, era il venerdì."
 )
 
 

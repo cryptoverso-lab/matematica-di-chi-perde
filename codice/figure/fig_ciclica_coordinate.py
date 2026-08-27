@@ -26,14 +26,19 @@ from cvbook.stile import firma, mesi_italiani, num  # noqa: E402
 
 CAPITOLO = "sec-cap-ciclica"
 DA, A = "2023-01-01", "2023-06-30"
+#: La didascalia stampata in pagina, parola per parola. Non e' una copia
+#: libera: `test_conformita` verifica che coincida con quella del `.qmd`.
+#: Trentatre' su quarantatre' erano divergenti, e quattro portavano numeri
+#: di una versione precedente del calcolo.
 DIDASCALIA = (
     "Bitcoin nel primo semestre del 2023, con gli estremi riconosciuti da una "
-    "regola sola: un estremo diventa definitivo quando il prezzo si è allontanato "
-    "del 5% nella direzione opposta. Fra un estremo e il successivo c'è un "
-    "movimento, e ogni movimento porta due numeri: di quanto si è spostato il "
-    "prezzo e quanti giorni ci ha messo. Il movimento quotato ne è un esempio. "
-    "La regola riconosce un estremo solo dopo l'inversione: serve a descrivere "
-    "movimenti finiti, non a segnalarne uno che comincia."
+    "regola sola: un estremo diventa definitivo quando il prezzo si è "
+    "allontanato del 5% nella direzione opposta. Fra un estremo e il "
+    "successivo c'è un movimento, e ogni movimento porta due numeri: di "
+    "quanto si è spostato il prezzo e quanti giorni ci ha messo. Il movimento "
+    "quotato ne è un esempio. La regola riconosce un estremo solo dopo "
+    "l'inversione: serve a descrivere movimenti finiti, non a segnalarne uno "
+    "che comincia."
 )
 
 
@@ -66,9 +71,7 @@ def disegna(destinazione: str = "stampa"):
     # Quota verticale: quanto. Spostata a destra del vertice, con due linee di
     # richiamo: sopra il vertice la punta della freccia sparirebbe sotto il
     # pallino, e la quota sembrerebbe una freccia sola rivolta in giu'.
-    import numpy as _np
-
-    scarto = _np.timedelta64(9, "D")
+    scarto = np.timedelta64(9, "D")
     x_quota = date[b] + scarto
     for y in (p0, p1):
         ax.plot([date[b] if y == p1 else date[a], x_quota], [y, y],

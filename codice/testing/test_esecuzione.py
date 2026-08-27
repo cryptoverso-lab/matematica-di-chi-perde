@@ -33,7 +33,7 @@ from estrazione.comune import ProblemaDiIngest  # noqa: E402
 from estrazione.esecuzione import esegui  # noqa: E402
 from estrazione.figure import BUDGET_FIGURA_BYTE, Figure  # noqa: E402
 from estrazione.sito import MARCATORE_SITO, checkout_del_sito  # noqa: E402
-from estrazione.sorgente import estrai_dal_sorgente  # noqa: E402
+from estrazione.sorgente import ATTESI, estrai_dal_sorgente  # noqa: E402
 
 #: Dove sta il checkout del sito quando i test girano a mano. La variabile
 #: d'ambiente esiste perche' il percorso NON si scrive in un file: cambia da
@@ -209,8 +209,8 @@ def test_il_corpus_produce_quaranta_figure_tutte_leggibili_e_in_budget(tmp_path:
         figure += estrazione.figure
         pesi.extend(tavole.pesate)
 
-    assert figure == 40, (
-        f"il corpus ha prodotto {figure} figure invece di 40: una figura che sparisce "
+    assert figure == ATTESI["figure"], (
+        f"il corpus ha prodotto {figure} figure invece di 41: una figura che sparisce "
         "non produce un errore, produce una pagina con un grafico in meno"
     )
     assert all(byte <= BUDGET_FIGURA_BYTE for _, byte in pesi)

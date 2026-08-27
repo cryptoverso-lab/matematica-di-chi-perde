@@ -17,6 +17,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 
 from .layout import (
+    CORPO_ETICHETTE_PT,
     KDP_MIN_FONTSIZE_PT,
     KDP_MIN_LINEWIDTH_PT,
     figsize,
@@ -37,6 +38,11 @@ GRIGI = ["#000000", "#595959", "#8C8C8C", "#BFBFBF"]
 
 #: Stili di linea abbinati ai grigi: la serie resta distinguibile in fotocopia.
 TRATTI = ["-", "--", "-.", ":"]
+
+# Il corpo con cui si compone non puo' scendere sotto il minimo di stampa:
+# se qualcuno abbassa CORPO_ETICHETTE_PT, la build si ferma qui invece di
+# produrre 43 figure fuori specifica.
+assert CORPO_ETICHETTE_PT >= KDP_MIN_FONTSIZE_PT
 
 #: Retini per aree e barre. Mai `alpha`: KDP chiede trasparenze appiattite.
 RETINI = ["///", "\\\\\\", "xxx", "...", "+++"]
@@ -66,9 +72,9 @@ _COMUNE = {
     "axes.titlepad": 5.0,
     "axes.labelsize": 7.5,
     "axes.labelpad": 3.0,
-    "xtick.labelsize": KDP_MIN_FONTSIZE_PT,
-    "ytick.labelsize": KDP_MIN_FONTSIZE_PT,
-    "legend.fontsize": KDP_MIN_FONTSIZE_PT,
+    "xtick.labelsize": CORPO_ETICHETTE_PT,
+    "ytick.labelsize": CORPO_ETICHETTE_PT,
+    "legend.fontsize": CORPO_ETICHETTE_PT,
     "axes.spines.top": False,
     "axes.spines.right": False,
     # La griglia sta dietro ai dati e serve a leggere i valori, non a decorare:
@@ -295,6 +301,33 @@ def firma(fig, fonte: str, estratto: str) -> None:
     )
 
 
+def _appiattisci(percorso, destinazione: str) -> None:
+    """Toglie il canale alpha dal PNG appena salvato.
+
+    matplotlib scrive PNG in RGBA anche quando nessun colore e' trasparente, e
+    LuaLaTeX li porta nel PDF come immagine RGB piu' una *soft mask*: erano 43
+    trasparenze su 43 figure. KDP chiede esplicitamente di appiattire le
+    trasparenze prima del caricamento, e il vincolo di progetto dice la stessa
+    cosa; il controllo sui grigi non se ne accorgeva perche' guarda il colore,
+    non l'alpha.
+
+    La stampa diventa a un canale (`L`): e' gia' tutto grigio, il file dimezza
+    e nel PDF non entra piu' nessuna maschera. Lo schermo resta a colori ma
+    perde l'alpha, composto su bianco.
+    """
+    from PIL import Image
+
+    with Image.open(percorso) as img:
+        if img.mode not in ("RGBA", "LA", "P"):
+            return
+        img = img.convert("RGBA")
+        fondo = Image.new("RGBA", img.size, (255, 255, 255, 255))
+        piatta = Image.alpha_composite(fondo, img)
+        piatta = piatta.convert("L" if destinazione == "stampa" else "RGB")
+        dpi = 600 if destinazione == "stampa" else 300
+        piatta.save(percorso, dpi=(dpi, dpi))
+
+
 def salva(fig, percorso, destinazione: str = "stampa") -> None:
     """Salva la figura.
 
@@ -311,3 +344,4 @@ def salva(fig, percorso, destinazione: str = "stampa") -> None:
     """
     fig.savefig(percorso, format="png", dpi=600 if destinazione == "stampa" else 300)
     plt.close(fig)
+    _appiattisci(percorso, destinazione)

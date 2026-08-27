@@ -28,20 +28,33 @@ COSTO = 0.0012
 FINESTRE = np.arange(5, 121, 5)
 SCELTA = 20
 N_CASUALI = 1000
+#: La didascalia stampata in pagina, parola per parola. Non e' una copia
+#: libera: `test_conformita` verifica che coincida con quella del `.qmd`.
+#: Trentatre' su quarantatre' erano divergenti, e quattro portavano numeri
+#: di una versione precedente del calcolo.
 DIDASCALIA = (
-    "A sinistra: la regola della rottura al variare della sua unica finestra, da 5 a "
-    "120 giorni. La riga orizzontale è il compra-e-tieni: undici valori su "
-    "ventiquattro lo superano, e la zona buona è un altopiano largo, non un picco "
-    "isolato. A destra: mille posizioni casuali che entrano ed escono lo stesso "
-    "numero di volte della regola, con gli stessi costi. La regola sta al 98esimo "
-    "percentile. Detta con precisione: se non ci fosse alcun vantaggio, un risultato "
-    "così o migliore capiterebbe circa due volte su cento — e le regole provate "
-    "erano sei."
+    "A sinistra: la regola della rottura al variare della sua unica finestra, "
+    "da 5 a 120 giorni, con il compra-e-tieni come riga orizzontale. La forma "
+    "conta più dell'altezza: fra venti e sessantacinque giorni nessun valore "
+    "scende sotto il non far niente, pur oscillando fra 16 e 41 volte il "
+    "capitale. Non è un picco isolato, e non è nemmeno una pianura. A destra: "
+    "mille posizioni casuali che entrano ed escono lo stesso numero di volte "
+    "della regola e pagano gli stessi costi, ma entrano a caso. La regola "
+    "cade nella coda destra di quella distribuzione. Il capitolo spiega "
+    "perché nemmeno questo basta: i tentativi erano trenta."
 )
 
 
 def _posizione_casuale(n: int, n_operazioni: int, rng) -> np.ndarray:
-    """Entra ed esce a caso, esattamente `n_operazioni` volte."""
+    """Entra ed esce a caso, esattamente `n_operazioni` volte.
+
+    Nel 3% dei tentativi il primo punto di cambio cade al giorno zero, e quella
+    posizione parte gia' dentro il mercato: `np.diff` non vede quell'ingresso e
+    per un anno quelle posizioni hanno pagato un'operazione in meno della
+    regola vera. Adesso `esegui` addebita anche l'ingresso del primo giorno,
+    quindi il conto torna da solo — e l'`assert` di chi chiama verifica che
+    continui a tornare.
+    """
     pos = np.zeros(n)
     punti = np.sort(rng.choice(n - 1, size=n_operazioni, replace=False))
     stato, precedente = 0.0, 0
@@ -64,10 +77,17 @@ def disegna(destinazione: str = "stampa"):
     n_op = int(scelta["operazioni"])
 
     rng = np.random.default_rng(seed_for("tecnica-verifica"))
-    casuali = np.array([
-        esegui(p, _posizione_casuale(len(p), n_op, rng), costo=COSTO)["finale"]
-        for _ in range(N_CASUALI)
-    ])
+    casuali = []
+    for _ in range(N_CASUALI):
+        posizione = _posizione_casuale(len(p), n_op, rng)
+        conto = esegui(p, posizione, costo=COSTO)
+        # Il confronto vale solo se le casuali pagano quanto la regola vera.
+        assert int(conto["operazioni"]) == n_op, (
+            f"posizione casuale con {conto['operazioni']:.0f} operazioni "
+            f"invece di {n_op}: paga costi diversi dalla regola vera"
+        )
+        casuali.append(conto["finale"])
+    casuali = np.array(casuali)
     percentile = float((casuali < scelta["finale"]).mean() * 100)
 
     fig, (sx, dx) = plt.subplots(1, 2, figsize=(4.25, 4.25 * 0.62))
@@ -88,7 +108,12 @@ def disegna(destinazione: str = "stampa"):
     dx.hist(casuali, bins=40, facecolor="white", edgecolor="black", linewidth=0.6,
             hatch="///")
     # Come sopra: la verticale resta dentro il riquadro.
-    dx.axvline(scelta["finale"], color="black", linewidth=1.4, ymax=0.94)
+    # La verticale della strategia vera era un tratto pieno che si fermava al
+    # 94% dell'asse: alla stessa altezza delle barre e con lo stesso disegno,
+    # veniva letta come una barra dell'istogramma — e per giunta come la piu'
+    # alta, cioe' come la classe piu' numerosa. Adesso e' tratteggiata e
+    # attraversa tutto il riquadro: e' un riferimento, non un dato.
+    dx.axvline(scelta["finale"], color="black", linewidth=1.4, linestyle=(0, (4, 2)))
     # Il testo non ha spazio dentro l'istogramma: a mezza altezza finiva sul
     # bordo della prima barra, che e' alta quasi quanto l'asse. Si apre una
     # fascia libera alzando il limite e lo si mette li', con un filo che lo

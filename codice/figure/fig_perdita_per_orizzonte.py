@@ -24,13 +24,17 @@ ORIZZONTI = [
     (30, t("1 mese", "1 month")), (90, t("3 mesi", "3 months")), (365, t("1 anno", "1 year")),
     (730, t("2 anni", "2 years")), (1460, t("4 anni", "4 years")),
 ]
+#: La didascalia stampata in pagina, parola per parola. Non e' una copia
+#: libera: `test_conformita` verifica che coincida con quella del `.qmd`.
+#: Trentatre' su quarantatre' erano divergenti, e quattro portavano numeri
+#: di una versione precedente del calcolo.
 DIDASCALIA = (
-    "Quota di giorni d'ingresso che, dopo il periodo indicato, si trova in perdita. "
-    "Piu' l'orizzonte si allunga, meno conta il momento in cui si è cominciato. "
-    "Attenzione però: il campione è un solo asset in un solo periodo, e per giunta "
-    "un periodo in cui quell'asset è cresciuto moltissimo. La colonna dei quattro anni "
-    "non dice che a quattro anni non si perde: dice che qui, in questa finestra, non è "
-    "successo. E' esattamente il tipo di conclusione che questo libro insegna a rifiutare."
+    "Quota di giorni d'ingresso che, dopo il periodo indicato, si trova in "
+    "perdita. Più l'orizzonte si allunga, meno conta il momento in cui si è "
+    "cominciato. È una figura da guardare con sospetto, e il capitolo dice "
+    "perché: una storia sola, per giunta cresciuta moltissimo, misurata su "
+    "finestre che si accavallano. Lo zero della colonna a quattro anni è un "
+    "fatto di questa finestra, non una regola."
 )
 
 

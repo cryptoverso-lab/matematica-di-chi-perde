@@ -60,6 +60,13 @@ def _marchi_in_grigi() -> None:
         # Trasparenza appiattita su bianco: le specifiche di stampa la chiedono.
         fondo = Image.new("RGBA", img.size, (255, 255, 255, 255))
         piatta = Image.alpha_composite(fondo, img).convert("L")
+        # Il marchio entra in pagina a 15 mm: un raster da 2.000 px lo colloca a
+        # 3.387 DPI, cioe' cinque volte e mezzo il tetto raccomandato per la
+        # stampa, e pesa senza che nessuno veda la differenza. Si porta alla
+        # risoluzione che serve davvero — 600 DPI su 15 mm sono 354 px — con un
+        # margine, e si smette di spedire pixel che la carta non puo' rendere.
+        lato = 400
+        piatta = piatta.resize((lato, lato), Image.LANCZOS)
         for cartella in OUT.values():
             piatta.save(cartella / f"{nome}.png", dpi=(600, 600))
         print(f"marchio in grigi: {nome}")

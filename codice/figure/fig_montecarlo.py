@@ -26,13 +26,19 @@ from cvbook.stile import firma, num  # noqa: E402
 
 CAPITOLO = "sec-cap-19"
 N = 1000
+#: La didascalia stampata in pagina, parola per parola. Non e' una copia
+#: libera: `test_conformita` verifica che coincida con quella del `.qmd`.
+#: Trentatre' su quarantatre' erano divergenti, e quattro portavano numeri
+#: di una versione precedente del calcolo.
 DIDASCALIA = (
-    "A sinistra: mille percorsi alternativi ottenuti rimescolando a blocchi di venti "
-    "giorni gli stessi rendimenti realmente accaduti, con evidenziata la storia "
-    "davvero capitata. A destra: la distribuzione del calo massimo di quei mille "
-    "percorsi. La storia reale ha avuto un calo dell'83%, ma percorsi con la stessa "
-    "identica materia prima arrivano ben oltre. Chi dimensiona la propria posizione "
-    "sul peggio già visto sta dimensionando su un campione di uno."
+    "A sinistra: mille percorsi alternativi costruiti pescando a blocchi di "
+    "venti giorni dagli stessi rendimenti realmente accaduti, con evidenziata "
+    "la storia davvero capitata; la tratteggiata è il percorso mediano. A "
+    "destra: la distribuzione del calo massimo di quei mille percorsi, con "
+    "evidenziato quello davvero capitato. L'83% realmente subito è appena "
+    "peggiore del calo mediano — sei percorsi su dieci sono scesi meno — ma "
+    "la coda arriva al 95%. Il massimo calo storico non è un limite, è un "
+    "caso."
 )
 
 
@@ -60,7 +66,12 @@ def disegna(destinazione: str = "stampa"):
     reale_dd = drawdown_massimo(reale) * 100
     # La verticale si ferma poco sotto il bordo: portata fino in cima, su un
     # riquadro senza cornice superiore sembrava uscire dal grafico.
-    dx.axvline(reale_dd, color="black", linewidth=1.3, ymax=0.94)
+    # La verticale della strategia vera era un tratto pieno che si fermava al
+    # 94% dell'asse: alla stessa altezza delle barre e con lo stesso disegno,
+    # veniva letta come una barra dell'istogramma — e per giunta come la piu'
+    # alta, cioe' come la classe piu' numerosa. Adesso e' tratteggiata e
+    # attraversa tutto il riquadro: e' un riferimento, non un dato.
+    dx.axvline(reale_dd, color="black", linewidth=1.3, linestyle=(0, (4, 2)))
 
     # Le due etichette vanno agli angoli opposti, ciascuna dalla parte del
     # proprio valore: messe entrambe a destra, le due frecce si incrociavano

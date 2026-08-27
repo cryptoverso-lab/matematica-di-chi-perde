@@ -31,15 +31,19 @@ from cvbook.stile import firma  # noqa: E402
 CAPITOLO = "sec-cap-10"
 SOGLIE = np.array([5, 10, 20, 30, 50, 70])
 MERCATI = [("btcusdt", "Bitcoin, 2017-2026"), ("eni", "ENI, 2000-2026")]
+#: La didascalia stampata in pagina, parola per parola. Non e' una copia
+#: libera: `test_conformita` verifica che coincida con quella del `.qmd`.
+#: Trentatre' su quarantatre' erano divergenti, e quattro portavano numeri
+#: di una versione precedente del calcolo.
 DIDASCALIA = (
-    "Sopra: distanza dal massimo precedente, giorno per giorno, su Bitcoin e su "
-    "un'azione industriale quotata a Milano. La zona nera è il tempo passato sotto "
-    "il proprio picco — che in entrambi i casi è quasi tutto il tempo. Sotto: per "
-    "quanta parte del periodo il capitale è rimasto oltre una certa distanza dal "
-    "massimo. Su Bitcoin il 71% dei giorni si è stati almeno il 20% sotto e il 40% "
-    "almeno la metà sotto; su ENI, che oscilla meno della metà, il 27% e lo 0,7%. "
-    "La profondità cambia, la condizione no: il 73% del tempo sotto il 5% dal "
-    "massimo per un titolo, l'89% per Bitcoin."
+    "Sopra: distanza dal massimo precedente, giorno per giorno, su Bitcoin e "
+    "su un'azione industriale quotata a Milano. La zona nera è il tempo "
+    "passato sotto il proprio picco — che in entrambi i casi è quasi tutto il "
+    "tempo. Sotto: per quanta parte del periodo il capitale è rimasto oltre "
+    "una certa distanza dal massimo. Sul titolo le quote sono 28% oltre −20% "
+    "e 0,7% oltre −50%; su Bitcoin, che oscilla il doppio, 71% e 40%. La "
+    "profondità cambia, la condizione no: il 73% del tempo sotto il 5% dal "
+    "massimo per il titolo, l'89% per Bitcoin."
 )
 
 

@@ -240,7 +240,7 @@ def _sorgenti() -> list[Path]:
 
 
 def test_il_corpus_intero_si_converte_senza_costrutti_sconosciuti() -> None:
-    """Le 221 celle markdown dei 29 sorgenti, una per una.
+    """Le 222 celle markdown dei 29 sorgenti, una per una.
 
     Il numero e' RIMISURATO qui e non copiato dalla ricerca, che contava 191
     celle markdown su 373 totali: da allora ogni cella ha guadagnato la sua
@@ -256,14 +256,14 @@ def test_il_corpus_intero_si_converte_senza_costrutti_sconosciuti() -> None:
         formule += estrazione.formule
         solo_inglese += estrazione.prosa_solo_inglese
 
-    # 220 e non 221 dal piano 04-10, e la differenza e' UNA cella dichiarata:
+    # 221 e non 222, e la differenza e' UNA cella dichiarata:
     # `lab_21_ai.py` cella 17 e' tutta inglese — traduce cio' che la cella di
     # codice prima di lei stampa — quindi in italiano non produce un blocco.
     # Il conteggio non e' stato abbassato per far passare il test: la somma dei
-    # due numeri e' ancora 221, ed e' asserita.
-    assert celle == 220, "celle di prosa convertite"
+    # due numeri e' ancora 222, ed e' asserita.
+    assert celle == 221, "celle di prosa convertite"
     assert solo_inglese == ATTESI["prosa_solo_inglese"], "celle tutte inglesi"
-    assert celle + solo_inglese == 221, "celle markdown del corpus"
+    assert celle + solo_inglese == ATTESI["code_inglesi"], "celle markdown del corpus"
     assert titoli == ATTESI["titolo"], (
         "il titolo del libro compare una volta per file: un'occorrenza in piu' "
         "o in meno va guardata prima che finisca in 58 file del bundle (D-64)"
@@ -410,7 +410,7 @@ def test_la_cella_di_resa_chiede_svg_e_testo_che_resta_testo() -> None:
     e' PNG, e nessun lab dichiara il formato); `svg.fonttype = 'none'` decide se
     le etichette restano testo o diventano tracciati. Sono asserite qui perche'
     la cella e' una costante: una modifica distratta non produrrebbe nessun
-    errore, produrrebbe 40 figure opache.
+    errore, produrrebbe 41 figure opache.
     """
     assert "InlineBackend.figure_formats = ['svg']" in CELLA_DI_RESA
     assert "svg.fonttype'] = 'none'" in CELLA_DI_RESA

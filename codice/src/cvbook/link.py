@@ -183,6 +183,32 @@ ROTTE_SERVIZIO: dict[str, tuple[str, str]] = {
 }
 
 
+#: Le pagine legali di Cryptoverso, dove vivono titolare, diritti, reclamo e
+#: cookie policy. Il dominio del libro e' un sottodominio di quel sito: la sua
+#: pagina non ricopia quei dati, li linka.
+#:
+#: E' il principio gia' scritto nell'informativa di Cryptoverso — «due copie
+#: degli stessi dati divergono alla prima variazione» — applicato qui: se il
+#: titolare cambia, cambia in un posto solo.
+SITO_CRYPTOVERSO = "https://cryptoverso.net"
+PAGINE_LEGALI = {
+    "privacy": f"{SITO_CRYPTOVERSO}/note-legali/privacy",
+    "cookie": f"{SITO_CRYPTOVERSO}/note-legali/cookie",
+}
+
+#: Lo strumento con cui si misurano le visite alle rotte, se ce n'e' uno.
+#: `None` = nessuno, e la pagina lo dichiara insieme all'impegno gia' preso
+#: sul sito: se un giorno entrera', sara' uno strumento che non archivia nulla
+#: sul dispositivo di chi legge e produce solo conteggi aggregati di pagina.
+#: Valorizzandolo con il nome del servizio, la pagina lo nomina.
+MISURA: str | None = None
+
+
+def url_informativa() -> str:
+    """L'indirizzo della pagina, che il libro nomina senza stamparlo."""
+    return f"https://{DOMINIO}/privacy"
+
+
 def url_servizio(nome: str) -> str:
     """URL stampato di una rotta di servizio."""
     if nome not in ROTTE_SERVIZIO:

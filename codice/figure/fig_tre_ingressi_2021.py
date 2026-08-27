@@ -1,4 +1,4 @@
-"""Cap. 1 — Tre persone, la stessa idea, tre mesi di differenza.
+"""Cap. 1 — Tre persone, la stessa idea, dieci mesi di differenza.
 
 E' la figura che rende personale il dato statistico: non una distribuzione, ma
 tre traiettorie che si possono seguire con il dito.
@@ -25,12 +25,16 @@ INGRESSI = [
     ("2021-04-01", t("Aprile", "April")),
     ("2021-11-01", t("Novembre", "November")),
 ]
+#: La didascalia stampata in pagina, parola per parola. Non e' una copia
+#: libera: `test_conformita` verifica che coincida con quella del `.qmd`.
+#: Trentatre' su quarantatre' erano divergenti, e quattro portavano numeri
+#: di una versione precedente del calcolo.
 DIDASCALIA = (
-    "Tre ingressi nello stesso anno, sullo stesso asset, con la stessa strategia: "
-    "comprare e tenere dodici mesi. Chi ha cominciato a gennaio 2021 si è ritrovato "
-    "in utile del 63%, chi ha cominciato dieci mesi dopo in perdita del 66%. "
-    "Centoventinove punti percentuali di differenza, e nessuno dei tre ha preso una "
-    "sola decisione diversa dagli altri."
+    "Tre ingressi nello stesso anno, sullo stesso asset, con la stessa "
+    "strategia: comprare e tenere dodici mesi. Chi ha cominciato a gennaio "
+    "2021 si è ritrovato in utile del 63%, chi ha cominciato dieci mesi dopo "
+    "in perdita del 66%. 129 punti percentuali di differenza, e nessuno dei "
+    "tre ha preso una sola decisione diversa dagli altri."
 )
 
 

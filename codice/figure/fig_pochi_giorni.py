@@ -21,14 +21,16 @@ from cvbook.metriche import rendimenti  # noqa: E402
 from cvbook.stile import firma, num  # noqa: E402
 
 CAPITOLO = "sec-cap-09"
+#: La didascalia stampata in pagina, parola per parola. Non e' una copia
+#: libera: `test_conformita` verifica che coincida con quella del `.qmd`.
+#: Trentatre' su quarantatre' erano divergenti, e quattro portavano numeri
+#: di una versione precedente del calcolo.
 DIDASCALIA = (
-    "Capitale finale su 3.239 giorni, togliendo dalla serie i giorni migliori oppure "
-    "i giorni peggiori. Chi avesse evitato i dieci giorni peggiori avrebbe portato a "
-    "casa 103 volte il capitale invece di 13,7; chi avesse mancato i dieci migliori "
-    "sarebbe sceso a 2,9. Venti giorni su 3.200 — lo 0,6% del tempo — "
-    "spostano il risultato di un fattore trentacinque. E nessuno sa in anticipo quali "
-    "siano: nella stessa settimana di maggio 2022 ci sono sia il peggiore sia uno "
-    "dei migliori."
+    "Capitale finale su 3.239 giorni, togliendo dalla serie i giorni migliori "
+    "oppure i giorni peggiori. Chi avesse evitato i dieci giorni peggiori "
+    "avrebbe portato a casa 103 volte il capitale invece di 13,7; chi avesse "
+    "mancato i dieci migliori sarebbe sceso a 2,9. Venti giorni su 3.200 — lo "
+    "0,6% del tempo — spostano il risultato di un fattore trentacinque."
 )
 
 

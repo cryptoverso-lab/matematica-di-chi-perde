@@ -21,15 +21,18 @@ from cvbook.stile import firma  # noqa: E402
 CAPITOLO = "sec-cap-07"
 PREZZO_CORSO = 497
 RESA = 0.30  # rendimento annuo dichiarato, molto generoso
+#: La didascalia stampata in pagina, parola per parola. Non e' una copia
+#: libera: `test_conformita` verifica che coincida con quella del `.qmd`.
+#: Trentatre' su quarantatre' erano divergenti, e quattro portavano numeri
+#: di una versione precedente del calcolo.
 DIDASCALIA = (
     "Ricavo annuo di due attività diverse. La linea continua è quanto produce "
-    "operare sui mercati con un rendimento del 30% annuo — una cifra che quasi "
-    "nessun gestore professionale sostiene nel tempo — al variare del capitale "
-    "disponibile. La linea tratteggiata è quanto produce vendere un corso da 497 "
-    "euro, al variare del numero di iscritti. Con 20.000 euro di capitale e una "
-    "bravura eccezionale si arriva a 6.000 euro l'anno; con 200 iscritti, quasi "
-    "centomila. La differenza non dice nulla sull'onesta' di nessuno: dice dove "
-    "sono i soldi, e quindi dove va l'offerta."
+    "operare sui mercati con un rendimento del 30% annuo — una cifra che "
+    "quasi nessun gestore professionale sostiene nel tempo — al variare del "
+    "capitale disponibile. La linea tratteggiata è quanto produce vendere un "
+    "corso da 497 euro, al variare del numero di iscritti. La differenza non "
+    "dice nulla sull'onestà di nessuno: dice dove sono i soldi, e quindi dove "
+    "va l'offerta."
 )
 
 

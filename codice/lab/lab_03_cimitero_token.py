@@ -67,7 +67,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import polars as pl
 
-from cvbook.dati import carica
+from cvbook.dati import DISCONTINUITA, carica, carica_strumento
 from cvbook.metriche import recupero_necessario
 
 # %% [markdown]
@@ -77,22 +77,57 @@ from cvbook.metriche import recupero_necessario
 # grafico sarebbe una riga verticale seguita da una riga piatta — ed è esattamente
 # così che i crolli appaiono a chi li guarda mentre accadono.
 #
+# La serie si ferma il **13 maggio 2022**, ed è il punto più importante di questa
+# cella. Dal 31 maggio lo stesso identificativo, sullo stesso mercato, quota
+# un'altra cosa: LUNA 2.0, un progetto nuovo lanciato dopo il crollo. Chi disegna
+# la serie per intero ottiene un grafico che scende a 0,00005 e poi risale di
+# centomila volte — e chi lo guarda conclude l'esatto contrario di quello che è
+# successo. La data del taglio non è scritta qui: sta nel registro dei dati
+# (`cvbook.dati.DISCONTINUITA`), che è l'unico posto in cui vive.
+#
 # ---
 #
 # > **EN** — *1. Nine days.* Logarithmic scale: each tick is a factor of ten.
 # > On a linear scale this chart would be a vertical line followed by a flat
 # > line — and that's exactly how crashes look to whoever watches them
-# > happen.
+# > happen. The series stops on **13 May 2022**: from the 31st the same ticker
+# > quotes a different token. Drawing the whole series shows a resurrection
+# > that nobody lived.
 
 # %%
-luna = carica("lunausdt").sort("data").filter(
-    (pl.col("data") >= dt.date(2022, 4, 1)) & (pl.col("data") <= dt.date(2022, 6, 30))
-)
+luna = carica_strumento("lunausdt").sort("data").filter(pl.col("data") >= dt.date(2022, 4, 1))
 
 with avvio.figura("schermo"):
     fig, ax = plt.subplots()
     ax.semilogy(luna["data"].to_list(), luna["chiusura"].to_numpy(), linewidth=1.6)
     ax.set_ylabel("Prezzo di chiusura (USDT, scala log)")
+    fig.autofmt_xdate()
+    plt.show()
+
+# %% [markdown]
+# ### Provalo tu: il grafico che racconta il contrario
+#
+# Esegui la cella qui sotto. È la stessa serie, letta grezza — con dentro il
+# ticker riusato — fino al 30 giugno. È il grafico che troveresti su quasi
+# qualunque archivio, ed è quello che il capitolo ti chiede di **non** credere.
+#
+# ---
+#
+# > **EN** — *Try it: the chart that says the opposite.* Run the cell below.
+# > Same series, read raw — reused ticker included — through 30 June.
+
+# %%
+grezza = carica("lunausdt").sort("data").filter(
+    pl.col("data").is_between(dt.date(2022, 4, 1), dt.date(2022, 6, 30))
+)
+
+with avvio.figura("schermo"):
+    fig, ax = plt.subplots()
+    ax.semilogy(grezza["data"].to_list(), grezza["chiusura"].to_numpy(),
+                linewidth=1.6, linestyle="--")
+    ax.axvline(DISCONTINUITA["lunausdt"], linewidth=1.0, linestyle=":")
+    ax.set_ylabel("Prezzo di chiusura (USDT, scala log)")
+    ax.set_title("La stessa serie letta grezza: da qui in poi è un altro token")
     fig.autofmt_xdate()
     plt.show()
 
@@ -157,6 +192,7 @@ print("dopo quella data non esiste piu' un mercato: non c'e' un prezzo, non c'e'
 
 # %%
 INIZIO = dt.date(2021, 4, 1)  # ← PROVA / TRY: sposta a gennaio 2022 (vedi esercizio 2)
+FINE = dt.date(2022, 12, 31)  # ← PROVA / TRY: porta a oggi e guarda cosa cambia
 VIVI = ["btcusdt", "ethusdt", "solusdt"]  # ← PROVA / TRY: togli "solusdt" (esercizio 1)
 MORTI = ["lunausdt", "fttusdt"]
 # NON TOCCARE / DO NOT CHANGE: MORTI deve restare com'è — sono gli unici due
@@ -170,16 +206,36 @@ MORTI = ["lunausdt", "fttusdt"]
 def curva_paniere(nomi: list[str]) -> tuple[list, np.ndarray]:
     """Paniere a peso uguale, ribilanciato una sola volta all'inizio.
 
-    Un asset che smette di essere quotato vale zero da quel giorno in poi: è
-    l'ipotesi onesta, ed è quella che nessuna fonte comoda ti impone di fare.
+    Due scelte, e vanno dette perché sono le stesse della figura stampata nel
+    libro — altrimenti questo quaderno risponderebbe a una domanda diversa da
+    quella del capitolo, che è esattamente ciò che non deve succedere.
+
+    **Un asset delistato non sparisce: resta all'ultimo valore noto.** È quanto
+    vale davvero per chi ce l'ha in portafoglio, e non è zero: FTT il 15 novembre
+    2022 valeva ancora 1,43 dollari, semplicemente non si poteva più vendere.
+
+    **Le serie si leggono con `carica_strumento`**, che si ferma dove
+    l'identificativo cambia strumento. Con la serie grezza LUNA risaliva al 6,8%
+    del valore iniziale e il paniere dei morti chiudeva a 30,3 invece che a 29,0:
+    questo quaderno avrebbe sottostimato del 7% proprio l'errore che esiste per
+    misurare.
     """
-    serie = {n: carica(n).sort("data").filter(pl.col("data") >= INIZIO) for n in nomi}
-    calendario = sorted(set().union(*[set(s["data"].to_list()) for s in serie.values()]))
+    calendario = [
+        d for d in carica("btcusdt").sort("data")["data"].to_list()
+        if INIZIO <= d <= FINE
+    ]
     quote = []
-    for n, s in serie.items():
+    for n in nomi:
+        s = carica_strumento(n).sort("data").filter(
+            pl.col("data").is_between(INIZIO, FINE)
+        )
         mappa = dict(zip(s["data"].to_list(), s["chiusura"].to_numpy()))
         base = mappa[min(mappa)]
-        quote.append([mappa.get(d, 0.0) / base for d in calendario])
+        ultimo, riempita = base, []
+        for d in calendario:
+            ultimo = mappa.get(d, ultimo)
+            riempita.append(ultimo / base)
+        quote.append(riempita)
     return calendario, np.mean(np.array(quote), axis=0)
 
 

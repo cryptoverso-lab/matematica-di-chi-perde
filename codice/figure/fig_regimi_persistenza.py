@@ -25,14 +25,19 @@ from cvbook.stile import firma  # noqa: E402
 CAPITOLO = "sec-cap-regimi"
 FINESTRA = 30
 ORIZZONTE = 30
+#: La didascalia stampata in pagina, parola per parola. Non e' una copia
+#: libera: `test_conformita` verifica che coincida con quella del `.qmd`.
+#: Trentatre' su quarantatre' erano divergenti, e quattro portavano numeri
+#: di una versione precedente del calcolo.
 DIDASCALIA = (
     "A sinistra: probabilità che il mercato sia agitato fra trenta giorni — "
-    "volatilità nel quarto più alto — a seconda di com'è oggi. Senza memoria le "
-    "tre barre sarebbero uguali al 25%. Le due finestre di misura non si sovrappongono: "
-    "il legame non è un effetto del calcolo. A destra: quanto durano i periodi "
-    "agitati. Nella storia vera sono 32 episodi, mediana 18 giorni, il più lungo 187. "
-    "Con giorni indipendenti sarebbero 631 episodi da un giorno, il più lungo 7. "
-    "Il rischio non arriva sparso: arriva a stagioni."
+    "volatilità nel quarto più alto — a seconda di com'è oggi. Senza memoria "
+    "le tre barre sarebbero uguali al 25%. Le due finestre di misura non si "
+    "sovrappongono: il legame non è un effetto del calcolo. A destra: quanto "
+    "durano i periodi agitati, nella storia vera e in una storia con gli "
+    "stessi giorni agitati sparsi a caso. Pochi episodi lunghi contro "
+    "moltissimi episodi da un giorno — 32 contro 631, il più lungo 187 giorni "
+    "contro 7. Il rischio non arriva sparso: arriva a stagioni."
 )
 
 

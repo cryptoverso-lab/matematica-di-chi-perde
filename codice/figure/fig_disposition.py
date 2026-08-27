@@ -23,14 +23,28 @@ from cvbook.stile import firma, num  # noqa: E402
 CAPITOLO = "sec-cap-06"
 SOGLIA_UTILE = 0.10    # chiude quando il guadagno raggiunge il 10%
 SOGLIA_PERDITA = 0.50  # resta finche' la perdita non raggiunge il 50%
+
+#: Costo di un GIRO COMPLETO — chiudere e riaprire — ed e' la convenzione che
+#: il libro dichiara fino al capitolo sull'analisi tecnica. Prima qui lo 0,12%
+#: veniva addebitato due volte per giro, una in uscita e una al rientro: la
+#: convenzione severa, che il libro introduce solo dal cap. 18b in avanti e
+#: dichiara di introdurre li'. Su 55 giri la differenza vale mezzo punto di
+#: capitale (8,5 volte invece di 9,0) e non sposta la conclusione, ma un libro
+#: che dedica un paragrafo a dire quale delle due convenzioni sta usando non
+#: puo' usarne un'altra sessanta pagine prima.
 COSTO = 0.0012
+#: La didascalia stampata in pagina, parola per parola. Non e' una copia
+#: libera: `test_conformita` verifica che coincida con quella del `.qmd`.
+#: Trentatre' su quarantatre' erano divergenti, e quattro portavano numeri
+#: di una versione precedente del calcolo.
 DIDASCALIA = (
     "Due comportamenti sulla stessa serie di prezzi e sullo stesso capitale, "
-    "Bitcoin 2017-2026, costi dello 0,12% per giro inclusi in entrambi. Il primo "
-    "compra e non tocca più nulla. Il secondo fa cio' che l'esperienza dei conti "
-    "reali documenta: chiude appena è in utile del 10%, e resta dentro finché la "
-    "perdita non raggiunge il 50%, poi rientra. Nessuna previsione distingue i due: "
-    "solo la soglia a cui scatta la decisione di chiudere."
+    "Bitcoin 2017-2026, costi dello 0,12% a giro completo inclusi in "
+    "entrambi. Il primo compra e non tocca più nulla. Il secondo fa ciò che "
+    "l'esperienza dei conti reali documenta: appena è in utile del 10% chiude "
+    "e il giorno dopo rientra; se invece è in perdita resta dentro fino al "
+    "−50%, e solo lì chiude. Nessuna previsione distingue i due: solo la "
+    "soglia a cui scatta la decisione di chiudere."
 )
 
 
@@ -53,9 +67,10 @@ def _simula_disposition(prezzi: np.ndarray) -> np.ndarray:
             capitale[i] = valore
         else:
             # Rientra il giorno successivo: e' cio' che accade nella pratica,
-            # la liquidita' non resta ferma a lungo.
+            # la liquidita' non resta ferma a lungo. Il costo del giro e' gia'
+            # stato addebitato in uscita: qui non si paga una seconda volta.
             ingresso = prezzi[i]
-            quota = liquido * (1 - COSTO) / prezzi[i]
+            quota = liquido / prezzi[i]
             dentro = True
             capitale[i] = quota * prezzi[i]
 

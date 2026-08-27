@@ -18,7 +18,7 @@ import polars as pl
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from cvbook.dati import carica, citazione  # noqa: E402
+from cvbook.dati import carica_strumento, citazione  # noqa: E402
 from cvbook.lingua import t  # noqa: E402
 from cvbook.stile import firma, mesi_italiani, num  # noqa: E402
 
@@ -27,18 +27,28 @@ INIZIO = dt.date(2021, 4, 1)
 FINE = dt.date(2022, 12, 31)
 SOPRAVVISSUTI = ["btcusdt", "ethusdt", "solusdt"]
 MORTI = ["lunausdt", "fttusdt"]
+#: La didascalia stampata in pagina, parola per parola. Non e' una copia
+#: libera: `test_conformita` verifica che coincida con quella del `.qmd`.
+#: Trentatre' su quarantatre' erano divergenti, e quattro portavano numeri
+#: di una versione precedente del calcolo.
 DIDASCALIA = (
-    "Due panieri a peso uguale costruiti il 1 aprile 2021. Quello chiaro contiene i "
-    "tre asset che oggi sono ancora quotati; quello scuro contiene gli stessi tre più "
-    "i due che nel frattempo sono morti — un token il cui prezzo è andato a zero in "
-    "nove giorni e uno il cui mercato è stato chiuso. Chi guarda oggi solo cio' che "
-    "esiste ancora misura il paniere chiaro e crede di aver misurato il mercato. La "
-    "distanza fra le due curve è l'errore, e non è piccolo."
+    "Due panieri a peso uguale costruiti il 1° aprile 2021. Quello chiaro "
+    "contiene i tre asset che oggi sono ancora quotati; quello scuro contiene "
+    "gli stessi tre più i due che nel frattempo sono morti — un token il cui "
+    "prezzo è andato a zero in nove giorni e uno il cui mercato è stato "
+    "chiuso. Chi guarda oggi solo ciò che esiste ancora misura il paniere "
+    "chiaro e crede di aver misurato il mercato. La distanza fra le due curve "
+    "è l'errore, e non è piccolo."
 )
 
 
 def _serie(nome: str) -> pl.DataFrame:
-    return carica(nome).filter(
+    # `carica_strumento` e non `carica`: LUNAUSDT, dal 31 maggio 2022, quota
+    # LUNA 2.0. Con la serie grezza il token morto risaliva al 6,8% del valore
+    # iniziale invece di restare a zero, e il paniere dei morti chiudeva a 30,3
+    # invece che a 29,0 — cioe' questa figura sottostimava del 7% proprio
+    # l'errore che esiste per misurare.
+    return carica_strumento(nome).filter(
         (pl.col("data") >= INIZIO) & (pl.col("data") <= FINE)
     ).select(["data", "chiusura"]).rename({"chiusura": nome})
 

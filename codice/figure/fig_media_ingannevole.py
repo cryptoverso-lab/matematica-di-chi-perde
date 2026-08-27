@@ -23,13 +23,18 @@ from cvbook.metriche import rendimenti  # noqa: E402
 from cvbook.stile import firma, num  # noqa: E402
 
 CAPITOLO = "sec-cap-02"
+#: La didascalia stampata in pagina, parola per parola. Non e' una copia
+#: libera: `test_conformita` verifica che coincida con quella del `.qmd`.
+#: Trentatre' su quarantatre' erano divergenti, e quattro portavano numeri
+#: di una versione precedente del calcolo.
 DIDASCALIA = (
-    "A sinistra: venti mosse alternate di +50% e -50%. La media aritmetica è "
-    "esattamente zero, il capitale finale è il 5,6% di quello iniziale. A destra: "
-    "la stessa forbice misurata su Bitcoin, 2017-2026. Il rendimento medio giornaliero "
-    "è +0,144%, quello effettivamente composto +0,081%: la differenza, 0,062 punti, "
-    "coincide con la metà della varianza giornaliera. Non è un caso né un errore di "
-    "misura: è quanto la volatilità preleva dal risultato, sempre."
+    "A sinistra: venti mosse alternate di +50% e −50%. La media aritmetica è "
+    "esattamente zero, il capitale finale è il 5,6% di quello iniziale. A "
+    "destra: la stessa forbice sui dati veri, Bitcoin 2017-2026. Fra il "
+    "rendimento medio giornaliero e quello davvero composto ballano 0,063 "
+    "punti al giorno, e la metà della varianza giornaliera vale 0,062: quasi "
+    "lo stesso numero. Non è un caso né un errore di misura: è il prezzo "
+    "dell'oscillare, e si paga sempre."
 )
 
 

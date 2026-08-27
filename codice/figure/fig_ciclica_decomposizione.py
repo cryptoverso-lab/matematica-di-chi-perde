@@ -38,14 +38,19 @@ SERIE = [
     ("generali", "Generali"),
 ]
 
+#: La didascalia stampata in pagina, parola per parola. Non e' una copia
+#: libera: `test_conformita` verifica che coincida con quella del `.qmd`.
+#: Trentatre' su quarantatre' erano divergenti, e quattro portavano numeri
+#: di una versione precedente del calcolo.
 DIDASCALIA = (
-    "Come si ripartisce ciò che tre colonne riescono a spiegare dell'ampiezza di "
-    "un movimento: quanto si muoveva il prezzo, quanti giorni è durato, quanto "
-    "volume si scambiava. Le barre sono normalizzate a cento: dicono le quote, "
-    "non il totale, che è stampato a destra insieme a quanti movimenti lo "
-    "producono. Il tempo pesa più del prezzo su tutte e otto le serie. Il volume "
-    "— stessa finestra, stesso trattamento, nessun handicap — sta sotto un decimo "
-    "su sei serie su otto, e non arriva a un quinto nemmeno sulla peggiore."
+    "Come si ripartisce ciò che tre colonne riescono a spiegare dell'ampiezza "
+    "di un movimento: quanto veloce andava il prezzo, quanti giorni è durato, "
+    "quanto volume si scambiava. Le barre sono normalizzate a cento: dicono "
+    "le quote, non il totale, che è stampato a destra insieme a quanti "
+    "movimenti lo producono. Il tempo pesa più della velocità su tutte e otto "
+    "le serie. Il volume — stessa finestra, stesso trattamento, nessun "
+    "handicap — sta sotto un decimo su sei serie su otto, e non arriva a un "
+    "quinto nemmeno sulla peggiore."
 )
 
 
@@ -55,15 +60,15 @@ def _quote() -> list[dict]:
         df = carica(nome).sort("data")
         t = tavolo(df["chiusura"].to_numpy(), df["volume"].to_numpy(), SOGLIA)
         d = decomposizione(t)
-        totale = d["prezzo"] + d["tempo"] + d["volume"]
+        totale = d["velocita"] + d["tempo"] + d["volume"]
         fuori.append({
             "etichetta": etichetta,
-            "prezzo": d["prezzo"] / totale,
+            "velocita": d["velocita"] / totale,
             "tempo": d["tempo"] / totale,
             "volume": d["volume"] / totale,
             "spiegato": d["totale"],
             "movimenti": int(d["movimenti"]),
-            "quota": d["quota_prezzo_e_tempo"],
+            "quota": d["quota_velocita_e_tempo"],
         })
     return fuori
 
@@ -82,13 +87,13 @@ def disegna(destinazione: str = "stampa"):
     fig, ax = plt.subplots(figsize=(4.25, 4.25 * 0.80))
 
     ETICHETTE_COLONNA = {
-        "prezzo": tr("prezzo", "price"),
+        "velocita": tr("velocità", "speed"),
         "tempo": tr("tempo", "time"),
         "volume": tr("volume", "volume"),
     }
 
     sinistra = np.zeros(len(righe))
-    for chiave, colore, retino in zip(("prezzo", "tempo", "volume"), grigi, retini):
+    for chiave, colore, retino in zip(("velocita", "tempo", "volume"), grigi, retini):
         valori = np.array([r[chiave] for r in righe])
         ax.barh(y, valori, left=sinistra, height=0.62, facecolor=colore,
                 edgecolor="black", linewidth=0.75, hatch=retino,
@@ -100,7 +105,7 @@ def disegna(destinazione: str = "stampa"):
                 # bianco non si vede. Sugli altri due il riquadro si vedrebbe.
                 ax.annotate(num(v, 0, percento=True), xy=(s + v / 2, yi),
                             ha="center", va="center", fontsize=6.5,
-                            color="white" if chiave == "prezzo" else "black",
+                            color="white" if chiave == "velocita" else "black",
                             bbox=dict(boxstyle="square,pad=0.12",
                                       facecolor="white", edgecolor="none")
                             if chiave == "volume" else None)
@@ -139,7 +144,7 @@ def disegna(destinazione: str = "stampa"):
     #                   delle tre colonne, e' cio' che disegnano le barre.
     # `quota`         = quanto il volume aggiunge a cio' che le altre due gia'
     #                   dicono, misurato come guadagno di R quadro.
-    ripartizione = [r["prezzo"] + r["tempo"] for r in righe]
+    ripartizione = [r["velocita"] + r["tempo"] for r in righe]
     disegna.numeri = {
         "soglia": SOGLIA,
         "serie": len(righe),
@@ -148,9 +153,9 @@ def disegna(destinazione: str = "stampa"):
         "serie_sopra_90": sum(1 for q in ripartizione if q >= 0.90),
         "quota_minima": min(r["quota"] for r in righe),
         "quota_massima": max(r["quota"] for r in righe),
-        "tempo_batte_prezzo": sum(1 for r in righe if r["tempo"] > r["prezzo"]),
+        "tempo_batte_velocita": sum(1 for r in righe if r["tempo"] > r["velocita"]),
         **{f"ripartizione_{r['etichetta'].split()[0].lower()}": p + t
-           for r, p, t in ((r, r["prezzo"], r["tempo"]) for r in righe)},
+           for r, p, t in ((r, r["velocita"], r["tempo"]) for r in righe)},
     }
     return fig
 

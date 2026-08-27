@@ -62,11 +62,11 @@ ATTESI = {
     "magic": 29,
     "raw_base": 29,
     "titolo": 29,
-    "figure": 40,
-    "code_inglesi": 221,
+    "figure": 41,
+    "code_inglesi": 222,
     "code_inglesi_nude": 29,
     "prosa_solo_inglese": 1,
-    "titoli_specchio": 148,
+    "titoli_specchio": 149,
     "titolo_en": 29,
 }
 

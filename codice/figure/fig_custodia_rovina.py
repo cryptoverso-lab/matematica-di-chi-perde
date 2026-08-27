@@ -24,14 +24,19 @@ from cvbook.stile import firma  # noqa: E402
 CAPITOLO = "sec-cap-custodia"
 PROBABILITA = [0.01, 0.02, 0.05]
 ANNI = np.arange(0, 21)
+#: La didascalia stampata in pagina, parola per parola. Non e' una copia
+#: libera: `test_conformita` verifica che coincida con quella del `.qmd`.
+#: Trentatre' su quarantatre' erano divergenti, e quattro portavano numeri
+#: di una versione precedente del calcolo.
 DIDASCALIA = (
-    "A sinistra: probabilità di subire almeno un evento di custodia nell'arco degli "
-    "anni, per tre ipotesi di rischio annuo della singola sede. Anche l'ipotesi più "
-    "prudente — un anno su cento — diventa quasi una probabilità su cinque su un "
-    "orizzonte di vent'anni, ed è un orizzonte normale per chi investe. A destra: "
-    "quanto bisogna guadagnare sul capitale rimasto per tornare al punto di partenza, "
-    "in funzione della quota che stava nella sede fallita. La curva non è ripida: "
-    "è verticale. Sopra il 50% smette di essere un problema di rendimento."
+    "A sinistra: probabilità di subire almeno un evento di custodia nell'arco "
+    "degli anni, per tre ipotesi di rischio annuo della singola sede. Anche "
+    "l'ipotesi più prudente — un anno su cento — diventa quasi una "
+    "probabilità su cinque su un orizzonte di vent'anni, ed è un orizzonte "
+    "normale per chi investe. A destra: quanto bisogna guadagnare sul "
+    "capitale rimasto per tornare al punto di partenza, in funzione della "
+    "quota che stava nella sede fallita. La curva non è ripida: è verticale. "
+    "Sopra il 50% smette di essere un problema di rendimento."
 )
 
 

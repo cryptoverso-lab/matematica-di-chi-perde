@@ -116,7 +116,7 @@ with avvio.figura():
     plt.show()
 
 # %% [markdown]
-# ## 2. Quanto spiegano prezzo, tempo e volume
+# ## 2. Quanto spiegano velocità, tempo e volume
 #
 # Il bersaglio è l'ampiezza del movimento. I tre blocchi sono misurati sulla
 # **stessa finestra** e con lo **stesso trattamento**: è ciò che rende leale il
@@ -140,11 +140,11 @@ t = tavolo(prezzi, volumi, SOGLIA)
 d = decomposizione(t)
 
 print(f"movimenti misurati       {d['movimenti']:.0f}")
-print(f"prezzo (quota Shapley)   {d['prezzo']:.1%}")
+print(f"velocità (quota Shapley) {d['velocita']:.1%}")
 print(f"tempo  (quota Shapley)   {d['tempo']:.1%}")
 print(f"volume (quota Shapley)   {d['volume']:.1%}")
 print(f"tutte e tre insieme      {d['totale']:.1%}")
-print(f"solo prezzo e tempo      {d['prezzo_e_tempo']:.1%}")
+print(f"solo velocità e tempo    {d['velocita_e_tempo']:.1%}")
 print(f"il volume aggiunge       {d['guadagno_volume']:+.1%} di R quadro")
 
 # %% [markdown]
@@ -162,15 +162,15 @@ print(f"il volume aggiunge       {d['guadagno_volume']:+.1%} di R quadro")
 # > it did, the chapter would need rewriting.
 
 # %%
-print(f"{'soglia':>7s} {'movimenti':>10s} {'prezzo':>8s} {'tempo':>8s} {'volume':>8s}")
+print(f"{'soglia':>7s} {'movimenti':>10s} {'velocità':>8s} {'tempo':>8s} {'volume':>8s}")
 for s in (0.02, 0.03, 0.05, 0.08, 0.10, 0.15):
     ts = tavolo(prezzi, volumi, s)
     if len(ts) < 40:
         print(f"{s:7.0%} {len(ts):10d}  (troppo pochi movimenti)")
         continue
     ds = decomposizione(ts)
-    quota = ds["prezzo"] + ds["tempo"] + ds["volume"]
-    print(f"{s:7.0%} {ds['movimenti']:10.0f} {ds['prezzo'] / quota:8.1%} "
+    quota = ds["velocita"] + ds["tempo"] + ds["volume"]
+    print(f"{s:7.0%} {ds['movimenti']:10.0f} {ds['velocita'] / quota:8.1%} "
           f"{ds['tempo'] / quota:8.1%} {ds['volume'] / quota:8.1%}")
 
 # %% [markdown]
@@ -194,12 +194,12 @@ for s in (0.02, 0.03, 0.05, 0.08, 0.10, 0.15):
 # %%
 rng = np.random.default_rng(0)
 y = np.log(t.ampiezza)
-prezzo, tempo = np.log(t.prezzo), np.log(t.durata)
+velocita, tempo = np.log(t.velocita), np.log(t.durata)
 volume = np.log(t.volume)
 
-vero = r_quadro(y, [prezzo, tempo, volume]) - r_quadro(y, [prezzo, tempo])
+vero = r_quadro(y, [velocita, tempo, volume]) - r_quadro(y, [velocita, tempo])
 finti = [
-    r_quadro(y, [prezzo, tempo, rng.permutation(volume)]) - r_quadro(y, [prezzo, tempo])
+    r_quadro(y, [velocita, tempo, rng.permutation(volume)]) - r_quadro(y, [velocita, tempo])
     for _ in range(500)
 ]
 print(f"il volume vero aggiunge      {vero:+.2%}")

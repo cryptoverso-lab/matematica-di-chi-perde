@@ -10,6 +10,14 @@ costruzione.
 Le condizioni sono rumore puro: non contengono alcuna informazione. Tutto cio'
 che la curva superiore guadagna e' rumore memorizzato, e la curva sui dati mai
 visti lo dimostra.
+
+I COSTI NON SONO INCLUSI, ed e' una scelta dichiarata invece che una svista.
+Questa figura non misura un risultato: misura di quanto sale una curva quando
+si sceglie, fra quattrocento numeri casuali, quello che la fa salire di piu'.
+Una regola costruita cosi' cambia posizione quasi ogni giorno; addebitandole
+lo 0,12% a movimento nessuna delle quattrocento supererebbe il capitale
+iniziale, la ricerca non avrebbe nulla da selezionare e l'effetto da mostrare
+sparirebbe insieme al suo oggetto. La didascalia lo dice in pagina.
 """
 
 from __future__ import annotations
@@ -31,18 +39,23 @@ from cvbook.stile import firma  # noqa: E402
 CAPITOLO = "sec-cap-13"
 CONDIZIONI_MAX = 25
 DISPONIBILI = 400
+#: La didascalia stampata in pagina, parola per parola. Non e' una copia
+#: libera: `test_conformita` verifica che coincida con quella del `.qmd`.
+#: Trentatre' su quarantatre' erano divergenti, e quattro portavano numeri
+#: di una versione precedente del calcolo.
 DIDASCALIA = (
-    "Una regola costruita per aggiunte successive: a ogni passo si aggiunge, fra "
-    "quattrocento condizioni disponibili, quella che migliora di più il risultato "
-    "sulla prima metà della storia, e ci si ferma quando nessuna aggiunta migliora. "
-    "Le condizioni sono numeri casuali: non contengono alcuna informazione. La curva "
-    "sul passato sale a ogni singolo passo, da 31 a 2.190 volte il capitale in dodici "
-    "aggiunte, dopo le quali nessuna condizione migliora più nulla — e sale "
-    "per costruzione, perché nessuno aggiunge un ingrediente che peggiora il numero "
-    "che sta guardando. Quella sui dati mai visti non segue: tocca il massimo alla "
-    "quinta aggiunta e da lì peggiora, chiudendo a 1,5 volte. La distanza fra le due "
-    "curve è rumore memorizzato — e guardando solo la prima non c'è modo di "
-    "distinguerla da una scoperta."
+    "Una regola costruita per aggiunte successive: a ogni passo entra, fra "
+    "quattrocento condizioni disponibili, quella che migliora di più il "
+    "risultato sulla prima metà della storia, e ci si ferma quando nessuna "
+    "aggiunta migliora più nulla. Le condizioni sono numeri casuali: non "
+    "contengono alcuna informazione. I costi non sono inclusi, ed è "
+    "dichiarato: qui si misura un effetto di selezione, non un risultato — "
+    "con i costi nessuna delle quattrocento supererebbe il capitale iniziale "
+    "e non ci sarebbe nulla da selezionare. La curva sul passato sale a ogni "
+    "passo, da 31 a 2.190 volte il capitale in dodici aggiunte. Quella sui "
+    "dati mai visti tocca il massimo alla quinta e da lì peggiora, chiudendo "
+    "a 1,5 volte. Fra le due curve c'è rumore memorizzato — e chi guarda solo "
+    "la prima non ha modo di distinguerlo da una scoperta."
 )
 
 

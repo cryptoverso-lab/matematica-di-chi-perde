@@ -26,27 +26,45 @@ from cvbook.lingua import t  # noqa: E402
 from cvbook.stile import firma, num  # noqa: E402
 
 CAPITOLO = "sec-cap-12"
+#: La didascalia stampata in pagina, parola per parola. Non e' una copia
+#: libera: `test_conformita` verifica che coincida con quella del `.qmd`.
+#: Trentatre' su quarantatre' erano divergenti, e quattro portavano numeri
+#: di una versione precedente del calcolo.
 DIDASCALIA = (
-    "Analisi delle componenti principali sui rendimenti giornalieri di due panieri, "
-    "misurati sugli stessi giorni. A sinistra la varianza spiegata da ciascuna "
-    "componente: sui tre asset digitali la prima — una sola direzione, cioè "
-    "sostanzialmente \"il settore sale o scende\" — ne spiega il 78%; sul paniere "
-    "che aggiunge indice, azione e cambio la prima scende al 41%. A destra la "
-    "varianza cumulata: al paniere digitale bastano due componenti per superare il "
-    "90%, all'altro ne servono cinque. Il numero effettivo di scommesse passa da "
-    "1,55 su tre asset a 3,76 su sei: non è solo l'effetto di averne aggiunti, "
-    "perché in quota sale dal 52% al 63% del massimo possibile."
+    "Analisi delle componenti principali sui rendimenti giornalieri di due "
+    "panieri, misurati sugli stessi giorni. A sinistra la varianza spiegata "
+    "da ciascuna componente: sui tre asset digitali la prima — una sola "
+    "direzione, cioè sostanzialmente «il settore sale o scende» — ne spiega "
+    "il 79%; sul paniere che aggiunge indice, azione e cambio la prima scende "
+    "al 41%. A destra la varianza cumulata: al paniere digitale bastano due "
+    "componenti per superare il 90%, all'altro ne servono cinque. Il numero "
+    "effettivo di scommesse passa da 1,55 su tre asset a 3,76 su sei: non è "
+    "solo l'effetto di averne aggiunti, perché in quota sale dal 52% al 63% "
+    "del massimo possibile."
 )
 
 
 def componenti() -> dict[str, dict]:
-    """Quote di varianza e numero effettivo di scommesse, per i due panieri."""
-    from fig_correlazione_rolling import ESTESO, NOMI, _dati  # stesso allineamento
+    """Quote di varianza e numero effettivo di scommesse, per i due panieri.
 
+    I due panieri si misurano **sugli stessi identici giorni**, ed e' la
+    correzione che questa figura ha richiesto. Prima le tre cripto giravano sul
+    loro calendario (2.128 giorni) e le sei sull'intersezione con la borsa di
+    Milano (1.480): la didascalia prometteva «misurati sugli stessi giorni» e la
+    promessa non era mantenuta. Confrontare due decomposizioni fatte su campioni
+    diversi non e' sbagliato di poco — e' l'unica cosa che quella figura non
+    poteva permettersi, perche' il suo intero contenuto e' un confronto.
+
+    Il calendario comune e' quello del paniere esteso: si prende una volta sola
+    e le tre cripto sono le sue prime tre colonne.
+    """
+    from fig_correlazione_rolling import ESTESO, NOMI, _dati
+
+    _, comune = _dati(ESTESO)
     fuori = {}
     for etichetta, nomi in (("tre asset digitali", NOMI),
                             ("con indice, azione e cambio", ESTESO)):
-        _, M = _dati(nomi)
+        M = comune[:, :len(nomi)]
         C = np.corrcoef(M.T)
         valori = np.linalg.eigvalsh(C)[::-1]
         quote = valori / valori.sum()

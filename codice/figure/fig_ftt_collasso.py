@@ -21,13 +21,17 @@ from cvbook.lingua import t  # noqa: E402
 from cvbook.stile import date_italiane, firma  # noqa: E402
 
 CAPITOLO = "sec-cap-05"
+#: La didascalia stampata in pagina, parola per parola. Non e' una copia
+#: libera: `test_conformita` verifica che coincida con quella del `.qmd`.
+#: Trentatre' su quarantatre' erano divergenti, e quattro portavano numeri
+#: di una versione precedente del calcolo.
 DIDASCALIA = (
-    "Prezzo giornaliero di chiusura del token dell'exchange FTX, dal 1 ottobre 2022. "
-    "Il 7 novembre vale 22 dollari; l'8 novembre — il giorno in cui i prelievi si "
-    "bloccano — chiude a 5,50. Il 15 novembre il mercato viene chiuso e da lì in poi "
-    "non esiste più un prezzo: la serie non scende verso lo zero, si interrompe. "
-    "Chi aveva quel token non ha subito una perdita che poteva ancora recuperare: "
-    "ha smesso di avere qualcosa."
+    "Prezzo giornaliero di chiusura del token dell'exchange FTX, dal 1° "
+    "ottobre 2022. Il 7 novembre vale 22 dollari; l'8 novembre — il giorno in "
+    "cui i prelievi si bloccano — chiude a 5,50. Il 15 novembre il mercato "
+    "viene chiuso e da lì in poi non esiste più un prezzo: la serie non "
+    "scende verso lo zero, si interrompe. Chi aveva quel token non ha subito "
+    "una perdita che poteva ancora recuperare: ha smesso di avere qualcosa."
 )
 
 

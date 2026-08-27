@@ -7,17 +7,27 @@ scala di grigi a 4,25 pollici, la gabbia regge.
 
 from __future__ import annotations
 
+import sys
+from pathlib import Path
+
 import matplotlib.pyplot as plt
 import numpy as np
 
-from cvbook.lingua import t
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+
+from cvbook.lingua import t  # noqa: E402
 
 CAPITOLO = "sec-cap-02"
+#: La didascalia stampata in pagina, parola per parola. Non e' una copia
+#: libera: `test_conformita` verifica che coincida con quella del `.qmd`.
+#: Trentatre' su quarantatre' erano divergenti, e quattro portavano numeri
+#: di una versione precedente del calcolo.
 DIDASCALIA = (
-    "Quanto serve guadagnare per tornare al punto di partenza, dopo una perdita. "
-    "La relazione non è simmetrica: perdere il 50% impone di raddoppiare per "
-    "pareggiare, perdere il 90% impone di fare dieci volte il capitale rimasto. "
-    "E' il motivo per cui evitare le perdite grandi vale più che cercare i guadagni grandi."
+    "Quanto serve guadagnare per tornare al punto di partenza — il "
+    "*break-even* — dopo una perdita. La relazione non è simmetrica: perdere "
+    "il 50% impone di raddoppiare per pareggiare, perdere il 90% impone di "
+    "fare dieci volte il capitale rimasto. È il motivo per cui evitare le "
+    "perdite grandi vale più che cercare i guadagni grandi."
 )
 
 

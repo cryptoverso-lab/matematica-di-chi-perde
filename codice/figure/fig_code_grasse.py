@@ -31,18 +31,22 @@ from cvbook.stile import firma, num  # noqa: E402
 CAPITOLO = "sec-cap-09"
 SOGLIE = [3, 4, 5, 8]
 MERCATI = [("btcusdt", "Bitcoin"), ("eni", "ENI")]
+#: La didascalia stampata in pagina, parola per parola. Non e' una copia
+#: libera: `test_conformita` verifica che coincida con quella del `.qmd`.
+#: Trentatre' su quarantatre' erano divergenti, e quattro portavano numeri
+#: di una versione precedente del calcolo.
 DIDASCALIA = (
-    "A sinistra la distribuzione dei rendimenti giornalieri di Bitcoin (2017-2026) "
-    "con sovrapposta la curva a campana di pari media e deviazione: al centro il "
-    "picco reale è molto più alto, e ai lati la realtà esce dal disegno. A destra i "
-    "giorni estremi ogni mille sedute, per Bitcoin e per un'azione industriale "
-    "quotata a Milano dal 2000, confrontati con quanti ne prevede la campana. La "
-    "scala è logaritmica: le due barre di mercato stanno quasi sempre alla stessa "
-    "altezza, mentre quella della campana precipita e oltre le otto deviazioni esce "
-    "dal fondo del grafico. Le code grasse non sono una stranezza delle criptovalute: "
-    "sono una proprietà dei mercati, e si vede meglio dove la volatilità è alta. Il "
-    "peggior giorno di Bitcoin, a −39,5%, sta oltre undici deviazioni; quello di "
-    "ENI, a −20,9%, oltre dodici."
+    "A sinistra la distribuzione dei rendimenti giornalieri di Bitcoin "
+    "(2017-2026) con sovrapposta la curva a campana di pari media e "
+    "deviazione: al centro il picco reale è molto più alto, e ai lati la "
+    "realtà esce dal disegno. A destra i giorni estremi ogni mille sedute, "
+    "per Bitcoin e per un'azione industriale quotata a Milano dal 2000, "
+    "confrontati con quanti ne prevede la campana. La scala è logaritmica: le "
+    "due barre di mercato stanno quasi sempre alla stessa altezza, mentre "
+    "quella della campana precipita — e a otto deviazioni non c'è nessuna "
+    "barra da disegnare, perché la campana ne prevede uno ogni 804 mila "
+    "miliardi di sedute. Il peggior giorno di Bitcoin, a −39,5%, sta oltre "
+    "undici deviazioni; quello dell'azione, a −20,9%, oltre dodici."
 )
 
 
@@ -93,9 +97,30 @@ def disegna(destinazione: str = "stampa"):
         valori = [dati[nome]["per_mille"][k] for k in SOGLIE]
         dx.bar(x2 + (j - 1) * larghezza, valori, width=larghezza, facecolor=colore,
                edgecolor="black", linewidth=0.75, hatch=retino, label=etichetta)
-    dx.bar(x2 + larghezza, np.maximum(previsti, 3e-4), width=larghezza,
+    # NIENTE BARRE A UN'ALTEZZA INVENTATA, ed e' il motivo per cui questa parte
+    # e' stata rifatta. A otto deviazioni la campana prevede 1,2 giorni ogni
+    # mille miliardi di sedute: prima quel valore veniva alzato a 3e-4 per farlo
+    # entrare nel riquadro, cioe' la barra stava otto ordini di grandezza sopra
+    # il numero che diceva di rappresentare. Su un asse logaritmico l'altezza di
+    # una barra E' il valore; se il valore non ci sta, la barra non si disegna e
+    # si scrive quanto vale. La didascalia diceva «esce dal fondo del grafico» e
+    # il grafico mostrava una barretta.
+    FONDO = 2e-4
+    visibile = previsti > FONDO
+    dx.bar(x2[visibile] + larghezza, previsti[visibile], width=larghezza,
            facecolor="white", edgecolor="black", linewidth=0.75, hatch="...",
            label=t("campana", "bell curve"))
+    # La scritta prende il posto della barra che manca, in verticale: e' l'unico
+    # punto in cui non copre nulla, e dice al lettore perche' li' non c'e' niente.
+    for i in np.flatnonzero(~visibile):
+        una_ogni = f"{1.0 / (2 * norm.sf(SOGLIE[i])) / 1e12:,.0f}".replace(",", ".")
+        dx.annotate(
+            t(f"uno ogni {una_ogni} mila miliardi di sedute",
+              f"one every {una_ogni} thousand billion sessions"),
+            xy=(x2[i] + larghezza, 3.2e-4), xytext=(0, 0),
+            textcoords="offset points", rotation=90,
+            fontsize=5.6, ha="center", va="bottom", color="#404040",
+        )
 
     dx.set_yscale("log")
     dx.set_xlim(-0.62, len(SOGLIE) - 0.28)

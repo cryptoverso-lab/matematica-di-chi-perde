@@ -40,6 +40,26 @@ def sopra_media(prezzi: np.ndarray, finestra: int = 200) -> np.ndarray:
     return _ritarda(np.where(p > _media_mobile(p, finestra), 1.0, 0.0))
 
 
+def sopra_media_con_lookahead(prezzi: np.ndarray, finestra: int = 200) -> np.ndarray:
+    """LA STESSA REGOLA, SBAGLIATA APPOSTA. Non usarla per misurare niente.
+
+    E' identica a `sopra_media` meno una chiamata: manca `_ritarda`. La
+    posizione di oggi viene decisa con la chiusura di oggi, che al momento della
+    decisione non esiste ancora — e il capitolo sui dati che mentono esiste per
+    far vedere quanto e' facile scriverla e quanto vale il risultato.
+
+    Vive qui e non dentro una figura per due ragioni. La prima e' che il libro
+    stampa la differenza fra le due curve: se la versione sbagliata fosse
+    reimplementata a mano nella figura, «la differenza e' una riga di codice»
+    sarebbe un'affermazione e non un fatto verificabile. La seconda e' che i
+    test di causalita' la usano come contro-esempio: e' la regola che **deve**
+    far fallire il test del prezzo alterato, altrimenti quel test non sarebbe
+    sensibile a niente.
+    """
+    p = np.asarray(prezzi, dtype=float)
+    return np.nan_to_num(np.where(p > _media_mobile(p, finestra), 1.0, 0.0))
+
+
 def incrocio_medie(prezzi: np.ndarray, veloce: int = 50, lenta: int = 200) -> np.ndarray:
     """Investito quando la media breve sta sopra la media lunga."""
     p = np.asarray(prezzi, dtype=float)
@@ -118,14 +138,23 @@ def esegui(prezzi: np.ndarray, posizione: np.ndarray, *,
     movimenti = np.abs(np.diff(pos))
     rend_netto = rend_lordo - movimenti * costo
 
-    curva = np.concatenate([[1.0], np.cumprod(1.0 + rend_netto)])
+    # L'INGRESSO DEL PRIMO GIORNO SI PAGA. `np.diff` non lo vede — non c'e' un
+    # giorno prima da cui differire — e per le regole non cambiava niente,
+    # perche' partono tutte fuori dal mercato e la loro prima entrata cade
+    # dentro il vettore. Ma il compra-e-tieni parte gia' dentro: il suo unico
+    # ingresso non veniva addebitato, e il metro di confronto di tutto il libro
+    # viaggiava gratis mentre ogni regola pagava. Un'asimmetria contabile da
+    # dodici centesimi per mille euro, tutta a favore della tesi del libro:
+    # esattamente il genere di cosa che questo libro contesta agli altri.
+    ingresso = abs(float(pos[0])) * costo
+    curva = (1.0 - ingresso) * np.concatenate([[1.0], np.cumprod(1.0 + rend_netto)])
     curva_lorda = np.concatenate([[1.0], np.cumprod(1.0 + rend_lordo)])
     return {
         "curva": curva,
         "curva_lorda": curva_lorda,
         "finale": float(curva[-1]),
         "finale_lordo": float(curva_lorda[-1]),
-        "operazioni": float(movimenti.sum()),
+        "operazioni": float(movimenti.sum() + abs(float(pos[0]))),
         "esposizione": float((pos[1:] > 0).mean()),
     }
 

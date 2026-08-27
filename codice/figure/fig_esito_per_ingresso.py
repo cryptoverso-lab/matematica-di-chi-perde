@@ -20,12 +20,17 @@ from cvbook.stile import firma, num  # noqa: E402
 
 CAPITOLO = "sec-cap-01"
 ORIZZONTE = 365
+#: La didascalia stampata in pagina, parola per parola. Non e' una copia
+#: libera: `test_conformita` verifica che coincida con quella del `.qmd`.
+#: Trentatre' su quarantatre' erano divergenti, e quattro portavano numeri
+#: di una versione precedente del calcolo.
 DIDASCALIA = (
-    "Esito dopo dodici mesi per ciascuno dei 2.875 giorni in cui si sarebbe potuto "
-    "cominciare, comprando Bitcoin e tenendolo fermo. La stessa identica strategia "
-    "produce risultati che vanno da −83% a +1.092%: la barra più alta non è vicina "
-    "alla media, e un terzo dei giorni d'ingresso finisce in perdita. Chi ha guadagnato "
-    "e chi ha perso hanno fatto esattamente la stessa cosa."
+    "Esito dopo dodici mesi per ciascuno dei 2.875 giorni in cui si sarebbe "
+    "potuto cominciare, comprando Bitcoin e tenendolo fermo. La stessa "
+    "identica strategia produce risultati che vanno da −83% a +1.092%: la "
+    "barra più alta non è vicina alla media, e un terzo dei giorni d'ingresso "
+    "finisce in perdita. Chi ha guadagnato e chi ha perso hanno fatto "
+    "esattamente la stessa cosa."
 )
 
 
@@ -69,7 +74,6 @@ def disegna(destinazione: str = "stampa"):
     # tagliata va dichiarata, con quante osservazioni contiene e quanto vale
     # la migliore. Prima l'etichetta annunciava un massimo che il grafico non
     # mostrava, sospesa in mezzo al bianco senza nulla a cui riferirsi.
-    ax.set_xlim(-105, 705)
     oltre = int((esiti > 700).sum())
     ax.annotate(
         t(

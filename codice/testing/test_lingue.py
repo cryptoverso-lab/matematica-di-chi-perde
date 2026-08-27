@@ -7,7 +7,7 @@ toglie, e questi test presidiano le due cose che possono rompersi:
 
 1. le DUE forme misurate — quella col marcatore e quella riconosciuta per
    impronta — danno l'italiano da una parte e l'inglese dall'altra;
-2. sul corpus intero il conteggio torna: 221 celle markdown, 221 code inglesi,
+2. sul corpus intero il conteggio torna: 222 celle markdown, 222 code inglesi,
    29 delle quali senza marcatore. Un numero che scende non lascia l'inglese in
    pagina: rende rosso l'ingest.
 
@@ -18,7 +18,7 @@ inglese non viene piu' soltanto tolta dall'italiano, viene RESA, ed e' cio' che
 riempie `en.json`. Cio' che puo' rompersi li' e' la STRUTTURA — dove l'italiano
 ha un titolo, l'inglese ha un corsivo in testa, perche' dentro una citazione un
 `##` non si scrive — e si presidia allo stesso modo: i due casi, piu' il
-conteggio sul corpus (148 titoli rispecchiati, 29 titoli di lab).
+conteggio sul corpus (149 titoli rispecchiati, 29 titoli di lab).
 
 Uso:  uv run python -m pytest codice/testing/test_lingue.py -q
 """
@@ -118,7 +118,7 @@ def test_la_coda_inglese_non_viene_convertita() -> None:
 
 @pytest.mark.lento
 def test_sul_corpus_intero_ogni_cella_markdown_e_bilingue() -> None:
-    """Il presidio: 221 su 221. Un solo caso non riconosciuto e' un blocco
+    """Il presidio: 222 su 222. Un solo caso non riconosciuto e' un blocco
     inglese pubblicato dentro una pagina italiana."""
     celle = 0
     con_coda = 0
@@ -204,7 +204,7 @@ def test_un_titolo_italiano_senza_corsivo_inglese_ferma_l_ingest() -> None:
 
 
 def test_il_corsivo_che_va_a_capo_e_lo_stesso_titolo() -> None:
-    """Nel corpus succede 4 volte su 148: il corsivo sta su due righe perche' la
+    """Nel corpus succede 4 volte su 149: il corsivo sta su due righe perche' la
     riga del sorgente e' finita, non perche' il titolo abbia due righe."""
     cella = (
         "## 2. Rispetto a cosa? Il confronto onesto\n\nIl confronto giusto.\n\n"
@@ -249,7 +249,7 @@ def test_la_cella_tutta_inglese_non_produce_nemmeno_il_blocco_inglese() -> None:
 
 @pytest.mark.lento
 def test_sul_corpus_intero_la_struttura_inglese_specchia_l_italiana() -> None:
-    """Il presidio vero dello specchio: 148 titoli e 29 titoli di lab, contati
+    """Il presidio vero dello specchio: 149 titoli e 29 titoli di lab, contati
     sui 29 sorgenti. Un numero che scende e' una sezione che la pagina inglese
     non ha piu'."""
     specchi = 0

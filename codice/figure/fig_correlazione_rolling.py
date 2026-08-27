@@ -9,9 +9,16 @@ fuori dalla categoria, non aggiungendo la quindicesima cosa uguale.
 
 Il paniere esteso si misura **solo nei giorni in cui la borsa di Milano e'
 aperta** — le cripto non chiudono mai, e non c'e' altro modo di allineare i
-due calendari. Non e' un dettaglio da nascondere: sulle stesse tre cripto,
-misurate su quel calendario ridotto, la correlazione media passa da 0,675 a
-0,678. La restrizione non sposta il risultato.
+due calendari. Non e' un dettaglio da nascondere, e va misurato con lo stesso
+metro del resto del capitolo: `confronto_fra_calendari()` rifa' la media delle
+finestre mobili sulle sole tre cripto, prima sul calendario pieno e poi su
+quello ridotto, e stampa i due numeri. La restrizione non sposta il risultato.
+
+Attenzione a quale numero si cita, perche' e' il punto in cui il capitolo si
+era contraddetto: la media delle finestre mobili vale 0,73, la correlazione
+statica sull'intero campione vale 0,675. Sono due stimatori della stessa cosa
+e danno due numeri diversi; citarli nella stessa pagina senza dirlo lascia il
+lettore davanti a due valori della stessa grandezza.
 """
 
 from __future__ import annotations
@@ -48,16 +55,21 @@ PANIERI = [
                "the same three plus an index, a stock and an FX pair")),
 ]
 
+#: La didascalia stampata in pagina, parola per parola. Non e' una copia
+#: libera: `test_conformita` verifica che coincida con quella del `.qmd`.
+#: Trentatre' su quarantatre' erano divergenti, e quattro portavano numeri
+#: di una versione precedente del calcolo.
 DIDASCALIA = (
-    "Correlazione media su finestre mobili di sessanta giorni, per due panieri. In "
-    "alto, tre asset digitali: il valore oscilla fra 0,17 e 0,94 e nei periodi in cui "
-    "il mercato è oltre il 30% sotto il massimo — le bande grigie — la media sale da "
-    "0,68 a 0,79. In basso, gli stessi tre più l'indice della borsa italiana, "
-    "un'azione industriale e il cambio euro-dollaro: la stessa misura scende a un "
-    "terzo, e non arriva mai dove il paniere digitale passa quasi tutto il tempo. "
-    "Anche qui sale nei periodi difficili, da 0,22 a 0,26 — quella parte non la "
-    "aggira nessuno. Ma la distanza fra le due curve è quanto vale cercare la "
-    "diversificazione fuori dalla categoria invece che dentro."
+    "Correlazione media su finestre mobili di sessanta giorni, per due "
+    "panieri. In alto tre asset digitali, in basso gli stessi tre più un "
+    "indice azionario, un'azione e un cambio. Le bande grigie sono i periodi "
+    "in cui Bitcoin sta oltre il 30% sotto il proprio massimo, e coprono metà "
+    "del campione — il confronto è fra due metà, non fra la regola e "
+    "l'eccezione. Due cose da guardare: quanto il valore si muove — 0,17 e "
+    "0,94 sono gli estremi del paniere digitale — e quanto sale dentro le "
+    "bande, da 0,68 a 0,79 sopra e da 0,22 a 0,26 sotto. Uscire dalla "
+    "categoria taglia la correlazione a un terzo; la sua salita nei momenti "
+    "difficili non la aggira nessuno."
 )
 
 
@@ -101,6 +113,24 @@ def misure(nomi: list[str]) -> dict:
     }
 
 
+def confronto_fra_calendari() -> dict[str, float]:
+    """Le tre cripto misurate due volte: calendario pieno e calendario di Milano.
+
+    Serve alla precisazione metodologica del capitolo, e usa **lo stesso
+    stimatore** del resto del capitolo — la media delle finestre mobili. Prima
+    quella precisazione citava la correlazione statica (0,675 contro 0,678),
+    che e' un numero giusto ma di un altro stimatore: accanto allo 0,73 usato
+    ovunque sembrava che la stessa grandezza valesse due cose diverse.
+    """
+    _, pieno = _dati(NOMI)
+    _, ridotto = _dati(ESTESO)
+    k = len(NOMI)
+    return {
+        "pieno": float(_correlazione_mobile(pieno).mean()),
+        "ridotto": float(_correlazione_mobile(ridotto[:, :k]).mean()),
+    }
+
+
 def disegna(destinazione: str = "stampa"):
     from cvbook.layout import figsize
 
@@ -121,6 +151,16 @@ def disegna(destinazione: str = "stampa"):
                     textcoords="offset points", fontsize=6.5,
                     bbox=dict(boxstyle="square,pad=0.15", facecolor="white",
                               edgecolor="none"))
+        # I due numeri su cui poggia la tesi del capitolo — quanto sale la
+        # correlazione nei periodi difficili — non comparivano da nessuna parte
+        # nella figura: stavano solo in didascalia, quindi il lettore doveva
+        # crederci sulla parola. Adesso sono scritti sul pannello che li produce.
+        ax.text(0.985, 0.06,
+                t(f"fuori dalle bande {num(m['media_tranquilla'], 2)} · "
+                  f"dentro {num(m['media_difficile'], 2)}",
+                  f"outside {num(m['media_tranquilla'], 2)} · "
+                  f"inside {num(m['media_difficile'], 2)}"),
+                transform=ax.transAxes, fontsize=6.5, ha="right", va="bottom")
         ax.set_title(t(f"{len(nomi)} asset: {etichetta}", f"{len(nomi)} assets: {etichetta}"),
                      fontsize=7)
         ax.set_ylim(0, 1)
@@ -131,8 +171,8 @@ def disegna(destinazione: str = "stampa"):
     # The note sits in the bottom panel, whose upper half is empty: in the top
     # panel the curve runs right where the text would otherwise fall.
     assi[1].text(0.02, 0.94,
-                 t("le bande grigie sono i periodi\noltre il 30% sotto il massimo",
-                   "the grey bands are periods\nover 30% below the peak"),
+                 t("le bande grigie sono i periodi in cui Bitcoin sta\noltre il 30% sotto il proprio massimo: metà del campione",
+                   "grey bands: periods where Bitcoin sits over 30%\nbelow its own peak — half the sample"),
                  transform=assi[1].transAxes, fontsize=6.5, linespacing=1.3, va="top")
     fig.autofmt_xdate(rotation=0, ha="center")
 

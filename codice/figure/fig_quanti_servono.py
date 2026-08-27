@@ -22,15 +22,23 @@ from cvbook.stile import firma, num  # noqa: E402
 
 CAPITOLO = "sec-cap-14"
 VANTAGGI = np.array([0.0002, 0.0005, 0.001, 0.002, 0.005, 0.01])
+#: La didascalia stampata in pagina, parola per parola. Non e' una copia
+#: libera: `test_conformita` verifica che coincida con quella del `.qmd`.
+#: Trentatre' su quarantatre' erano divergenti, e quattro portavano numeri
+#: di una versione precedente del calcolo.
 DIDASCALIA = (
-    "Numero di operazioni necessarie per stabilire, con i criteri statistici usuali, "
-    "che un vantaggio esiste davvero e non è rumore. Sull'asse orizzontale il "
-    "vantaggio medio per operazione; sull'asse verticale quante operazioni servono, "
-    "in scala logaritmica. Le due curve corrispondono a due livelli di oscillazione "
-    "dei risultati. Con un vantaggio dello 0,1% per operazione e la volatilità "
-    "osservata su Bitcoin servono circa ottomila operazioni: a una al giorno di "
-    "mercato, trentun anni. Le linee tratteggiate mostrano quante operazioni ha realmente "
-    "fatto chi dice di aver verificato il proprio metodo."
+    "Numero di operazioni necessarie per stabilire che un vantaggio esiste "
+    "davvero e non è rumore, con le soglie convenzionali (cinque su cento di "
+    "falso allarme, otto su dieci di probabilità di accorgersene) e "
+    "l'approssimazione normale a una coda. Sull'asse orizzontale il vantaggio "
+    "medio per operazione; sull'asse verticale quante operazioni servono, in "
+    "scala logaritmica. Le due curve sono due livelli di oscillazione: quella "
+    "osservata su Bitcoin, il 3,5% al giorno, e un terzo di quella — perché "
+    "il numero necessario dipende dal rapporto fra vantaggio e rumore, non "
+    "dal vantaggio da solo. Le due tratteggiate segnano quaranta operazioni e "
+    "un anno di sedute. Con un vantaggio dello 0,1% e la volatilità di "
+    "Bitcoin servono quasi ottomila operazioni: trentun anni a una per "
+    "seduta."
 )
 
 

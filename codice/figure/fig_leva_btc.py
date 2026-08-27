@@ -25,12 +25,17 @@ from cvbook.stile import firma, num  # noqa: E402
 CAPITOLO = "sec-cap-02"
 INIZIO = "2021-01-01"
 LEVE = [(1, "-", "#000000"), (2, "--", "#595959"), (3, "-.", "#8C8C8C")]
+#: La didascalia stampata in pagina, parola per parola. Non e' una copia
+#: libera: `test_conformita` verifica che coincida con quella del `.qmd`.
+#: Trentatre' su quarantatre' erano divergenti, e quattro portavano numeri
+#: di una versione precedente del calcolo.
 DIDASCALIA = (
-    "Capitale nel tempo con leva giornaliera ribilanciata, dal 1 gennaio 2021. "
-    "L'asset sottostante raddoppia; chi lo ha seguito con leva 2x chiude a 0,63 volte "
-    "il capitale iniziale, con leva 3x a 0,03. La direzione era giusta per tutti e tre. "
-    "Sulla scala logaritmica ogni tacca vale un fattore dieci: la distanza fra le curve "
-    "è molto più grande di quanto l'occhio suggerisca."
+    "Capitale nel tempo con leva giornaliera ribilanciata, dal 1° gennaio "
+    "2021. L'asset sottostante raddoppia; chi lo ha seguito con leva 2× "
+    "chiude a 0,63 volte il capitale iniziale, con leva 3× a 0,03. La "
+    "direzione era giusta per tutti e tre. Sulla scala logaritmica ogni tacca "
+    "vale un fattore dieci: la distanza fra le curve è molto più grande di "
+    "quanto l'occhio suggerisca."
 )
 
 

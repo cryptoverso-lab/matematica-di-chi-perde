@@ -23,13 +23,18 @@ from cvbook.stile import firma  # noqa: E402
 CAPITOLO = "sec-cap-18"
 FINESTRE = np.arange(5, 121, 5)
 COSTO = 0.0012
+#: La didascalia stampata in pagina, parola per parola. Non e' una copia
+#: libera: `test_conformita` verifica che coincida con quella del `.qmd`.
+#: Trentatre' su quarantatre' erano divergenti, e quattro portavano numeri
+#: di una versione precedente del calcolo.
 DIDASCALIA = (
-    "Risultato della stessa regola al variare del suo unico parametro, la lunghezza "
-    "della media. La linea continua è calcolata sulla prima metà della storia, "
-    "quella tratteggiata sulla seconda. Il valore che vince nella prima metà non è "
-    "quello che vince nella seconda, e la forma stessa delle due curve è diversa. "
-    "Con un solo parametro il problema è già visibile; con cinque diventa "
-    "invisibile, perché nessuno può disegnare una mappa a cinque dimensioni."
+    "Risultato della stessa regola al variare del suo unico parametro, la "
+    "lunghezza della media. La linea continua è calcolata sulla prima metà "
+    "della storia, quella tratteggiata sulla seconda. Il valore che vince "
+    "nella prima metà non è quello che vince nella seconda, e la forma stessa "
+    "delle due curve è diversa. Con un solo parametro il problema è già "
+    "visibile; con cinque diventa invisibile, perché nessuno può disegnare "
+    "una mappa a cinque dimensioni."
 )
 
 
@@ -84,8 +89,8 @@ def disegna(destinazione: str = "stampa"):
     }
 
     fonte, estratto = citazione("btcusdt")
-    firma(fig, t(f"{fonte}, BTCUSDT — costi dello 0,12% per giro inclusi",
-                  f"{fonte}, BTCUSDT — 0.12% per round trip included"), estratto)
+    firma(fig, t(f"{fonte}, BTCUSDT — costi dello 0,12% per operazione inclusi",
+                  f"{fonte}, BTCUSDT — 0.12% per trade included"), estratto)
     return fig
 
 

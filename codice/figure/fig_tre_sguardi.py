@@ -23,14 +23,19 @@ from cvbook.metriche import rendimenti  # noqa: E402
 from cvbook.stile import firma  # noqa: E402
 
 CAPITOLO = "sec-cap-08"
+#: La didascalia stampata in pagina, parola per parola. Non e' una copia
+#: libera: `test_conformita` verifica che coincida con quella del `.qmd`.
+#: Trentatre' su quarantatre' erano divergenti, e quattro portavano numeri
+#: di una versione precedente del calcolo.
 DIDASCALIA = (
-    "Gli stessi identici dati, tre rappresentazioni. Il prezzo mostra il percorso e "
-    "invita a cercare figure e tendenze. I rendimenti giornalieri mostrano che quel "
-    "percorso è fatto di scosse, e che le scosse si addensano in periodi. La "
-    "distribuzione butta via il tempo e mostra solo quanto spesso succede cosa: "
-    "perde l'ordine degli eventi e in cambio rende confrontabili asset ed epoche "
-    "diverse. Chi guarda solo il primo pannello non sta guardando meno dati: sta "
-    "facendo una domanda diversa, spesso senza saperlo."
+    "Gli stessi identici dati, tre rappresentazioni. Il prezzo mostra il "
+    "percorso e invita a cercare figure e tendenze. I rendimenti giornalieri "
+    "mostrano che quel percorso è fatto di scosse, e che le scosse si "
+    "addensano in periodi. La distribuzione butta via il tempo e mostra solo "
+    "quanto spesso succede cosa: perde l'ordine degli eventi e in cambio "
+    "rende confrontabili asset ed epoche diverse. Chi guarda solo il primo "
+    "pannello non sta guardando meno dati: sta facendo una domanda diversa, "
+    "spesso senza saperlo."
 )
 
 

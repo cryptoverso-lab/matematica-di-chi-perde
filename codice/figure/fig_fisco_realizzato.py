@@ -30,15 +30,18 @@ CAPITOLO = "sec-cap-fisco"
 ALIQUOTA = 0.26
 ANNI_RIPORTO = 4
 CAPITALE = 100_000.0
+#: La didascalia stampata in pagina, parola per parola. Non e' una copia
+#: libera: `test_conformita` verifica che coincida con quella del `.qmd`.
+#: Trentatre' su quarantatre' erano divergenti, e quattro portavano numeri
+#: di una versione precedente del calcolo.
 DIDASCALIA = (
-    "Anno per anno, il risultato di una regola meccanica su Bitcoin e cosa ne fa il "
-    "fisco. Le barre chiare sono il risultato lordo dell'anno, quelle scure l'imposta "
-    "versata. Negli anni in perdita l'imposta è zero, ma la perdita diventa un "
-    "credito che vale solo se arriva un anno positivo entro il termine di riporto: "
-    "quelle finali, in basso a destra, scadono senza essere mai usate. Pagando ogni "
-    "anno il capitale finale è 1,82 milioni; pagando la stessa aliquota una volta "
-    "sola alla fine sarebbe 2,66. Stessa strategia, stessa aliquota, 46% di "
-    "differenza."
+    "Anno per anno, il risultato di una regola meccanica su Bitcoin e cosa ne "
+    "fa il fisco. Le barre chiare sono il risultato lordo dell'anno, quelle "
+    "scure l'imposta versata. Da guardare due cose: gli anni in perdita, dove "
+    "l'imposta è zero ma il credito che ne nasce può scadere inutilizzato — "
+    "succede a quelli in basso a destra — e la distanza fra pagare ogni anno "
+    "e pagare la stessa aliquota una volta sola alla fine. Stessa strategia, "
+    "stessa aliquota, 46% di capitale finale di differenza."
 )
 
 
@@ -151,7 +154,13 @@ def disegna(destinazione: str = "stampa"):
         "divario": differita / righe[-1]["capitale"] - 1,
         "imposte_pagate": imposte,
         "guadagno_lordo": lordo_composto - CAPITALE,
-        "aliquota_effettiva": imposte / (lordo_composto - CAPITALE),
+        # L'ALIQUOTA EFFETTIVA NON SI CALCOLA QUI. La versione che stava in
+        # questa riga divideva le imposte del percorso tassato per il guadagno
+        # del percorso lordo — due capitali diversi — e usciva 21,5% invece di
+        # 30,2%: il numero sbagliato che il capitolo ha portato per settimane.
+        # E' stato corretto in `numeri_fisco._scenario`, che e' l'unico posto
+        # in cui quel rapporto ha senso, e qui era rimasta la copia vecchia
+        # sotto lo stesso nome. Chi la vuole: `numeri_fisco.numeri()`.
         "perdite_mai_usate": residuo,
     }
     return fig

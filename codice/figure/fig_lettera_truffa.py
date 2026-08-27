@@ -21,13 +21,17 @@ from cvbook.stile import firma, num  # noqa: E402
 CAPITOLO = "sec-cap-04"
 PARTENZA = 10_240
 GIRI = 10
+#: La didascalia stampata in pagina, parola per parola. Non e' una copia
+#: libera: `test_conformita` verifica che coincida con quella del `.qmd`.
+#: Trentatre' su quarantatre' erano divergenti, e quattro portavano numeri
+#: di una versione precedente del calcolo.
 DIDASCALIA = (
     "Da 10.240 destinatari iniziali, mandando a metà di essi una previsione e "
-    "all'altra metà quella opposta, e proseguendo ogni volta solo con chi ha ricevuto "
-    "quella risultata corretta, restano dieci persone per cui il mittente ha indovinato "
-    "dieci volte su dieci. Nessuna previsione è stata fatta: è stata fatta una "
-    "selezione. Chi guarda solo il gruppo finale vede un veggente; chi guarda l'intera "
-    "lista vede l'aritmetica."
+    "all'altra metà quella opposta, e proseguendo ogni volta solo con chi ha "
+    "ricevuto quella risultata corretta, restano dieci persone per cui il "
+    "mittente ha indovinato dieci volte su dieci. Nessuna previsione è stata "
+    "fatta: è stata fatta una selezione. Chi guarda solo il gruppo finale "
+    "vede un veggente; chi guarda l'intera lista vede l'aritmetica."
 )
 
 

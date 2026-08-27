@@ -35,14 +35,25 @@ from cvbook.stile import firma, num  # noqa: E402
 CAPITOLO = "sec-cap-tecnica"
 COSTO = 0.0012
 SERIE = "ftsemib"
+#: La didascalia stampata in pagina, parola per parola. Non e' una copia
+#: libera: `test_conformita` verifica che coincida con quella del `.qmd`.
+#: Trentatre' su quarantatre' erano divergenti, e quattro portavano numeri
+#: di una versione precedente del calcolo.
 DIDASCALIA = (
-    "Le stesse sei regole della figura precedente, stesso costo e stesso protocollo, "
-    "applicate all'indice della borsa italiana dal 2000 al 2026 — un mercato che non "
-    "si muove insieme alle criptovalute. L'ordine delle regole è quello della figura "
-    "su Bitcoin, così il rimescolamento si vede a colpo d'occhio: la rottura a venti "
-    "giorni, che là era la migliore con 35,7 volte il capitale, qui è una delle due "
-    "che perdono soldi. La forza relativa, che là dimezzava il capitale, qui batte il "
-    "non far niente. Nessuna regola è stata scelta dopo aver visto il risultato."
+    "Le stesse sei regole, stesso costo e stesso protocollo, applicate "
+    "all'indice della borsa italiana dal 2000 al 2026. Stessa codifica della "
+    "figura precedente — punto collegato al proprio compra-e-tieni — e stesso "
+    "ordine delle regole, così il rimescolamento si vede a colpo d'occhio: la "
+    "rottura a venti giorni, che là era la migliore con 35,7 volte il "
+    "capitale, qui è una delle due che perdono soldi. La forza relativa, che "
+    "là dimezzava il capitale, qui batte il non far niente — ma l'indice è di "
+    "prezzo e non incorpora i dividendi, quindi il suo compra-e-tieni è "
+    "sottostimato e diverse delle regole che qui lo battono, contati quelli, "
+    "non lo batterebbero: il capitolo lo misura poco sotto, su un titolo con "
+    "i prezzi aggiustati. Le due figure coprono intervalli diversi perché i "
+    "due mercati sono andati diversamente: quello che si confronta è "
+    "l'ordine, non l'altezza. Nessuna regola è stata scelta dopo aver visto "
+    "il risultato."
 )
 
 #: Lo stesso ordine della figura su Bitcoin: è ciò che rende leggibile il
@@ -88,12 +99,20 @@ def disegna(destinazione: str = "stampa"):
     y = np.arange(len(ORDINE))
 
     fig, ax = plt.subplots(figsize=(4.25, 4.25 * 0.62))
-    barre = ax.barh(y, valori, height=0.6, facecolor="white", edgecolor="black",
-                    linewidth=0.75, hatch="///")
-    for b, v in zip(barre, valori):
-        if v > riferimento:
-            b.set_hatch("")
-            b.set_facecolor("#404040")
+    # Stessa codifica della figura gemella su Bitcoin, e per la stessa ragione:
+    # su un asse logaritmico una barra non ha un'origine, quindi la sua
+    # lunghezza non dice niente. Il segmento parte dal compra-e-tieni di QUESTO
+    # mercato e arriva al valore: la lunghezza e' il rapporto fra i due. Le due
+    # figure coprono intervalli diversi perche' i mercati sono diversi — cio'
+    # che il capitolo mette a confronto e' l'ordine delle regole, e con questa
+    # codifica si legge alla stessa maniera in entrambe.
+    for k, v in enumerate(valori):
+        vince = v > riferimento
+        ax.plot([riferimento, v], [k, k], color="#8C8C8C", linewidth=0.9,
+                linestyle="-", solid_capstyle="butt", zorder=1)
+        ax.plot([v], [k], marker="o", markersize=5.2, zorder=2,
+                markerfacecolor="#404040" if vince else "white",
+                markeredgecolor="black", markeredgewidth=0.9)
 
     ax.axvline(riferimento, color="black", linestyle="--", linewidth=1.0)
     ax.set_ylim(-0.65, len(ORDINE) - 0.2)
@@ -102,8 +121,10 @@ def disegna(destinazione: str = "stampa"):
                 textcoords="offset points", fontsize=6.5, va="center")
 
     for k, v in enumerate(valori):
-        ax.annotate(f"{num(v, 2)}×", xy=(v, k), xytext=(3, 0),
-                    textcoords="offset points", fontsize=6.5, va="center")
+        verso = 1 if v > riferimento else -1
+        ax.annotate(f"{num(v, 2)}×", xy=(v, k), xytext=(7 * verso, 0),
+                    textcoords="offset points", fontsize=6.5, va="center",
+                    ha="left" if verso > 0 else "right")
 
     ax.set_yticks(y)
     ax.set_yticklabels([ETICHETTE_REGOLA[n] for n in ORDINE], fontsize=7)

@@ -26,16 +26,21 @@ from cvbook.stile import firma, num  # noqa: E402
 
 CAPITOLO = "sec-cap-03"
 RIFERIMENTO = "eni"
+#: La didascalia stampata in pagina, parola per parola. Non e' una copia
+#: libera: `test_conformita` verifica che coincida con quella del `.qmd`.
+#: Trentatre' su quarantatre' erano divergenti, e quattro portavano numeri
+#: di una versione precedente del calcolo.
 DIDASCALIA = (
-    "Rendimento lordo annuo necessario soltanto per chiudere l'anno in pari, in "
-    "funzione di quante operazioni complete si fanno e di quanto costa ciascuna. "
-    "A una operazione al giorno con costi da piccolo operatore servono oltre "
-    "ottanta punti percentuali l'anno prima di guadagnare il primo euro. La riga "
-    "orizzontale non è un rendimento citato a memoria: è quello che una blue chip "
-    "italiana ha effettivamente prodotto, composto e con i dividendi reinvestiti, "
-    "nei ventisei anni e mezzo dei dati di questo libro. Tutto ciò che sta sopra "
-    "quella riga è territorio in cui il solo costo si mangia più di quanto un "
-    "titolo intero abbia reso in un quarto di secolo."
+    "Rendimento lordo annuo necessario soltanto per chiudere l'anno in pari, "
+    "in funzione di quante operazioni complete si fanno e di quanto costa "
+    "ciascuna. A un'operazione al giorno con costi da piccolo operatore "
+    "servono oltre ottanta punti percentuali l'anno prima di guadagnare il "
+    "primo euro. La riga orizzontale non è un rendimento citato a memoria: è "
+    "quello che una blue chip italiana ha effettivamente prodotto, composto e "
+    "con i dividendi reinvestiti, nei ventisei anni e mezzo dei dati di "
+    "questo libro. Tutto ciò che sta sopra quella riga è territorio in cui il "
+    "solo costo si mangia più di quanto un titolo intero abbia reso in un "
+    "quarto di secolo."
 )
 
 

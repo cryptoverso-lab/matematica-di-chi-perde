@@ -26,14 +26,19 @@ CAPITOLO = "sec-cap-fisco"
 ALIQUOTA = 0.26
 ORIZZONTI = np.arange(1, 31)
 RENDIMENTI = [0.05, 0.10, 0.20]
+#: La didascalia stampata in pagina, parola per parola. Non e' una copia
+#: libera: `test_conformita` verifica che coincida con quella del `.qmd`.
+#: Trentatre' su quarantatre' erano divergenti, e quattro portavano numeri
+#: di una versione precedente del calcolo.
 DIDASCALIA = (
-    "A sinistra: mille euro fatti crescere al 10% lordo annuo per trent'anni, con la "
-    "stessa aliquota del 26% applicata in due momenti diversi. Chi realizza e paga "
-    "ogni anno finisce con 8.514 euro; chi lascia correre e paga tutto alla fine ne "
-    "ha 13.173. La differenza — il 55% in più — non viene da un rendimento migliore: "
-    "è l'imposta versata presto che smette di lavorare. A destra: quanto vale quel "
-    "differimento al crescere dell'orizzonte e del rendimento. E' il costo silenzioso "
-    "di operare spesso, e non compare in nessun backtest."
+    "A sinistra: mille euro fatti crescere al 10% lordo annuo per trent'anni, "
+    "con la stessa aliquota del 26% applicata in due momenti diversi. Chi "
+    "realizza e paga ogni anno finisce con 8.514 euro; chi lascia correre e "
+    "paga tutto alla fine ne ha 13.173. La differenza — il 55% in più — non "
+    "viene da un rendimento migliore: è l'imposta versata presto che smette "
+    "di lavorare. A destra: quanto vale quel differimento al crescere "
+    "dell'orizzonte e del rendimento. È il costo silenzioso di operare "
+    "spesso, e non compare in nessun backtest."
 )
 
 

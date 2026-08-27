@@ -63,7 +63,7 @@ MITIGAZIONE = (
 #: `src/app/globals.css` dichiara `--font-mono: var(--font-plex-mono),
 #: ui-monospace, 'Cascadia Mono', monospace`: scrivere qui la catena per esteso
 #: significherebbe tenerne una copia in un altro repository, che al primo cambio
-#: di carattere del sito diventa la catena di ieri stampata in 40 figure. Il
+#: di carattere del sito diventa la catena di ieri stampata in 41 figure. Il
 #: fallback dentro la `var()` serve al caso in cui il file venga aperto fuori
 #: dalla pagina, dove la variabile non esiste.
 FONT_DEL_SITO = "var(--font-mono,ui-monospace,monospace)"

@@ -67,7 +67,7 @@ import numpy as np
 import polars as pl
 
 from cvbook import seed_for
-from cvbook.dati import carica, leggi_registro
+from cvbook.dati import carica, carica_strumento, leggi_registro
 from cvbook.metriche import cagr, drawdown_massimo, rendimenti, sharpe, volatilita
 from cvbook.simulazioni import bootstrap_traiettorie
 
@@ -94,7 +94,11 @@ inizio = time.perf_counter()
 
 righe = []
 for nome in ASSET:
-    d = carica(nome).sort("data")
+    # `carica_strumento` e non `carica`: LUNAUSDT, dal 31 maggio 2022, quota
+    # LUNA 2.0. Rendimento, volatilità e calo massimo di un token morto,
+    # calcolati sulla serie grezza, sono le metriche di due strumenti diversi
+    # incollati insieme.
+    d = carica_strumento(nome).sort("data")
     p = d["chiusura"].to_numpy()
     r = rendimenti(p)
     curva = np.concatenate([[1.0], np.cumprod(1 + r)])

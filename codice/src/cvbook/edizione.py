@@ -4,13 +4,13 @@ Il colophon stampato non si scrive a mano: nasce da qui, come l'indice dei lab
 nasce da `cvbook.link`. I valori che alla chiusura del manoscritto non esistono
 ancora restano `None`, e diventano veri cambiando una riga qui.
 
-Su cosa succede quando un valore è `None` il modulo tiene due comportamenti
-diversi, ed è voluto. **Editore e ISBN spariscono dalla pagina**: sono dati
-anagrafici, e una riga che dichiara di non sapere ancora chi pubblica mette in
-pagina un dubbio di lavorazione, che non riguarda chi legge. **L'archivio
-permanente resta e si dichiara**: lì il lettore ha bisogno di sapere dove
-trovare il codice fra dieci anni, e «in corso di assegnazione, per ora vive
-nella repository» è un'informazione, non una lacuna.
+Quando un valore è `None`, il libro **non ne parla**. Vale per l'editore,
+per l'ISBN e per l'archivio permanente allo stesso modo: una riga che dichiara
+di non sapere ancora mette in pagina un dubbio di lavorazione, che non riguarda
+chi legge e invecchia male sulla copia stampata. Fino al 27 agosto l'archivio
+permanente faceva eccezione e stampava «in corso di assegnazione»; due punti
+del backmatter rimandavano a un codice che il colophon dichiarava inesistente,
+e la regola è diventata una sola per tutti e tre.
 
 Regola: nessun dato di edizione va scritto dentro un `.qmd`.
 """
@@ -27,7 +27,7 @@ EDIZIONE = "Prima edizione"
 
 #: Data in cui il manoscritto è stato congelato: da qui il testo non cambia più
 #: senza rieseguire `codice/manoscritto/congela.py` e dichiararne il motivo.
-DATA_FREEZE = "2026-08-25"
+DATA_FREEZE = "2026-08-27"
 
 #: Editore, e ISBN che ne dipende. Si compilano insieme, alla decisione:
 #: `EDITORE = "..."`, `ISBN = "978-..."`, poi si rigenera il libro e si
@@ -61,7 +61,3 @@ TOOLCHAIN = "Quarto e LuaLaTeX; figure e calcoli in Python (polars, numpy, matpl
 FONT_TESTO = "Libertinus Serif e Libertinus Sans"
 FONT_CODICE = "Inconsolata"
 
-
-def valore_o_riserva(valore: str | None, riserva: str) -> str:
-    """Stampa il valore se esiste, altrimenti dichiara apertamente che manca."""
-    return valore if valore else riserva

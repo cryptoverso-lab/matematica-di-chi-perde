@@ -24,14 +24,18 @@ from cvbook.stile import firma, num  # noqa: E402
 
 CAPITOLO = "sec-cap-regimi"
 FINESTRA = 30
+#: La didascalia stampata in pagina, parola per parola. Non e' una copia
+#: libera: `test_conformita` verifica che coincida con quella del `.qmd`.
+#: Trentatre' su quarantatre' erano divergenti, e quattro portavano numeri
+#: di una versione precedente del calcolo.
 DIDASCALIA = (
-    "Volatilità annualizzata di Bitcoin su finestre mobili di trenta giorni. La "
-    "riga tratteggiata è la media dell'intero periodo, il numero che tutti "
-    "chiamano \"la volatilità storica\". Il mercato passa poco tempo lì vicino: "
-    "sta a lungo sotto, poi sale e resta sopra per mesi. Le bande grigie segnano i "
-    "periodi in cui la volatilità è oltre il valore superato solo un quarto delle "
-    "volte. Un rischio dimensionato sulla media è troppo alto metà del tempo e "
-    "troppo basso l'altra metà."
+    "Volatilità annualizzata di Bitcoin su finestre mobili di trenta giorni. "
+    "La riga tratteggiata è la media dell'intero periodo, il numero che tutti "
+    "chiamano «la volatilità storica». Il mercato passa poco tempo lì vicino: "
+    "sta a lungo sotto, poi sale e resta sopra per mesi. Le bande grigie "
+    "segnano i periodi in cui la volatilità è oltre il valore superato solo "
+    "un quarto delle volte. Un rischio dimensionato sulla media è troppo alto "
+    "metà del tempo e troppo basso l'altra metà."
 )
 
 

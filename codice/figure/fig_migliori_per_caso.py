@@ -23,13 +23,18 @@ from cvbook.stile import firma, num  # noqa: E402
 
 CAPITOLO = "sec-cap-04"
 N_CURVE = 1000
+#: La didascalia stampata in pagina, parola per parola. Non e' una copia
+#: libera: `test_conformita` verifica che coincida con quella del `.qmd`.
+#: Trentatre' su quarantatre' erano divergenti, e quattro portavano numeri
+#: di una versione precedente del calcolo.
 DIDASCALIA = (
-    "A sinistra le cinque migliori curve di capitale fra mille generate dal puro caso: "
-    "nessuna abilita' dentro, eppure ognuna di esse, mostrata da sola, sembrerebbe la "
-    "prova di un metodo. A destra la distribuzione completa dei mille risultati finali "
-    "da cui sono state estratte: il grosso sta ammassato attorno al punto di partenza, "
-    "e le due code sono entrambe sottili. E' il motivo per cui un risultato eccezionale "
-    "va guardato con più sospetto di uno pessimo, non con meno."
+    "A sinistra le cinque migliori curve di capitale fra mille generate dal "
+    "puro caso: nessuna abilità dentro, eppure ognuna di esse, mostrata da "
+    "sola, sembrerebbe la prova di un metodo. A destra la distribuzione "
+    "completa dei mille risultati finali da cui sono state estratte: il "
+    "grosso sta ammassato attorno al punto di partenza, e le due code sono "
+    "entrambe sottili. È il motivo per cui un risultato eccezionale va "
+    "guardato con più sospetto di uno pessimo, non con meno."
 )
 
 

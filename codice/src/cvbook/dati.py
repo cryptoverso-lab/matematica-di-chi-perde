@@ -23,6 +23,23 @@ RADICE = Path(__file__).resolve().parents[3]
 SNAPSHOT = RADICE / "codice" / "dati" / "snapshot"
 REGISTRO = RADICE / "codice" / "dati" / "registro.json"
 
+#: Ultimo giorno in cui un identificativo quota ancora lo strumento che il libro
+#: sta misurando. Oltre quella data il ticker c'e' ancora e il prezzo pure, ma
+#: dietro c'e' un'altra cosa.
+#:
+#: `LUNAUSDT` e' il caso da manuale: nei dump di Binance il simbolo ha un buco
+#: dal 14 al 30 maggio 2022 e poi riprende a 8,87 dollari. Non e' una risalita,
+#: e' LUNA 2.0 — un progetto nuovo listato sotto lo stesso simbolo. Chi disegna
+#: la serie per intero ottiene un grafico che scende a 0,00005 e poi risale di
+#: centomila volte, cioe' l'esatto contrario di quello che e' successo.
+#:
+#: Sta qui e non dentro una figura perche' e' una proprieta' del **dato**, non
+#: di un disegno: la sanno le figure, i quaderni e i test insieme, e nessuno
+#: puo' dimenticarsene per conto proprio. Il gate e' in `test_dominio.py`.
+DISCONTINUITA: dict[str, date] = {
+    "lunausdt": date(2022, 5, 13),
+}
+
 
 @dataclass(frozen=True)
 class Voce:
@@ -123,6 +140,19 @@ def carica(nome: str, *, verifica: bool = True) -> pl.DataFrame:
             "il file e' stato modificato dopo il congelamento"
         )
     return pl.read_parquet(percorso)
+
+
+def carica_strumento(nome: str, *, verifica: bool = True) -> pl.DataFrame:
+    """Come `carica`, ma si ferma dove l'identificativo cambia strumento.
+
+    E' la funzione da usare ogni volta che si misura **quel** token: prezzo,
+    rendimenti, paniere, sopravvivenza. `carica` resta grezza apposta, perche'
+    il capitolo sui dati che mentono ha bisogno di far vedere la serie intera —
+    con dentro la discontinuita' — per insegnare a riconoscerla.
+    """
+    df = carica(nome, verifica=verifica)
+    fine = DISCONTINUITA.get(nome)
+    return df.filter(pl.col("data") <= fine) if fine else df
 
 
 def citazione(nome: str) -> tuple[str, str]:

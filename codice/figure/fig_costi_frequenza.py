@@ -43,16 +43,21 @@ MERCATI = [
     ("eni", "ENI, 2000-2026", 252, [1, 2, 3, 5, 10, 21, 42, 63, 126, 252]),
 ]
 
+#: La didascalia stampata in pagina, parola per parola. Non e' una copia
+#: libera: `test_conformita` verifica che coincida con quella del `.qmd`.
+#: Trentatre' su quarantatre' erano divergenti, e quattro portavano numeri
+#: di una versione precedente del calcolo.
 DIDASCALIA = (
-    "Capitale finale restando sempre investiti, ma rientrando in posizione ogni N "
-    "giorni: la posizione è identica, cambia solo quante volte la si chiude e riapre. "
-    "Le tre curve sono i tre costi tipici del mercato al dettaglio per un giro "
-    "completo. A sinistra Bitcoin, a destra un'azione industriale quotata a Milano: "
-    "volatilità, settore, valuta e durata sono diversi, la forma della curva è la "
-    "stessa. Chi non ha mai operato porta a casa 13,7 volte il capitale su Bitcoin e "
-    "8,7 su ENI; chi ha rifatto la stessa posizione ogni giorno con costi medi ne "
-    "porta a casa 0,28 e due millesimi e mezzo. I costi non erodono il rendimento: "
-    "lo cancellano."
+    "Capitale finale restando sempre investiti, ma rientrando in posizione "
+    "ogni N giorni: la posizione è identica, cambia solo quante volte la si "
+    "chiude e riapre. Le tre curve sono i tre costi tipici del mercato al "
+    "dettaglio per un giro completo. A sinistra Bitcoin dal 2017, a destra "
+    "un'azione industriale quotata a Milano dal 2000: volatilità, settore, "
+    "valuta e durata sono diversi, la forma della curva è la stessa. Chi non "
+    "ha mai operato porta a casa 13,7 volte il capitale su Bitcoin e 8,7 sul "
+    "titolo; chi ha rifatto la stessa posizione ogni giorno con costi medi ne "
+    "porta a casa 0,28 sul primo e due millesimi e mezzo sul secondo. I costi "
+    "non erodono il rendimento: lo cancellano."
 )
 
 

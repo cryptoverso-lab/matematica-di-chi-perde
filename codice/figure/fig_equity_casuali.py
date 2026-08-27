@@ -21,12 +21,17 @@ from cvbook.simulazioni import equity_casuali  # noqa: E402
 from cvbook.stile import firma  # noqa: E402
 
 CAPITOLO = "sec-cap-04"
+#: La didascalia stampata in pagina, parola per parola. Non e' una copia
+#: libera: `test_conformita` verifica che coincida con quella del `.qmd`.
+#: Trentatre' su quarantatre' erano divergenti, e quattro portavano numeri
+#: di una versione precedente del calcolo.
 DIDASCALIA = (
-    "Dodici curve di capitale su due anni di operatività simulata. Nessuna di esse "
-    "contiene la minima abilita': sono numeri casuali con vantaggio atteso esattamente "
-    "zero. Alcune salgono con una regolarita' che, se te la mostrassero come risultato "
-    "di un metodo, troveresti convincente. Il caso non produce solo rumore: produce "
-    "anche storie che sembrano avere un senso."
+    "Dodici curve di capitale su due anni di operatività simulata. Nessuna di "
+    "esse contiene la minima abilità: sono numeri casuali con vantaggio "
+    "atteso esattamente zero. Alcune salgono con una regolarità che, se te la "
+    "mostrassero come risultato di un metodo, troveresti convincente. Il caso "
+    "non produce solo rumore: produce anche storie che sembrano avere un "
+    "senso."
 )
 
 

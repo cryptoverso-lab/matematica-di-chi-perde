@@ -84,11 +84,18 @@ def volume_relativo(volume: np.ndarray, finestra: int = FINESTRA_VOLUME) -> np.n
 
 @dataclass(frozen=True)
 class Tavolo:
-    """Un movimento per riga, tre colonne: ampiezza, durata, volume."""
+    """Un movimento per riga, tre colonne: velocita', durata, volume.
+
+    La colonna si chiama **velocita'** e non «prezzo», ed e' una correzione che
+    e' costata due giri. Non e' il livello del prezzo: e' quanta strada faceva
+    il prezzo in un giorno, cioe' l'oscillazione tipica delle sedute di quel
+    movimento. Chiamarla «prezzo» faceva leggere la decomposizione come «il
+    livello spiega l'ampiezza», che non e' quello che misura.
+    """
 
     ampiezza: np.ndarray   # |variazione logaritmica| fra i due estremi
     durata: np.ndarray     # barre fra i due estremi
-    prezzo: np.ndarray     # deviazione standard dei rendimenti giornalieri del tratto
+    velocita: np.ndarray   # deviazione standard dei rendimenti giornalieri del tratto
     volume: np.ndarray     # volume relativo medio del tratto
 
     def __len__(self) -> int:
@@ -167,28 +174,28 @@ def shapley(y: np.ndarray, blocchi: dict[str, list[np.ndarray]]) -> dict[str, fl
 
 
 def decomposizione(t: Tavolo) -> dict[str, float]:
-    """Quanto di un movimento spiegano prezzo, tempo e volume — e in che quota.
+    """Quanto di un movimento spiegano velocita', tempo e volume — e in che quota.
 
     Il bersaglio e' l'ampiezza del movimento. I tre blocchi sono le tre colonne
     del tavolo, tutte in logaritmo perche' sono grandezze che vivono su ordini
     di grandezza diversi.
     """
     y = np.log(t.ampiezza)
-    prezzo, tempo, volume = np.log(t.prezzo), np.log(t.durata), np.log(t.volume)
-    quote = shapley(y, {"prezzo": [prezzo], "tempo": [tempo], "volume": [volume]})
-    con_volume = r_quadro(y, [prezzo, tempo, volume])
-    senza_volume = r_quadro(y, [prezzo, tempo])
+    velocita, tempo, volume = np.log(t.velocita), np.log(t.durata), np.log(t.volume)
+    quote = shapley(y, {"velocita": [velocita], "tempo": [tempo], "volume": [volume]})
+    con_volume = r_quadro(y, [velocita, tempo, volume])
+    senza_volume = r_quadro(y, [velocita, tempo])
     return {
         "movimenti": len(t),
-        "prezzo": quote["prezzo"],
+        "velocita": quote["velocita"],
         "tempo": quote["tempo"],
         "volume": quote["volume"],
         "totale": con_volume,
-        "prezzo_e_tempo": senza_volume,
+        "velocita_e_tempo": senza_volume,
         "guadagno_volume": con_volume - senza_volume,
         # La cifra del capitolo: di tutto cio' che le tre colonne spiegano,
         # quanto ne portano le prime due.
-        "quota_prezzo_e_tempo": senza_volume / con_volume,
+        "quota_velocita_e_tempo": senza_volume / con_volume,
     }
 
 
