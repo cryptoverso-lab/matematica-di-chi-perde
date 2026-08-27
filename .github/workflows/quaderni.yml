@@ -47,12 +47,44 @@ name: Quaderni
 # ma con i permessi del ramo di base, ed e' la classe di difetto da chiudere alla
 # radice (04-RESEARCH §17, T-4-06). Nessun trigger di PR, quindi nessun segreto
 # raggiungibile da un fork.
+#
+# ============================================================================
+# IL TRIGGER SU PUSH E' SPENTO, ED E' UNA DECISIONE, NON UNA DIMENTICANZA
+# (27 agosto 2026, Luigi).
+#
+# Questo workflow ha girato sei volte fra il 22 e il 27 agosto e ha fallito
+# sei volte su sei, sempre in sei-dieci secondi e sempre al primo passo: la
+# configurazione che pretende non c'e'. Non e' un difetto del workflow — si
+# rifiuta di ripiegare in silenzio sul repository sbagliato, ed e' il
+# comportamento per cui e' stato scritto — ma un gate che non ha mai potuto
+# girare non protegge niente, e intanto manda un'email rossa a ogni push.
+#
+# Il suo lavoro serve al SITO, che non e' ancora in produzione: esegue i
+# quaderni, scrive il bundle nel checkout del sito e apre una PR. Finche' il
+# sito non e' su, quel bundle lo si rigenera a mano con `estrai_bundle.py`,
+# che e' esattamente cio' che si sta facendo.
+#
+# PER RIACCENDERLO servono tre cose, tutte in Settings del repository dei
+# quaderni, e nessuna delle tre si scrive in questo file:
+#
+#   Variables → REPO_SITO           = cryptoverso-lab/cryptoverso-website
+#   Secrets   → TOKEN_SITO_LETTURA  = fine-grained token su quel repository,
+#                                     permesso `Contents: Read`
+#   Secrets   → TOKEN_PR_SITO       = fine-grained token su quel repository,
+#                                     permessi `Contents: Write` e
+#                                     `Pull requests: Write`
+#
+# Poi si rimette il blocco `push:` qui sotto (e' conservato commentato) e si
+# lancia un giro a mano da «Run workflow» per vederlo verde una volta prima di
+# fidarsene. Il primo passo del job stampa il repository che ha letto: se
+# stampa quello giusto, la catena e' agganciata.
+# ============================================================================
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'codice/lab/**'
-      - 'codice/dati/**'
+  # push:
+  #   branches: [main]
+  #   paths:
+  #     - 'codice/lab/**'
+  #     - 'codice/dati/**'
   workflow_dispatch:
 
 # Un giro che ne annulla un altro sullo stesso ramo. `github.head_ref` e'
