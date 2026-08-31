@@ -18,7 +18,7 @@ from cvbook.dati import carica, citazione  # noqa: E402
 from cvbook.lingua import t  # noqa: E402
 from cvbook.metriche import rendimenti  # noqa: E402
 from cvbook.simulazioni import quanti_servono  # noqa: E402
-from cvbook.stile import firma, num  # noqa: E402
+from cvbook.stile import firma, num, tacca  # noqa: E402
 
 CAPITOLO = "sec-cap-14"
 VANTAGGI = np.array([0.0002, 0.0005, 0.001, 0.002, 0.005, 0.01])
@@ -78,9 +78,10 @@ def disegna(destinazione: str = "stampa"):
     ax.set_xlabel(t("Vantaggio medio per operazione (%)", "Average edge per trade (%)"))
     ax.set_ylabel(t("Operazioni necessarie (scala log.)", "Trades required (log scale)"))
     ax.set_xticks([0.02, 0.1, 0.5, 1])
-    ax.set_xticklabels(["0,02%", "0,1%", "0,5%", "1%"])
+    ax.set_xticklabels([tacca(v, "%") for v in (0.02, 0.1, 0.5, 1)])
     ax.set_yticks([10, 1000, 100_000, 10_000_000])
-    ax.set_yticklabels(["10", "1.000", "100.000", t("10 milioni", "10 million")])
+    ax.set_yticklabels([tacca(10), tacca(1000), tacca(100_000),
+                        t("10 milioni", "10 million")])
     ax.grid(which="minor", visible=False)
 
     fonte, estratto = citazione("btcusdt")

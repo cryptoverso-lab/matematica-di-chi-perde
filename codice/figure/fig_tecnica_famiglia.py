@@ -20,7 +20,7 @@ from cvbook.dati import carica, citazione  # noqa: E402
 from cvbook.lingua import t  # noqa: E402
 from cvbook.metriche import drawdown_massimo  # noqa: E402
 from cvbook.regole import CATALOGO, compra_e_tieni, esegui  # noqa: E402
-from cvbook.stile import firma, num  # noqa: E402
+from cvbook.stile import firma, num, tacca  # noqa: E402
 
 CAPITOLO = "sec-cap-tecnica"
 COSTO = 0.0012
@@ -125,7 +125,7 @@ def disegna(destinazione: str = "stampa"):
     # usa la figura gemella sui mercati azionari, cosi' le due si leggono con
     # lo stesso metro anche se coprono intervalli diversi.
     ax.set_xticks([0.5, 1, 5, 10, 50])
-    ax.set_xticklabels(["0,5×", "1×", "5×", "10×", "50×"])
+    ax.set_xticklabels([tacca(v, "×") for v in (0.5, 1, 5, 10, 50)])
     ax.grid(which="minor", visible=False)
     ax.set_xlabel(t("Capitale finale, per ogni euro investito (scala log)",
                      "Final capital, per euro invested (log scale)"))

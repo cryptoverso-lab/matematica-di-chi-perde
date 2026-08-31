@@ -23,13 +23,15 @@ from cvbook.dati import carica, citazione  # noqa: E402
 from cvbook.layout import figsize  # noqa: E402
 from cvbook.lingua import t  # noqa: E402
 from cvbook.metriche import rendimenti  # noqa: E402
-from cvbook.stile import firma, num  # noqa: E402
+from cvbook.stile import firma, num, tacca  # noqa: E402
 
 CAPITOLO = "sec-cap-03"
+#: L'etichetta si compone da `tacca`, non e' scritta a mano: con
+#: `CVBOOK_LANG=en` «0,06%» diventerebbe sei per cento invece di sei centesimi.
 COSTI = [
-    (0.0006, "0,06%", "-", "#000000"),
-    (0.0012, "0,12%", "--", "#595959"),
-    (0.0025, "0,25%", "-.", "#8C8C8C"),
+    (0.0006, tacca(0.06, "%"), "-", "#000000"),
+    (0.0012, tacca(0.12, "%"), "--", "#595959"),
+    (0.0025, tacca(0.25, "%"), "-.", "#8C8C8C"),
 ]
 
 #: (snapshot, titolo del pannello, barre in un anno, ogni quante barre si rientra)
@@ -115,8 +117,7 @@ def disegna(destinazione: str = "stampa"):
     assi[0].set_ylim(minimo / 2.2, 60)
     assi[0].set_yticks([v for v in (1e-4, 0.001, 0.01, 0.1, 1, 10) if v > minimo / 2.2])
     assi[0].set_yticklabels(
-        [e for v, e in ((1e-4, "0,0001×"), (0.001, "0,001×"), (0.01, "0,01×"),
-                        (0.1, "0,1×"), (1, "1×"), (10, "10×")) if v > minimo / 2.2]
+        [tacca(v, "×") for v in (1e-4, 0.001, 0.01, 0.1, 1, 10) if v > minimo / 2.2]
     )
 
     # Le tre etichette di costo stanno una volta sola, sul pannello di sinistra:

@@ -20,7 +20,7 @@ from cvbook import seed_for  # noqa: E402
 from cvbook.dati import carica, citazione  # noqa: E402
 from cvbook.lingua import t  # noqa: E402
 from cvbook.regole import esegui, sopra_media  # noqa: E402
-from cvbook.stile import firma, num  # noqa: E402
+from cvbook.stile import firma, num, tacca  # noqa: E402
 
 CAPITOLO = "sec-cap-15"
 FINESTRA = 50
@@ -138,7 +138,7 @@ def disegna(destinazione: str = "stampa"):
     ax.set_ylabel(t("Numero di strategie casuali", "Number of random strategies"))
     ax.set_xscale("log")
     ax.set_xticks([0.1, 1, 10, 100])
-    ax.set_xticklabels(["0,1×", "1×", "10×", "100×"])
+    ax.set_xticklabels([tacca(v, "×") for v in (0.1, 1, 10, 100)])
     ax.set_ylim(0, max(np.histogram(casuali, bins=classi)[0]) * 1.28)
     ax.grid(which="minor", visible=False)
 

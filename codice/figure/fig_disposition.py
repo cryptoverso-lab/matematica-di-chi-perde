@@ -18,7 +18,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 from cvbook.dati import carica, citazione  # noqa: E402
 from cvbook.lingua import t  # noqa: E402
 from cvbook.metriche import rendimenti  # noqa: E402
-from cvbook.stile import firma, num  # noqa: E402
+from cvbook.stile import firma, num, tacca  # noqa: E402
 
 CAPITOLO = "sec-cap-06"
 SOGLIA_UTILE = 0.10    # chiude quando il guadagno raggiunge il 10%
@@ -105,7 +105,7 @@ def disegna(destinazione: str = "stampa"):
 
     ax.set_ylabel(t("Capitale (× iniziale, scala log.)", "Capital (× starting, log scale)"))
     ax.set_yticks([0.5, 1, 5, 20])
-    ax.set_yticklabels(["0,5×", "1×", "5×", "20×"])
+    ax.set_yticklabels([tacca(v, "×") for v in (0.5, 1, 5, 20)])
     ax.grid(which="minor", visible=False)
     fig.autofmt_xdate(rotation=0, ha="center")
 

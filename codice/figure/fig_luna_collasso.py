@@ -28,7 +28,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from cvbook.dati import DISCONTINUITA, carica_strumento, citazione  # noqa: E402
 from cvbook.lingua import t  # noqa: E402
-from cvbook.stile import date_italiane, firma  # noqa: E402
+from cvbook.stile import date_italiane, firma, tacca  # noqa: E402
 
 CAPITOLO = "sec-cap-05"
 #: La didascalia stampata in pagina, parola per parola. Non e' una copia
@@ -74,9 +74,11 @@ def disegna(destinazione: str = "stampa"):
     # minimo ha la risalita subito a destra, quindi la sua sta sotto e centrata.
     tappe = [
         (dt.date(2022, 4, 4), t("massimo\n116 $", "peak\n$116"), (6, -6), "left", "top"),
-        (dt.date(2022, 5, 9), "30 $", (6, 6), "left", "bottom"),
-        (dt.date(2022, 5, 11), "1,08 $", (6, 6), "left", "bottom"),
-        (dt.date(2022, 5, 13), "0,00005 $", (10, -1), "left", "center"),
+        (dt.date(2022, 5, 9), t("30 $", "$30"), (6, 6), "left", "bottom"),
+        (dt.date(2022, 5, 11), t(f"{tacca(1.08)} $", f"${tacca(1.08)}"),
+         (6, 6), "left", "bottom"),
+        (dt.date(2022, 5, 13), t(f"{tacca(0.00005)} $", f"${tacca(0.00005)}"),
+         (10, -1), "left", "center"),
     ]
     for giorno, testo, scarto, orizz, vert in tappe:
         i = date.index(giorno)
@@ -108,7 +110,7 @@ def disegna(destinazione: str = "stampa"):
 
     ax.set_ylabel(t("Prezzo in dollari (scala logaritmica)", "Price in dollars (log scale)"))
     ax.set_yticks([1e-4, 1e-2, 1, 100])
-    ax.set_yticklabels(["0,0001", "0,01", "1", "100"])
+    ax.set_yticklabels([tacca(v) for v in (1e-4, 1e-2, 1, 100)])
     ax.tick_params(axis="x", labelrotation=0)
     ax.grid(which="minor", visible=False)
     date_italiane(ax, ogni_giorni=7)

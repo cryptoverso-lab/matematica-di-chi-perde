@@ -20,7 +20,7 @@ from cvbook.dati import carica, citazione  # noqa: E402
 from cvbook.layout import figsize  # noqa: E402
 from cvbook.lingua import t  # noqa: E402
 from cvbook.metriche import rendimenti  # noqa: E402
-from cvbook.stile import firma, num  # noqa: E402
+from cvbook.stile import firma, num, tacca  # noqa: E402
 
 CAPITOLO = "sec-cap-02"
 INIZIO = "2021-01-01"
@@ -76,7 +76,7 @@ def disegna(destinazione: str = "stampa"):
     ax.set_yscale("log")
     ax.set_ylim(0.003, 6)
     ax.set_yticks([0.01, 0.1, 1, 5])
-    ax.set_yticklabels(["0,01×", "0,1×", "1×", "5×"])
+    ax.set_yticklabels([tacca(v, "×") for v in (0.01, 0.1, 1, 5)])
     ax.set_xlabel(t("Anni dall'inizio", "Years from start"))
     ax.set_ylabel(t("Capitale (scala logaritmica)", "Capital (log scale)"))
 

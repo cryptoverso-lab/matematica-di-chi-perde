@@ -264,3 +264,81 @@ def test_sul_corpus_intero_la_struttura_inglese_specchia_l_italiana() -> None:
     assert specchi == ATTESI["titoli_specchio"]
     assert titoli == ATTESI["titolo_en"]
     assert blocchi_en == ATTESI["code_inglesi"] - ATTESI["prosa_solo_inglese"]
+
+
+# ------------------------------------------------------------------ #
+# Le figure: bilingui nelle etichette, bilingui anche nei numeri       #
+# ------------------------------------------------------------------ #
+
+PROGRAMMA_FIGURE_INGLESI = """
+import glob, json, os, re, sys, warnings
+warnings.filterwarnings("ignore")
+sys.path.insert(0, SRC)
+sys.path.insert(0, FIGURE)
+import importlib
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+from cvbook.stile import contesto
+
+# In inglese la virgola separa le migliaia: sospetta solo davanti a una o due
+# cifre ("0,5") oppure a quattro o piu' ("0,0001"). "10,240" e' corretto.
+sospetta = re.compile(r"[0-9],[0-9](?![0-9][0-9])|[0-9],[0-9]{4,}")
+
+guasti = {}
+for percorso in sorted(glob.glob(os.path.join(FIGURE, "fig_*.py"))):
+    modulo = os.path.basename(percorso)[:-3]
+    m = importlib.import_module(modulo)
+    if not hasattr(m, "disegna"):
+        continue
+    with contesto("stampa"):
+        figura = m.disegna()
+    figura.canvas.draw()
+    testi = [t.get_text() for t in figura.findobj(matplotlib.text.Text) if t.get_text()]
+    plt.close("all")
+    trovati = sorted({t for t in testi if sospetta.search(t)})
+    if trovati:
+        guasti[modulo] = trovati
+
+with open(ESITO, "w", encoding="utf-8") as f:
+    json.dump(guasti, f, ensure_ascii=False)
+"""
+
+
+def test_le_figure_in_inglese_non_stampano_numeri_all_italiana(tmp_path) -> None:
+    """Con `CVBOOK_LANG=en` nessuna figura deve scrivere «0,5×».
+
+    Le etichette erano gia' tutte dentro `t()`, ed e' per questo che il difetto
+    e' passato inosservato: le parole erano inglesi e i numeri no. Ventuno
+    figure su quarantatre' stampavano la virgola decimale anche in inglese,
+    dove «0,062 points a day» non e' sei centesimi, e' sessantadue. Le tacche
+    scritte a mano venivano da liste di stringhe italiane; quelle automatiche
+    dalla locale, impostata sull'italiano una volta per tutte.
+
+    Il gate gira in un processo a parte perche' la lingua si legge una volta
+    all'importazione di `cvbook.lingua`: cambiarla dentro la sessione di pytest
+    non la cambierebbe per i moduli gia' importati. E l'esito passa da un file,
+    non dallo standard output, che sotto pytest 9 torna vuoto.
+    """
+    import json
+    import os
+    import subprocess
+
+    esito = tmp_path / "esito.json"
+    intestazione = "\n".join([
+        f"SRC = {str(RADICE / 'codice' / 'src')!r}",
+        f"FIGURE = {str(RADICE / 'codice' / 'figure')!r}",
+        f"ESITO = {str(esito)!r}",
+    ])
+    ambiente = dict(os.environ, CVBOOK_LANG="en", PYTHONIOENCODING="utf-8")
+    conclusa = subprocess.run(
+        [sys.executable, "-c", intestazione + PROGRAMMA_FIGURE_INGLESI], env=ambiente
+    )
+    assert conclusa.returncode == 0, "il disegno delle figure in inglese e' fallito"
+
+    guasti = json.loads(esito.read_text(encoding="utf-8"))
+    assert not guasti, (
+        "figure che in inglese stampano numeri all'italiana:\n  "
+        + "\n  ".join(f"{nome}: {testi}" for nome, testi in guasti.items())
+        + "\n\nLe tacche scritte a mano si compongono con `cvbook.stile.tacca`."
+    )

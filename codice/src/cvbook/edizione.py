@@ -27,7 +27,7 @@ EDIZIONE = "Prima edizione"
 
 #: Data in cui il manoscritto è stato congelato: da qui il testo non cambia più
 #: senza rieseguire `codice/manoscritto/congela.py` e dichiararne il motivo.
-DATA_FREEZE = "2026-08-27"
+DATA_FREEZE = "2026-08-31"
 
 #: Editore, e ISBN che ne dipende. Si compilano insieme, alla decisione:
 #: `EDITORE = "..."`, `ISBN = "978-..."`, poi si rigenera il libro e si

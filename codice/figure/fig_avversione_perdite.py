@@ -17,7 +17,7 @@ import numpy as np
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from cvbook.lingua import t  # noqa: E402
-from cvbook.stile import firma  # noqa: E402
+from cvbook.stile import firma, num, tacca  # noqa: E402
 
 CAPITOLO = "sec-cap-06"
 ALFA = 0.88   # curvatura, dai lavori sperimentali originali
@@ -110,7 +110,7 @@ def disegna(destinazione: str = "stampa"):
     ax.set_ylabel(t("Valore percepito\n(1 = piacere di guadagnare 3.000)",
                     "Perceived value\n(1 = pleasure of gaining 3,000)"))
     ax.set_yticks([vp, -1, 0, vg])
-    ax.set_yticklabels(["−2,25", "−1", "0", "+1"])
+    ax.set_yticklabels([tacca(vp), tacca(-1), tacca(0), num(1, 0, segno=True)])
     ax.grid(visible=False)
     for lato in ("top", "right", "bottom", "left"):
         ax.spines[lato].set_visible(False)

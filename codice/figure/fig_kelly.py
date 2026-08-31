@@ -18,7 +18,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 from cvbook import seed_for  # noqa: E402
 from cvbook.layout import figsize  # noqa: E402
 from cvbook.lingua import t  # noqa: E402
-from cvbook.stile import firma  # noqa: E402
+from cvbook.stile import firma, tacca  # noqa: E402
 
 CAPITOLO = "sec-cap-20"
 P_VINCITA = 0.55
@@ -101,7 +101,7 @@ def disegna(destinazione: str = "stampa"):
     # Tacche in multipli invece che in notazione scientifica: «10⁻³» e' una
     # barriera gratuita per il lettore a cui questo libro parla.
     sx.set_yticks([1e-4, 1e-3, 1e-2, 1e-1, 1, 10])
-    sx.set_yticklabels(["0,0001×", "0,001×", "0,01×", "0,1×", "1×", "10×"])
+    sx.set_yticklabels([tacca(v, "×") for v in (1e-4, 1e-3, 1e-2, 1e-1, 1, 10)])
     sx.grid(which="minor", visible=False)
     sx.set_xlabel(t("Frazione di capitale rischiata (%)", "Fraction of capital risked (%)"))
     sx.set_ylabel(t("Capitale mediano dopo 500 operazioni", "Median capital after 500 trades"))

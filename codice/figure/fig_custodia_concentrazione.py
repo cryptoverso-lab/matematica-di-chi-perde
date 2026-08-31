@@ -22,7 +22,7 @@ from cvbook.dati import carica, citazione  # noqa: E402
 from cvbook.lingua import t  # noqa: E402
 from cvbook.metriche import rendimenti  # noqa: E402
 from cvbook.simulazioni import bootstrap_traiettorie  # noqa: E402
-from cvbook.stile import firma  # noqa: E402
+from cvbook.stile import firma, tacca  # noqa: E402
 
 CAPITOLO = "sec-cap-custodia"
 
@@ -59,7 +59,7 @@ DIDASCALIA = (
     "differiscono solo per quanta parte del capitale sta in una sede sola: "
     "tutto, oppure un quinto. La curva della concentrazione sta a sinistra "
     "dell'altra a ogni altezza — cioè peggio ovunque, non solo nella coda. "
-    "Alla mediana la distanza è di tre decimi: 9,0 volte il capitale contro "
+    "Alla mediana mancano quasi quattro decimi: 9,0 volte il capitale contro "
     "14,3. Ma è a sinistra che si apre la voragine: i percorsi che chiudono "
     "sotto il capitale di partenza passano dal 10,4% al 24,8%, e con tutto in "
     "una sede il 16,2% non torna affatto — la parete verticale all'estrema "
@@ -124,7 +124,7 @@ def disegna(destinazione: str = "stampa"):
     ax.set_ylabel(t("Percorsi con esito peggiore o uguale (%)", "Paths with equal or worse outcome (%)"))
     # Tacche in multipli, non in notazione scientifica, come sulle altre figure.
     ax.set_xticks([1e-4, 1e-2, 1, 100, 10_000])
-    ax.set_xticklabels(["0,0001×", "0,01×", "1×", "100×", "10.000×"])
+    ax.set_xticklabels([tacca(v, "×") for v in (1e-4, 1e-2, 1, 100, 10_000)])
     ax.set_xticks([], minor=True)
     ax.set_ylim(0, 100)
     ax.legend(loc="lower right", fontsize=6.5)

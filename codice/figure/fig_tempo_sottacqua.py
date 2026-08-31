@@ -26,7 +26,7 @@ from cvbook.dati import carica, citazione  # noqa: E402
 from cvbook.layout import figsize  # noqa: E402
 from cvbook.lingua import t  # noqa: E402
 from cvbook.metriche import drawdown, rendimenti  # noqa: E402
-from cvbook.stile import firma  # noqa: E402
+from cvbook.stile import firma, num  # noqa: E402
 
 CAPITOLO = "sec-cap-10"
 SOGLIE = np.array([5, 10, 20, 30, 50, 70])
@@ -87,7 +87,7 @@ def disegna(destinazione: str = "stampa"):
                           facecolor=colore, edgecolor="black", linewidth=0.75,
                           hatch=retino, label=titolo.split(",")[0])
         for barra, q in zip(barre, quote):
-            basso.annotate(f"{q:.0f}" if q >= 1 else f"{q:.1f}".replace(".", ","),
+            basso.annotate(num(q, 0) if q >= 1 else num(q, 1),
                            xy=(barra.get_x() + barra.get_width() / 2, q),
                            xytext=(0, 2), textcoords="offset points",
                            ha="center", fontsize=6.0)

@@ -30,7 +30,7 @@ from cvbook.regole import (  # noqa: E402
     compra_e_tieni,
     esegui,
 )
-from cvbook.stile import firma, num  # noqa: E402
+from cvbook.stile import firma, num, tacca  # noqa: E402
 
 CAPITOLO = "sec-cap-tecnica"
 COSTO = 0.0012
@@ -133,7 +133,7 @@ def disegna(destinazione: str = "stampa"):
     # Su un intervallo cosi' stretto le tacche automatiche di un asse
     # logaritmico escono in notazione scientifica: qui si scrivono a mano.
     ax.set_xticks([0.5, 1, 2, 3, 5])
-    ax.set_xticklabels(["0,5×", "1×", "2×", "3×", "5×"])
+    ax.set_xticklabels([tacca(v, "×") for v in (0.5, 1, 2, 3, 5)])
     ax.set_xticks([], minor=True)
     ax.set_xlabel(t("Capitale finale, per ogni euro investito (scala log)",
                      "Final capital, per euro invested (log scale)"))

@@ -163,10 +163,21 @@ CONTESTI = {"stampa": _STAMPA, "schermo": _SCHERMO}
 def _numeri_italiani() -> bool:
     """Virgola decimale sulle tacche degli assi: e' un libro italiano.
 
-    Restituisce False se la locale non e' disponibile sulla macchina, cosi' la
-    build non si rompe: le figure escono col punto decimale invece che con la
-    virgola, che e' un difetto estetico, non un errore.
+    Vale solo per l'edizione italiana. Con `CVBOOK_LANG=en` la virgola decimale
+    non e' uno stile diverso, e' un numero sbagliato: le tacche di un asse
+    inglese vogliono il punto. In quel caso la locale numerica torna a "C" —
+    punto decimale, nessun separatore di migliaia — e matplotlib formatta come
+    farebbe di suo.
+
+    Restituisce False se la locale italiana non e' disponibile sulla macchina,
+    cosi' la build non si rompe: le figure escono col punto decimale invece che
+    con la virgola, che e' un difetto estetico, non un errore.
     """
+    if t("it", "en") == "en":
+        # Esplicito e non per omissione: nello stesso processo qualcun altro
+        # puo' aver gia' impostato la locale italiana.
+        locale.setlocale(locale.LC_NUMERIC, "C")
+        return False
     for nome in ("it_IT.UTF-8", "it_IT", "Italian_Italy.1252", "Italian"):
         try:
             locale.setlocale(locale.LC_NUMERIC, nome)
@@ -206,19 +217,42 @@ def num(
     percento: bool = False,
     migliaia: bool = True,
 ) -> str:
-    """Numero scritto all'italiana: virgola decimale, punto per le migliaia.
+    """Numero scritto nella lingua attiva: all'italiana o all'inglese.
+
+    In italiano virgola decimale e punto per le migliaia; con `CVBOOK_LANG=en`
+    la convenzione si rovescia, e non e' una scelta di stile: un'etichetta come
+    «0,062 points a day» per un lettore anglofono non e' un altro modo di
+    scrivere sei centesimi, e' sessantadue.
 
     Le tacche degli assi le formatta matplotlib con la locale; questo serve per
     i numeri che finiscono dentro un'etichetta scritta a mano, dove altrimenti
-    resterebbe il punto decimale inglese in mezzo a una frase italiana.
+    resterebbe la punteggiatura dell'altra lingua in mezzo alla frase.
     """
     grezzo = valore * 100 if percento else valore
     formato = f"{{:{'+' if segno else ''}{',' if migliaia else ''}.{decimali}f}}"
-    testo = formato.format(grezzo).replace(",", "\x00").replace(".", ",").replace("\x00", ".")
+    testo = formato.format(grezzo)
+    if t("it", "en") == "it":
+        testo = testo.replace(",", "\x00").replace(".", ",").replace("\x00", ".")
     # Meno tipografico (U+2212) invece del trattino della tastiera: e' lo stesso
     # segno che matplotlib usa sulle tacche, e in stampa la differenza si vede.
     testo = testo.replace("-", "−")
     return f"{testo}%" if percento else testo
+
+
+def tacca(valore: float, suffisso: str = "") -> str:
+    """Etichetta di tacca scritta a mano, nella punteggiatura della lingua attiva.
+
+    Su un asse logaritmico stretto matplotlib scrive le tacche in notazione
+    scientifica, e «10⁻³» e' una barriera gratuita per il lettore a cui questo
+    libro parla: in una dozzina di figure le tacche si scrivono a mano. Scritte
+    a mano, pero', erano scritte anche in una lingua — e restavano «0,5×» anche
+    con `CVBOOK_LANG=en`, cioe' mezzo capitale scritto come cinque. Da qui il
+    numero di decimali si ricava dal valore e la punteggiatura da `num`.
+    """
+    decimali = 0
+    while decimali < 6 and round(valore, decimali) != valore:
+        decimali += 1
+    return f"{num(valore, decimali)}{suffisso}"
 
 
 MESI_BREVI = ("gen", "feb", "mar", "apr", "mag", "giu",
