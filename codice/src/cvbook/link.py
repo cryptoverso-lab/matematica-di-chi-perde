@@ -196,13 +196,14 @@ SITO_CRYPTOVERSO = "https://cryptoverso.net"
 #: sottodominio — nel libro non compare nessuna email, e non deve comparire.
 #:
 #: Sta qui, e non e' una duplicazione di comodo. La pagina rimanda a
-#: `cryptoverso.net` per diritti e reclamo, ma titolare e recapito no: senza
-#: quei due dati non si esercita nessun diritto, e il 28 agosto 2026 e' stato
-#: misurato che `cryptoverso.net` **su HTTPS non risponde affatto** — il dominio
-#: canonico risolve ancora al parcheggio del fornitore. Un'informativa la cui
-#: unica strada verso un diritto e' un collegamento cieco non e' un rimando: e'
-#: un vicolo. Quando il sito sara' deployato questi due dati resteranno
-#: comunque i suoi, e l'informativa di Cryptoverso resta quella che fa fede.
+#: `cryptoverso.net` per diritti, tempi e reclamo, ma titolare e recapito no:
+#: senza quei due dati non si esercita nessun diritto, e un'informativa la cui
+#: unica strada verso un diritto e' un collegamento non e' un rimando finche'
+#: quel collegamento non risponde — un vicolo, e per mesi lo e' stato davvero.
+#: Restano in pagina anche adesso che il sito e' in linea, perche' la ragione
+#: non era il disservizio: e' che i due dati che aprono un diritto vanno letti
+#: dove il libro manda il lettore. L'informativa di Cryptoverso resta quella
+#: che fa fede.
 RECAPITO = "info@cryptoverso.net"
 
 PAGINE_LEGALI = {
