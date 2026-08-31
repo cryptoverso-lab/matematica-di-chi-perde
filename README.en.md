@@ -22,7 +22,7 @@ The book does not ask to be taken on faith. Every claim in it comes from a compu
 
 Every notebook opens in **Google Colab** with one click. The first cell fetches the `cvbook` engine and the data it needs: there is nothing to configure.
 
-In the printed book, each lab sits next to a QR code and a short address of the form `lab.cryptoverso.net/l01`, pointing to the same notebook. The short addresses go live when the site is published; the Colab links below already work.
+In the printed book, each lab sits next to a QR code and a short address of the form `lab.cryptoverso.net/l01`, pointing to the same notebook. Those short addresses are **live**, and the Colab links below point to the same files.
 
 ### On your machine
 

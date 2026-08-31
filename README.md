@@ -22,7 +22,7 @@ Il libro non chiede di essere creduto sulla parola. Ogni affermazione del volume
 
 Ogni quaderno si apre in **Google Colab** con un clic. La prima cella scarica il motore `cvbook` e i dati che servono: non devi configurare nulla.
 
-Nel libro ogni laboratorio ha accanto un QR e un indirizzo breve nella forma `lab.cryptoverso.net/l01`, che porta allo stesso quaderno. L'indirizzo breve diventa attivo con la pubblicazione del sito; i collegamenti Colab qui sotto funzionano già.
+Nel libro ogni laboratorio ha accanto un QR e un indirizzo breve nella forma `lab.cryptoverso.net/l01`, che porta allo stesso quaderno. Gli indirizzi brevi sono **attivi**, e i collegamenti Colab qui sotto portano agli stessi file.
 
 ### Sul tuo computer
 
